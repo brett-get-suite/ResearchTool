@@ -13,12 +13,12 @@ export async function POST(req) {
 
     // Run competitor audit
     const competitorPrompt = competitorAuditPrompt(businessName, services, serviceAreas, industry);
-    const competitorRaw = await callGemini(geminiKey, competitorPrompt, { maxTokens: 16384 });
+    const competitorRaw = await callGemini(geminiKey, competitorPrompt);
     const competitorData = parseGeminiJSON(competitorRaw);
 
     // Run low-hanging fruit analysis
     const fruitPrompt = lowHangingFruitPrompt(keywordData, competitorData, industry, serviceAreas);
-    const fruitRaw = await callGemini(geminiKey, fruitPrompt, { maxTokens: 8192 });
+    const fruitRaw = await callGemini(geminiKey, fruitPrompt);
     const fruitData = parseGeminiJSON(fruitRaw);
 
     return NextResponse.json({

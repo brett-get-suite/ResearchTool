@@ -12,7 +12,7 @@ export async function POST(req) {
     }
 
     const prompt = keywordResearchPrompt(services, serviceAreas, industry);
-    const raw = await callGemini(geminiKey, prompt, { maxTokens: 16384 });
+    const raw = await callGemini(geminiKey, prompt);
     const data = parseGeminiJSON(raw);
 
     return NextResponse.json({ success: true, data });
