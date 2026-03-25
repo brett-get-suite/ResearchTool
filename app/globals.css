@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background: #0a0e17;
+  color: #e8edf4;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f1520;
+}
+::-webkit-scrollbar-thumb {
+  background: #2f3d52;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3d4d65;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(51, 141, 255, 0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(51, 141, 255, 0.15); }
+}
+
+.animate-in {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.glow-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Phase progress bar fill */
+.progress-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tag chips */
+.keyword-chip {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-150;
+}
+
+.keyword-chip:hover {
+  @apply scale-105;
+}
+
+.intent-transactional {
+  @apply bg-emerald-500/15 text-emerald-400 border border-emerald-500/20;
+}
+.intent-commercial {
+  @apply bg-amber-500/15 text-amber-400 border border-amber-500/20;
+}
+.intent-informational {
+  @apply bg-sky-500/15 text-sky-400 border border-sky-500/20;
+}
+.intent-navigational {
+  @apply bg-purple-500/15 text-purple-400 border border-purple-500/20;
+}
+
+/* CPC heat colors */
+.cpc-low { @apply text-emerald-400; }
+.cpc-medium { @apply text-amber-400; }
+.cpc-high { @apply text-rose-400; }
+
+/* Table styles */
+.data-table {
+  @apply w-full text-sm;
+}
+.data-table th {
+  @apply text-left text-xs font-semibold uppercase tracking-wider text-surface-700 px-4 py-3 border-b border-surface-200;
+}
+.data-table td {
+  @apply px-4 py-3 border-b border-surface-100/50;
+}
+.data-table tbody tr {
+  @apply transition-colors duration-100;
+}
+.data-table tbody tr:hover {
+  @apply bg-surface-100/50;
+}
+
+/* Input styles */
+.field-input {
+  @apply w-full bg-surface-100 border border-surface-300 rounded-lg px-4 py-3 text-surface-950 
+         placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/40 
+         focus:border-brand-500 transition-all duration-200;
+}
+
+.field-label {
+  @apply block text-sm font-medium text-surface-800 mb-1.5;
+}
