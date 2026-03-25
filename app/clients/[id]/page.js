@@ -15,6 +15,9 @@ export default function ClientDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('keywords');
   const [error, setError] = useState('');
+  const [projecting, setProjecting] = useState(false);
+  const [projectionError, setProjectionError] = useState('');
+  const [selectedTier, setSelectedTier] = useState('balanced');
 
   useEffect(() => {
     getClient(id).then(setClient).catch(e => setError(e.message)).finally(() => setLoading(false));
@@ -72,6 +75,34 @@ export default function ClientDetailPage() {
       const a = document.createElement('a'); a.href = url; a.download = `${client.name}-ppc-research.zip`;
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     } catch (e) { alert('ZIP failed: ' + e.message); }
+  };
+
+  const generateProjection = async () => {
+    if (!client) return;
+    setProjecting(true);
+    setProjectionError('');
+    try {
+      const res = await fetch('/api/budget-projection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessName: client.name,
+          industry: client.industry,
+          serviceAreas: client.service_areas,
+          keywordData: client.keyword_data,
+          competitorData: client.competitor_data,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Generation failed');
+      const { updateClient } = await import('@/lib/supabase');
+      const updated = await updateClient(id, { budget_projection: json.data });
+      setClient(updated);
+    } catch (e) {
+      setProjectionError(e.message);
+    } finally {
+      setProjecting(false);
+    }
   };
 
   if (loading) return (
@@ -284,24 +315,203 @@ export default function ClientDetailPage() {
         )}
 
         {/* BUDGET */}
-        {activeTab === 'budget' && client.keyword_data && (
-          <div className="p-6">
-            <p className="font-headline font-bold text-on-surface mb-6">Budget Recommendations</p>
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              {['conservative','balanced','aggressive'].map(level => (
-                <div key={level} className={`p-5 rounded-xl border ${level==='balanced'?'bg-primary/[0.04] border-primary/20':'bg-surface-low border-outline-variant/15'}`}>
-                  <p className="text-xs font-label font-bold text-secondary uppercase tracking-widest mb-1 capitalize">{level}</p>
-                  <p className="text-3xl font-headline font-bold text-on-surface">${(client.keyword_data.estimated_monthly_budget_range?.[level]||0).toLocaleString()}</p>
-                  <p className="text-xs text-secondary mt-1">/month</p>
-                  {level==='balanced' && <span className="inline-block mt-2 text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-label font-bold">Recommended</span>}
+        {activeTab === 'budget' && (
+          <div className="p-6 space-y-6">
+            {/* No projection yet */}
+            {!client.budget_projection && !projecting && (
+              <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
+                <span className="material-symbols-outlined text-primary text-[40px]">account_balance_wallet</span>
+                <div>
+                  <p className="font-headline font-bold text-on-surface text-lg mb-1">Budget Projections</p>
+                  <p className="text-sm text-secondary max-w-sm">AI-powered analysis of what each spend level will achieve, and what budget you need to hit a lead goal.</p>
                 </div>
-              ))}
-            </div>
-            {client.keyword_data.budget_assumptions && (
-              <div className="p-4 bg-surface-low border border-outline-variant/15 rounded-xl text-sm text-on-variant">
-                <strong className="text-on-surface font-label">Assumptions: </strong>{client.keyword_data.budget_assumptions}
+                {projectionError && <p className="text-sm text-error">{projectionError}</p>}
+                {client.keyword_data ? (
+                  <button onClick={generateProjection} className="pill-btn-primary">
+                    <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
+                    Generate Budget Projection
+                  </button>
+                ) : (
+                  <p className="text-sm text-secondary">Complete keyword research first to enable budget projections.</p>
+                )}
               </div>
             )}
+
+            {/* Generating spinner */}
+            {projecting && (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <span className="material-symbols-outlined text-primary text-[32px] animate-spin">progress_activity</span>
+                <p className="text-sm font-label font-semibold text-on-surface">Generating budget projections…</p>
+                <p className="text-xs text-secondary">Analyzing keyword data and competitive landscape</p>
+              </div>
+            )}
+
+            {/* Projection results */}
+            {client.budget_projection && !projecting && (() => {
+              const bp = client.budget_projection;
+              const activeTier = bp.budget_tiers?.find(t => t.level === selectedTier) || bp.budget_tiers?.[0];
+              const feasibilityColor = f => f === 'achievable' ? 'bg-emerald-100 text-emerald-700' : f === 'challenging' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+              const priorityColor = p => p === 'must_have' ? 'bg-primary/10 text-primary' : p === 'should_have' ? 'bg-amber-100 text-amber-700' : 'bg-surface-high text-secondary';
+
+              return (
+                <>
+                  {/* Executive pitch */}
+                  {bp.executive_pitch && (
+                    <div className="p-5 bg-primary/[0.04] border border-primary/15 rounded-xl flex gap-3">
+                      <span className="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">format_quote</span>
+                      <div>
+                        <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-2">Executive Summary</p>
+                        <p className="text-sm text-on-variant leading-relaxed">{bp.executive_pitch}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tier selector + details */}
+                  {bp.budget_tiers?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Budget Tiers</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                        {bp.budget_tiers.map(tier => (
+                          <button key={tier.level} onClick={() => setSelectedTier(tier.level)}
+                            className={`p-4 rounded-xl border text-left transition-all ${selectedTier === tier.level ? 'border-primary/30 bg-primary/[0.05] ring-1 ring-primary/20' : 'bg-surface-low border-outline-variant/15 hover:border-outline-variant/40'}`}
+                          >
+                            <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest capitalize mb-1">{tier.level}</p>
+                            <p className="text-xl font-headline font-bold text-on-surface">${(tier.monthly_budget||0).toLocaleString()}</p>
+                            <p className="text-[10px] text-secondary mt-0.5">/month</p>
+                            {tier.level === 'balanced' && <span className="inline-block mt-1.5 text-[9px] px-1.5 py-0.5 bg-primary/10 text-primary rounded-full font-label font-bold">Recommended</span>}
+                          </button>
+                        ))}
+                      </div>
+                      {activeTier && (
+                        <div className="card-inner p-5 space-y-4">
+                          <div className="grid grid-cols-3 gap-4">
+                            {[
+                              { icon: 'ads_click', label: 'Est. Clicks/mo',  value: (activeTier.expected_monthly_clicks||0).toLocaleString() },
+                              { icon: 'call',      label: 'Est. Leads/mo',   value: `~${activeTier.expected_monthly_leads||0}` },
+                              { icon: 'payments',  label: 'Cost per Lead',   value: activeTier.expected_cost_per_lead > 0 ? `$${activeTier.expected_cost_per_lead}` : '—' },
+                            ].map(m => (
+                              <div key={m.label}>
+                                <span className="material-symbols-outlined text-primary text-[16px]">{m.icon}</span>
+                                <p className="text-2xl font-headline font-bold text-on-surface mt-1">{m.value}</p>
+                                <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mt-0.5">{m.label}</p>
+                              </div>
+                            ))}
+                          </div>
+                          {activeTier.what_you_get && (
+                            <p className="text-sm text-on-variant leading-relaxed border-t border-outline-variant/10 pt-4">{activeTier.what_you_get}</p>
+                          )}
+                          {activeTier.rationale && (
+                            <p className="text-xs text-secondary">{activeTier.rationale}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Lead goal scenarios */}
+                  {bp.lead_scenarios?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Goal Scenarios</p>
+                      <div className="card-inner overflow-hidden">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-outline-variant/10 text-[10px] font-label font-bold text-secondary uppercase tracking-widest">
+                              <th className="text-left px-4 py-3">Leads/month</th>
+                              <th className="text-right px-4 py-3">Required Budget</th>
+                              <th className="text-right px-4 py-3">Cost/Lead</th>
+                              <th className="text-right px-4 py-3">Feasibility</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {bp.lead_scenarios.map((s, i) => (
+                              <tr key={i} className={i < bp.lead_scenarios.length - 1 ? 'border-b border-outline-variant/10' : ''}>
+                                <td className="px-4 py-3 font-headline font-bold text-on-surface">{s.leads_per_month} leads</td>
+                                <td className="px-4 py-3 font-mono text-sm text-right text-on-surface">${(s.required_budget||0).toLocaleString()}/mo</td>
+                                <td className="px-4 py-3 font-mono text-sm text-right text-secondary">${s.cost_per_lead||'—'}</td>
+                                <td className="px-4 py-3 text-right">
+                                  <span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full capitalize ${feasibilityColor(s.feasibility)}`}>{(s.feasibility||'').replace('_',' ')}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      {bp.minimum_viable_budget > 0 && (
+                        <p className="text-xs text-secondary mt-2">
+                          Minimum viable budget: <strong className="text-on-surface">${bp.minimum_viable_budget.toLocaleString()}/mo</strong>
+                          {bp.sweet_spot_budget > 0 && <> · Sweet spot: <strong className="text-on-surface">${bp.sweet_spot_budget.toLocaleString()}/mo</strong></>}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Budget allocation */}
+                  {bp.recommended_allocation?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Recommended Budget Allocation</p>
+                      <div className="card-inner overflow-hidden">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-outline-variant/10 text-[10px] font-label font-bold text-secondary uppercase tracking-widest">
+                              <th className="text-left px-4 py-3">Campaign</th>
+                              <th className="text-right px-4 py-3">Budget</th>
+                              <th className="text-right px-4 py-3 hidden sm:table-cell">Priority</th>
+                              <th className="text-right px-4 py-3">Est. Leads</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {bp.recommended_allocation.map((a, i) => (
+                              <tr key={i} className={i < bp.recommended_allocation.length - 1 ? 'border-b border-outline-variant/10' : ''}>
+                                <td className="px-4 py-3">
+                                  <p className="font-label font-semibold text-on-surface text-sm">{a.campaign_name}</p>
+                                  {a.reason && <p className="text-xs text-secondary mt-0.5">{a.reason}</p>}
+                                </td>
+                                <td className="px-4 py-3 font-mono text-sm text-right text-on-surface">${(a.monthly_budget||0).toLocaleString()}</td>
+                                <td className="px-4 py-3 hidden sm:table-cell text-right">
+                                  <span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${priorityColor(a.priority)}`}>{(a.priority||'').replace(/_/g,' ')}</span>
+                                </td>
+                                <td className="px-4 py-3 font-mono text-sm font-bold text-emerald-700 text-right">~{a.expected_leads||0}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Key insights */}
+                  {bp.key_insights?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Key Insights</p>
+                      <div className="card-inner p-5 space-y-3">
+                        {bp.key_insights.map((insight, i) => (
+                          <div key={i} className="flex gap-3">
+                            <span className="material-symbols-outlined text-primary text-[16px] shrink-0 mt-0.5">lightbulb</span>
+                            <p className="text-sm text-on-variant leading-relaxed">{insight}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Market context */}
+                  {bp.market_context && (
+                    <div className="p-4 bg-surface-low border border-outline-variant/15 rounded-xl">
+                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-2">Market Context</p>
+                      <p className="text-sm text-on-variant">{bp.market_context}</p>
+                    </div>
+                  )}
+
+                  {/* Regenerate */}
+                  <div className="flex justify-end pt-2">
+                    <button onClick={generateProjection} className="pill-btn-secondary text-xs">
+                      <span className="material-symbols-outlined text-[14px]">refresh</span>
+                      Regenerate
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
 
