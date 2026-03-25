@@ -28,9 +28,14 @@ export default function ClientsPage() {
 
   const filtered = clients.filter(c => {
     const matchSearch = !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.website.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === 'all' || c.status === filter;
+    const matchFilter = filter === 'all' || c.status === filter || c.status_pipeline === filter;
     return matchSearch && matchFilter;
   });
+
+  const pipelineRevenue = clients.filter(c => c.status_pipeline === 'active' || c.status_pipeline === 'prospect' || c.status_pipeline === 'proposal_sent')
+    .reduce((s, c) => s + (c.monthly_mgmt_fee || 0), 0);
+  const activeCount = clients.filter(c => c.status_pipeline === 'active').length;
+  const prospectCount = clients.filter(c => !c.status_pipeline || c.status_pipeline === 'prospect').length;
 
   return (
     <div className="px-8 py-10">
@@ -44,6 +49,24 @@ export default function ClientsPage() {
           New Research
         </Link>
       </div>
+
+      {/* Pipeline stats */}
+      {clients.length > 0 && (
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {[
+            { icon: 'groups', label: 'Total Clients', value: clients.length },
+            { icon: 'person_search', label: 'Prospects', value: prospectCount },
+            { icon: 'verified', label: 'Active', value: activeCount },
+            { icon: 'attach_money', label: 'Pipeline Revenue', value: `$${pipelineRevenue.toLocaleString()}/mo` },
+          ].map(s => (
+            <div key={s.label} className="card p-4 text-center">
+              <span className="material-symbols-outlined text-primary text-[20px]">{s.icon}</span>
+              <p className="text-xl font-headline font-bold text-on-surface mt-1">{s.value}</p>
+              <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Search + filter bar */}
       <div className="flex gap-3 mb-6">
@@ -61,6 +84,8 @@ export default function ClientsPage() {
             { id: 'all', label: 'All' },
             { id: 'complete', label: 'Complete' },
             { id: 'draft', label: 'Draft' },
+            { id: 'active', label: 'Active' },
+            { id: 'proposal_sent', label: 'Proposal' },
           ].map(f => (
             <button
               key={f.id}
@@ -107,7 +132,8 @@ export default function ClientsPage() {
                 <th>Service Areas</th>
                 <th>Keywords</th>
                 <th>Opportunities</th>
-                <th>Status</th>
+                <th>Pipeline</th>
+                <th>Fee</th>
                 <th>Last Updated</th>
                 <th></th>
               </tr>
@@ -139,13 +165,18 @@ export default function ClientsPage() {
                     <td className="font-mono text-sm font-semibold text-on-surface">{kws || '—'}</td>
                     <td className="font-mono text-sm font-semibold text-on-surface">{opps || '—'}</td>
                     <td>
-                      <span className={`text-[10px] font-label font-bold px-2.5 py-1 rounded-full ${
-                        client.status === 'complete' ? 'bg-emerald-100 text-emerald-700' :
-                        client.status === 'analyzing' ? 'bg-amber-100 text-amber-700' :
-                        'bg-surface-high text-secondary'
+                      <span className={`text-[10px] font-label font-bold px-2.5 py-1 rounded-full capitalize ${
+                        (client.status_pipeline || 'prospect') === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                        (client.status_pipeline || 'prospect') === 'proposal_sent' ? 'bg-amber-100 text-amber-700' :
+                        (client.status_pipeline || 'prospect') === 'paused' ? 'bg-orange-100 text-orange-700' :
+                        (client.status_pipeline || 'prospect') === 'churned' ? 'bg-red-100 text-red-700' :
+                        'bg-primary/10 text-primary'
                       }`}>
-                        {(client.status || 'draft').toUpperCase()}
+                        {(client.status_pipeline || 'prospect').replace(/_/g, ' ')}
                       </span>
+                    </td>
+                    <td className="font-mono text-sm text-on-variant">
+                      {client.monthly_mgmt_fee ? `$${client.monthly_mgmt_fee.toLocaleString()}` : '—'}
                     </td>
                     <td className="text-xs text-secondary font-label">{date}</td>
                     <td>

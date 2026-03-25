@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { getClients, isSupabaseConfigured, deleteClient } from '@/lib/supabase';
 
 const INDUSTRY_ICONS = {
@@ -74,9 +75,11 @@ function ClientRow({ client, onDelete }) {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [supabaseOk, setSupabaseOk] = useState(false);
+  const [quickUrl, setQuickUrl] = useState('');
 
   useEffect(() => {
     const ok = isSupabaseConfigured();
@@ -156,12 +159,73 @@ export default function Dashboard() {
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <StatCard icon="groups" label="Total Clients" value={clients.length} />
-        <StatCard icon="check_circle" label="Completed Research" value={completed.length} />
-        <StatCard icon="key_visualizer" label="Keywords Generated" value={totalKeywords.toLocaleString()} />
-        <StatCard icon="star" label="Opportunities Found" value={totalOpps} />
-      </div>
+      {(() => {
+        const pipelineRev = clients.filter(c => c.status_pipeline === 'active' || c.status_pipeline === 'prospect' || c.status_pipeline === 'proposal_sent')
+          .reduce((s, c) => s + (c.monthly_mgmt_fee || 0), 0);
+        const activeClients = clients.filter(c => c.status_pipeline === 'active').length;
+        const avgCPL = completed.length > 0
+          ? completed.filter(c => c.budget_projection?.budget_tiers?.find(t => t.level === 'balanced'))
+            .reduce((s, c) => {
+              const b = c.budget_projection.budget_tiers.find(t => t.level === 'balanced');
+              return s + (b?.expected_cost_per_lead || 0);
+            }, 0) / (completed.filter(c => c.budget_projection?.budget_tiers?.find(t => t.level === 'balanced')).length || 1)
+          : 0;
+        return (
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
+            <StatCard icon="groups" label="Total Clients" value={clients.length} />
+            <StatCard icon="check_circle" label="Completed Research" value={completed.length} />
+            <StatCard icon="key_visualizer" label="Keywords Generated" value={totalKeywords.toLocaleString()} />
+            <StatCard icon="verified" label="Active Clients" value={activeClients} />
+            <StatCard icon="attach_money" label="Pipeline Revenue" value={pipelineRev > 0 ? `$${pipelineRev.toLocaleString()}/mo` : '—'} />
+          </div>
+        );
+      })()}
+
+      {/* Research Queue — clients with incomplete data */}
+      {(() => {
+        const incomplete = clients.filter(c => c.status !== 'complete');
+        if (incomplete.length === 0) return null;
+        return (
+          <div className="mb-6 card overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-600 text-[20px]">pending_actions</span>
+                <h3 className="font-headline font-bold text-on-surface">Research Queue</h3>
+                <span className="text-[10px] font-label font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{incomplete.length}</span>
+              </div>
+            </div>
+            <div className="px-4 py-2">
+              {incomplete.map(client => {
+                const icon = INDUSTRY_ICONS[client.industry] || INDUSTRY_ICONS.default;
+                const missing = [];
+                if (!client.keyword_data) missing.push('Keywords');
+                if (!client.competitor_data) missing.push('Competitors');
+                if (!client.low_hanging_fruit) missing.push('Opportunities');
+                if (!client.budget_projection) missing.push('Budget');
+                if (!client.ad_copy) missing.push('Ad Copy');
+                return (
+                  <Link key={client.id} href={`/clients/${client.id}`}
+                    className="flex items-center gap-4 p-3 hover:bg-surface-low rounded-xl transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-amber-700 text-[16px]">{icon}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-label font-semibold text-on-surface text-sm truncate">{client.name}</p>
+                      <p className="text-[10px] text-secondary truncate">
+                        Missing: {missing.length > 0 ? missing.join(', ') : 'Processing...'}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-label font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                      {client.status === 'analyzing' ? 'IN PROGRESS' : 'INCOMPLETE'}
+                    </span>
+                    <span className="material-symbols-outlined text-[16px] text-secondary">chevron_right</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Bento grid */}
       <div className="grid grid-cols-12 gap-6">
@@ -235,6 +299,27 @@ export default function Dashboard() {
                 </Link>
               ))}
             </div>
+          </div>
+
+          {/* Quick-add client */}
+          <div className="card p-6">
+            <h3 className="font-headline font-bold mb-3 text-on-surface">Quick Add Client</h3>
+            <form onSubmit={(e) => { e.preventDefault(); if (quickUrl.trim()) router.push(`/research?url=${encodeURIComponent(quickUrl.trim())}`); }}
+              className="flex gap-2">
+              <input
+                type="url"
+                placeholder="https://example.com"
+                value={quickUrl}
+                onChange={(e) => setQuickUrl(e.target.value)}
+                className="field-input flex-1 text-sm"
+                required
+              />
+              <button type="submit" className="pill-btn-primary text-sm shrink-0">
+                <span className="material-symbols-outlined text-[16px]">bolt</span>
+                Go
+              </button>
+            </form>
+            <p className="text-[10px] text-secondary mt-2">Enter a website to start full research pipeline</p>
           </div>
 
           {/* Top opportunities */}

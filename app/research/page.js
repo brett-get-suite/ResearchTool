@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useCallback, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient_db, updateClient, isSupabaseConfigured } from '@/lib/supabase';
 
 // ─── Constants ────────────────────────────────────────────────────
@@ -40,8 +40,9 @@ function PhaseRow({ label, done, active }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────
-export default function ResearchPage() {
+function ResearchPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Step state
   const [currentStep, setCurrentStep] = useState(0);
@@ -71,6 +72,12 @@ export default function ResearchPage() {
   useEffect(() => {
     fetch('/api/config').then(r => r.json()).then(d => setHasServerKey(!!d.hasApiKey));
   }, []);
+
+  // Pre-fill website URL from query param (quick-add from dashboard)
+  useEffect(() => {
+    const urlParam = searchParams.get('url');
+    if (urlParam) setWebsiteUrl(urlParam);
+  }, [searchParams]);
 
   // ─── Handlers ────────────────────────────────────────────────────
   const addArea = useCallback(() => {
@@ -932,5 +939,13 @@ export default function ResearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ResearchPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><span className="material-symbols-outlined text-primary text-[32px]" style={{ animation: 'spin 1s linear infinite' }}>progress_activity</span></div>}>
+      <ResearchPageInner />
+    </Suspense>
   );
 }
