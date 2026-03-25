@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 // ─── Icon components (inline to avoid dependency issues) ─────────────
 function Icon({ children, className = '' }) {
@@ -56,8 +56,13 @@ export default function HomePage() {
 
   // Setup state
   const [apiKey, setApiKey] = useState('');
+  const [hasServerKey, setHasServerKey] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [industry, setIndustry] = useState('Plumbing');
+
+  useEffect(() => {
+    fetch('/api/config').then(r => r.json()).then(d => setHasServerKey(!!d.hasApiKey));
+  }, []);
 
   // Service areas
   const [serviceAreas, setServiceAreas] = useState([]);
@@ -322,21 +327,26 @@ export default function HomePage() {
               {/* API Key */}
               <div>
                 <label className="field-label">Gemini API Key</label>
-                <input
-                  type="password"
-                  className="field-input font-mono text-sm"
-                  placeholder="AIza..."
-                  value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
-                />
-                <p className="mt-1.5 text-xs text-surface-500">
-                  Free key from{' '}
-                  <a href="https://aistudio.google.com" target="_blank" rel="noopener"
-                    className="text-brand-400 hover:text-brand-300 underline underline-offset-2">
-                    aistudio.google.com
-                  </a>
-                  {' '}— or set <code className="font-mono text-[11px] bg-surface-200 px-1.5 py-0.5 rounded">GEMINI_API_KEY</code> in Vercel env vars.
-                </p>
+                {hasServerKey ? (
+                  <p className="text-sm text-green-400 font-medium">✓ API key configured via environment variable</p>
+                ) : (
+                  <>
+                    <input
+                      type="password"
+                      className="field-input font-mono text-sm"
+                      placeholder="AIza..."
+                      value={apiKey}
+                      onChange={e => setApiKey(e.target.value)}
+                    />
+                    <p className="mt-1.5 text-xs text-surface-500">
+                      Free key from{' '}
+                      <a href="https://aistudio.google.com" target="_blank" rel="noopener"
+                        className="text-brand-400 hover:text-brand-300 underline underline-offset-2">
+                        aistudio.google.com
+                      </a>
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Website URL */}
@@ -407,9 +417,9 @@ export default function HomePage() {
               {/* Submit */}
               <button
                 onClick={analyzeWebsite}
-                disabled={loading || !apiKey || !websiteUrl}
+                disabled={loading || (!apiKey && !hasServerKey) || !websiteUrl}
                 className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-display font-semibold text-base transition-all
-                  ${loading || !apiKey || !websiteUrl
+                  ${loading || (!apiKey && !hasServerKey) || !websiteUrl
                     ? 'bg-surface-200 text-surface-500 cursor-not-allowed'
                     : 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/20 hover:shadow-brand-500/30'
                   }`}
