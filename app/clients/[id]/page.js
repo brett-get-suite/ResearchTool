@@ -240,7 +240,13 @@ export default function ClientDetailPage() {
             </span>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {client.status !== 'complete' && (
+            <a href={`/research?url=${encodeURIComponent(client.website || '')}&industry=${encodeURIComponent(client.industry || '')}`}
+              className="pill-btn text-xs bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold">
+              <span className="material-symbols-outlined text-[15px]">refresh</span>Re-run Research
+            </a>
+          )}
           <button onClick={exportCSV} className="pill-btn-secondary text-xs">
             <span className="material-symbols-outlined text-[15px]">download</span>CSV
           </button>

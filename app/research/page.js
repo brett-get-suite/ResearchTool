@@ -73,10 +73,12 @@ function ResearchPageInner() {
     fetch('/api/config').then(r => r.json()).then(d => setHasServerKey(!!d.hasApiKey));
   }, []);
 
-  // Pre-fill website URL from query param (quick-add from dashboard)
+  // Pre-fill from query params (quick-add / re-run from dashboard)
   useEffect(() => {
     const urlParam = searchParams.get('url');
+    const industryParam = searchParams.get('industry');
     if (urlParam) setWebsiteUrl(urlParam);
+    if (industryParam && INDUSTRIES.includes(industryParam)) setIndustry(industryParam);
   }, [searchParams]);
 
   // ─── Handlers ────────────────────────────────────────────────────
@@ -187,6 +189,10 @@ function ResearchPageInner() {
     } catch (err) {
       setError(err.message);
       setCurrentStep(1);
+      // Reset client status so it doesn't stay stuck in 'analyzing'
+      if (isSupabaseConfigured() && clientId) {
+        updateClient(clientId, { status: 'draft' }).catch(() => {});
+      }
     } finally {
       setLoading(false);
       setLoadingPhase('');

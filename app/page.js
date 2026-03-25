@@ -203,23 +203,31 @@ export default function Dashboard() {
                 if (!client.low_hanging_fruit) missing.push('Opportunities');
                 if (!client.budget_projection) missing.push('Budget');
                 if (!client.ad_copy) missing.push('Ad Copy');
+                const isStuck = client.status === 'analyzing';
                 return (
-                  <Link key={client.id} href={`/clients/${client.id}`}
-                    className="flex items-center gap-4 p-3 hover:bg-surface-low rounded-xl transition-colors">
+                  <div key={client.id} className="flex items-center gap-4 p-3 hover:bg-surface-low rounded-xl transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
                       <span className="material-symbols-outlined text-amber-700 text-[16px]">{icon}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <Link href={`/clients/${client.id}`} className="flex-1 min-w-0">
                       <p className="font-label font-semibold text-on-surface text-sm truncate">{client.name}</p>
                       <p className="text-[10px] text-secondary truncate">
-                        Missing: {missing.length > 0 ? missing.join(', ') : 'Processing...'}
+                        {isStuck ? 'Research failed or was interrupted' : missing.length > 0 ? `Missing: ${missing.join(', ')}` : 'Processing...'}
                       </p>
-                    </div>
-                    <span className="text-[10px] font-label font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-                      {client.status === 'analyzing' ? 'IN PROGRESS' : 'INCOMPLETE'}
+                    </Link>
+                    <span className={`text-[10px] font-label font-bold px-2.5 py-1 rounded-full ${
+                      isStuck ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {isStuck ? 'STUCK' : 'INCOMPLETE'}
                     </span>
-                    <span className="material-symbols-outlined text-[16px] text-secondary">chevron_right</span>
-                  </Link>
+                    <Link
+                      href={`/research?url=${encodeURIComponent(client.website || '')}&industry=${encodeURIComponent(client.industry || '')}`}
+                      className="pill-btn-secondary text-[11px] shrink-0"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">refresh</span>
+                      Re-run
+                    </Link>
+                  </div>
                 );
               })}
             </div>
