@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getClient, deleteClient } from '@/lib/supabase';
+import { getClient, deleteClient, updateClient } from '@/lib/supabase';
 import { getDefaultBenchmarks, getSeasonalMultipliers, getServiceFrequency, TAM_CONSTANTS } from '@/lib/benchmarks';
 import { getNegativeKeywords, buildNegativeKeywordCSV } from '@/lib/negative-keywords';
 
@@ -28,6 +28,9 @@ export default function ClientDetailPage() {
   const [tamPopulation, setTamPopulation] = useState(250000);
   const [auditingPages, setAuditingPages] = useState(false);
   const [auditError, setAuditError] = useState('');
+  const [enriching, setEnriching] = useState(false);
+  const [enrichError, setEnrichError] = useState('');
+  const [hasGoogleAds, setHasGoogleAds] = useState(false);
 
   useEffect(() => {
     getClient(id).then(setClient).catch(e => setError(e.message)).finally(() => setLoading(false));
@@ -41,10 +44,40 @@ export default function ClientDetailPage() {
     }
   }, [client?.industry]);
 
+  useEffect(() => {
+    fetch('/api/config').then(r => r.json()).then(d => setHasGoogleAds(!!d.hasGoogleAds)).catch(() => {});
+  }, []);
+
   const handleDelete = async () => {
     if (!confirm('Delete this client and all research data?')) return;
     await deleteClient(id);
     router.push('/clients');
+  };
+
+  const enrichWithGoogle = async () => {
+    if (!client?.keyword_data) return;
+    setEnriching(true);
+    setEnrichError('');
+    try {
+      const res = await fetch('/api/keyword-planner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keywordData: client.keyword_data,
+          serviceAreas: client.service_areas || [],
+        }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+
+      const updated = { ...client, keyword_data: result.data };
+      setClient(updated);
+      await updateClient(id, { keyword_data: result.data });
+    } catch (err) {
+      setEnrichError(err.message);
+    } finally {
+      setEnriching(false);
+    }
   };
 
   const exportCSV = async () => {
@@ -321,6 +354,55 @@ export default function ClientDetailPage() {
         {activeTab === 'keywords' && (
           client.keyword_data ? (
             <div>
+              {/* Data source banner */}
+              <div className="px-6 py-3 border-b border-outline-variant/10 flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  {client.keyword_data.data_source === 'google_enriched' ? (
+                    <>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-label font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                        <span className="material-symbols-outlined text-[12px]">verified</span>
+                        GOOGLE DATA
+                      </span>
+                      <span className="text-[11px] text-secondary">
+                        {client.keyword_data.google_enriched_count || 0} keywords enriched with real metrics
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[10px] font-label font-bold px-2.5 py-1 rounded-full bg-surface-high text-secondary">
+                        AI ESTIMATED
+                      </span>
+                      <span className="text-[11px] text-secondary">
+                        Search volumes &amp; CPCs are AI-estimated
+                      </span>
+                    </>
+                  )}
+                </div>
+                {hasGoogleAds && client.keyword_data.data_source !== 'google_enriched' && (
+                  <button onClick={enrichWithGoogle} disabled={enriching} className="pill-btn-primary text-[11px]">
+                    {enriching ? (
+                      <><span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>Enriching...</>
+                    ) : (
+                      <><span className="material-symbols-outlined text-[14px]">auto_awesome</span>Enrich with Google Data</>
+                    )}
+                  </button>
+                )}
+                {hasGoogleAds && client.keyword_data.data_source === 'google_enriched' && (
+                  <button onClick={enrichWithGoogle} disabled={enriching} className="pill-btn-secondary text-[11px]">
+                    {enriching ? (
+                      <><span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>Refreshing...</>
+                    ) : (
+                      <><span className="material-symbols-outlined text-[14px]">refresh</span>Refresh Data</>
+                    )}
+                  </button>
+                )}
+              </div>
+              {enrichError && (
+                <div className="mx-6 mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  <span className="font-label font-bold">Enrichment failed:</span> {enrichError}
+                </div>
+              )}
+
               {(client.keyword_data.keyword_groups || []).map((group, gi) => (
                 <div key={gi} className={gi > 0 ? 'border-t border-outline-variant/10' : ''}>
                   <div className="px-6 py-4 bg-surface-low">
@@ -331,11 +413,19 @@ export default function ClientDetailPage() {
                   </div>
                   <div className="overflow-x-auto">
                     <table className="data-table">
-                      <thead><tr><th>Keyword</th><th>Intent</th><th>Mo. Searches</th><th>Est. CPC</th><th>Competition</th><th>Priority</th></tr></thead>
+                      <thead><tr>
+                        <th>Keyword</th><th>Intent</th>
+                        <th>{client.keyword_data.data_source === 'google_enriched' ? 'Mo. Searches' : 'Est. Searches'}</th>
+                        <th>{client.keyword_data.data_source === 'google_enriched' ? 'CPC' : 'Est. CPC'}</th>
+                        <th>Competition</th><th>Priority</th>
+                      </tr></thead>
                       <tbody>
                         {(group.keywords||[]).map((kw, ki) => (
                           <tr key={ki}>
-                            <td className="font-label font-semibold text-on-surface">{kw.keyword}</td>
+                            <td className="font-label font-semibold text-on-surface">
+                              {kw.keyword}
+                              {kw.data_source === 'google' && <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-blue-500" title="Google Keyword Planner data" />}
+                            </td>
                             <td><span className={intentBadge(kw.intent)}>{kw.intent}</span></td>
                             <td className="font-mono text-sm text-on-variant">{(kw.estimated_monthly_searches||0).toLocaleString()}</td>
                             <td className={`font-mono text-sm font-bold ${cpcClass(kw.estimated_cpc||0)}`}>${(kw.estimated_cpc||0).toFixed(2)}</td>

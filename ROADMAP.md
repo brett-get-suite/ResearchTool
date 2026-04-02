@@ -45,13 +45,8 @@ Website analysis → Keywords → Competitors → Opportunities → Budget Proje
 
 ## Tier 3 — Needs External APIs or More Setup
 
-### 11. Google Keyword Planner Integration *(in progress — awaiting API approval)*
-Replace AI-estimated keyword metrics with real Google data.
-- Real monthly search volumes by location
-- Real average CPCs
-- Real competition scores
-- Keep Gemini for keyword *ideas* and intent classification; swap in real data for metrics
-- All downstream projections (budget, revenue, TAM) become more accurate
+### ~~11. Google Keyword Planner Integration~~ ✅
+*Shipped — `lib/google-ads.js` REST API client (OAuth, geo targeting, keyword metrics, keyword ideas). Auto-enriches new research with real Google data. "Enrich with Google Data" button on existing clients. Blue "GOOGLE DATA" badge + per-keyword dot indicator. Graceful fallback to Gemini estimates if API unavailable. Standalone `/api/keyword-planner` endpoint + auto-enrichment in `/api/keyword-research`.*
 
 ### 12. Google Trends Seasonality
 Validate and refine the hardcoded seasonality curves with real search trend data.
