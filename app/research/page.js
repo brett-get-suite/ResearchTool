@@ -81,6 +81,14 @@ function ResearchPageInner() {
     if (industryParam && INDUSTRIES.includes(industryParam)) setIndustry(industryParam);
   }, [searchParams]);
 
+  // ─── Fetch with timeout ──────────────────────────────────────────
+  const fetchWithTimeout = useCallback((url, options, timeoutMs = 55000) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    return fetch(url, { ...options, signal: controller.signal })
+      .finally(() => clearTimeout(timer));
+  }, []);
+
   // ─── Handlers ────────────────────────────────────────────────────
   const addArea = useCallback(() => {
     const v = areaInput.trim();
@@ -101,11 +109,11 @@ function ResearchPageInner() {
     setError('');
     setLoadingPhase('Crawling website with Gemini AI...');
     try {
-      const res = await fetch('/api/analyze-website', {
+      const res = await fetchWithTimeout('/api/analyze-website', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey, websiteUrl, industry }),
-      });
+      }, 55000);
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
 
@@ -131,7 +139,10 @@ function ResearchPageInner() {
 
       setCurrentStep(1);
     } catch (err) {
-      setError(err.message);
+      const msg = err.name === 'AbortError'
+        ? 'Request timed out — the AI took too long. Please try again.'
+        : err.message || 'Something went wrong';
+      setError(msg);
     } finally {
       setLoading(false);
       setLoadingPhase('');
@@ -144,33 +155,52 @@ function ResearchPageInner() {
     setError('');
     setCurrentStep(2);
     try {
-      setLoadingPhase('Running keyword research across service areas...');
-      const kwRes = await fetch('/api/keyword-research', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, services: selectedServices, serviceAreas, industry }),
-      });
+      // Phase 1: Keywords + Competitors in parallel (they don't depend on each other)
+      setLoadingPhase('Running keyword research & competitor analysis...');
+
+      const [kwRes, compRes] = await Promise.all([
+        fetchWithTimeout('/api/keyword-research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, services: selectedServices, serviceAreas, industry }),
+        }, 55000),
+        fetchWithTimeout('/api/competitor-audit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey,
+            businessName: websiteData?.business_name || websiteUrl,
+            services: selectedServices,
+            serviceAreas,
+            industry,
+          }),
+        }, 55000),
+      ]);
+
       const kwResult = await kwRes.json();
-      if (!kwRes.ok) throw new Error(kwResult.error);
+      if (!kwRes.ok) throw new Error(kwResult.error || 'Keyword research failed');
       setKeywordData(kwResult.data);
 
-      setLoadingPhase('Analyzing competitors & finding low-hanging fruit...');
-      const compRes = await fetch('/api/competitor-audit', {
+      const compResult = await compRes.json();
+      if (!compRes.ok) throw new Error(compResult.error || 'Competitor audit failed');
+      setCompetitorData(compResult.data);
+
+      // Phase 2: Low-hanging fruit (needs both keyword + competitor data)
+      setLoadingPhase('Finding low-hanging fruit opportunities...');
+      const lhfRes = await fetchWithTimeout('/api/low-hanging-fruit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           apiKey,
-          businessName: websiteData?.business_name || websiteUrl,
-          services: selectedServices,
-          serviceAreas,
-          industry,
           keywordData: kwResult.data,
+          competitorData: compResult.data,
+          industry,
+          serviceAreas,
         }),
-      });
-      const compResult = await compRes.json();
-      if (!compRes.ok) throw new Error(compResult.error);
-      setCompetitorData(compResult.data.competitors);
-      setLowHangingFruit(compResult.data.lowHangingFruit);
+      }, 55000);
+      const lhfResult = await lhfRes.json();
+      if (!lhfRes.ok) throw new Error(lhfResult.error || 'Opportunity analysis failed');
+      setLowHangingFruit(lhfResult.data);
 
       // Save completed research to Supabase
       if (isSupabaseConfigured() && clientId) {
@@ -178,8 +208,8 @@ function ResearchPageInner() {
           selected_services: selectedServices,
           service_areas: serviceAreas,
           keyword_data: kwResult.data,
-          competitor_data: compResult.data.competitors,
-          low_hanging_fruit: compResult.data.lowHangingFruit,
+          competitor_data: compResult.data,
+          low_hanging_fruit: lhfResult.data,
           researched_at: new Date().toISOString(),
           status: 'complete',
         });
@@ -187,7 +217,10 @@ function ResearchPageInner() {
 
       setCurrentStep(3);
     } catch (err) {
-      setError(err.message);
+      const msg = err.name === 'AbortError'
+        ? 'Request timed out — the AI took too long. Please try again.'
+        : err.message || 'Something went wrong';
+      setError(msg);
       setCurrentStep(1);
       // Reset client status so it doesn't stay stuck in 'analyzing'
       if (isSupabaseConfigured() && clientId) {
@@ -604,7 +637,7 @@ function ResearchPageInner() {
           <div className="card p-6 text-left space-y-4">
             <PhaseRow label="Keyword Research" done={!!keywordData} active={!keywordData && loadingPhase.includes('keyword')} />
             <PhaseRow label="Competitor Audit" done={!!competitorData} active={!competitorData && loadingPhase.includes('competitor')} />
-            <PhaseRow label="Low-Hanging Fruit Analysis" done={!!lowHangingFruit} active={!lowHangingFruit && (loadingPhase.includes('fruit') || loadingPhase.includes('competitor'))} />
+            <PhaseRow label="Low-Hanging Fruit Analysis" done={!!lowHangingFruit} active={!lowHangingFruit && loadingPhase.includes('fruit')} />
           </div>
         </div>
       )}

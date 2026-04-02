@@ -19,7 +19,7 @@ export async function POST(req) {
     }
 
     const prompt = adCopyPrompt(keywordGroups, websiteData, industry, serviceAreas);
-    const raw = await callGemini(geminiKey, prompt);
+    const raw = await callGemini(geminiKey, prompt, { maxTokens: 16384, thinkingBudget: 1024 });
     const data = parseGeminiJSON(raw);
 
     return NextResponse.json({ success: true, data });

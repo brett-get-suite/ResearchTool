@@ -1,35 +1,23 @@
 import { callGemini, parseGeminiJSON } from '@/lib/gemini';
-import { competitorAuditPrompt, lowHangingFruitPrompt } from '@/lib/prompts';
+import { competitorAuditPrompt } from '@/lib/prompts';
 import { NextResponse } from 'next/server';
 
 export const maxDuration = 60;
 
 export async function POST(req) {
   try {
-    const { apiKey, businessName, services, serviceAreas, industry, keywordData } = await req.json();
+    const { apiKey, businessName, services, serviceAreas, industry } = await req.json();
 
     const geminiKey = apiKey || process.env.GEMINI_API_KEY;
     if (!geminiKey) {
       return NextResponse.json({ error: 'Gemini API key is required' }, { status: 400 });
     }
 
-    // Run competitor audit
     const competitorPrompt = competitorAuditPrompt(businessName, services, serviceAreas, industry);
-    const competitorRaw = await callGemini(geminiKey, competitorPrompt);
+    const competitorRaw = await callGemini(geminiKey, competitorPrompt, { maxTokens: 8192, thinkingBudget: 1024 });
     const competitorData = parseGeminiJSON(competitorRaw);
 
-    // Run low-hanging fruit analysis
-    const fruitPrompt = lowHangingFruitPrompt(keywordData, competitorData, industry, serviceAreas);
-    const fruitRaw = await callGemini(geminiKey, fruitPrompt);
-    const fruitData = parseGeminiJSON(fruitRaw);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        competitors: competitorData,
-        lowHangingFruit: fruitData,
-      },
-    });
+    return NextResponse.json({ success: true, data: competitorData });
   } catch (error) {
     console.error('Competitor audit error:', error);
     return NextResponse.json(

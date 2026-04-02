@@ -14,7 +14,7 @@ export async function POST(req) {
     }
 
     const prompt = budgetProjectionPrompt(businessName, industry, serviceAreas, keywordData, competitorData);
-    const raw = await callGemini(geminiKey, prompt);
+    const raw = await callGemini(geminiKey, prompt, { maxTokens: 8192, thinkingBudget: 1024 });
     const data = parseGeminiJSON(raw);
 
     return NextResponse.json({ success: true, data });

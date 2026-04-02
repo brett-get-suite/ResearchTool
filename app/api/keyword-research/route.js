@@ -16,7 +16,7 @@ export async function POST(req) {
 
     // Step 1: Gemini generates keyword groups with intent + structure
     const prompt = keywordResearchPrompt(services, serviceAreas, industry);
-    const raw = await callGemini(geminiKey, prompt);
+    const raw = await callGemini(geminiKey, prompt, { maxTokens: 16384, thinkingBudget: 1024 });
     const data = parseGeminiJSON(raw);
 
     // Step 2: Enrich with real Google Keyword Planner data (if configured)

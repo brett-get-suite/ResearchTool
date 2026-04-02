@@ -14,7 +14,7 @@ export async function POST(req) {
     }
 
     const prompt = websiteAnalysisPrompt(websiteUrl, industry);
-    const raw = await callGemini(geminiKey, prompt, { maxTokens: 16384 });
+    const raw = await callGemini(geminiKey, prompt, { maxTokens: 4096, thinkingBudget: 1024 });
     const data = parseGeminiJSON(raw);
 
     return NextResponse.json({ success: true, data });
