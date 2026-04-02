@@ -2,6 +2,8 @@ import { callGemini, parseGeminiJSON } from '@/lib/gemini';
 import { competitorAuditPrompt, lowHangingFruitPrompt } from '@/lib/prompts';
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const { apiKey, businessName, services, serviceAreas, industry, keywordData } = await req.json();

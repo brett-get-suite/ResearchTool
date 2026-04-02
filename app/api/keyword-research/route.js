@@ -3,6 +3,8 @@ import { keywordResearchPrompt } from '@/lib/prompts';
 import { isGoogleAdsConfigured, enrichKeywordData } from '@/lib/google-ads';
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const { apiKey, services, serviceAreas, industry } = await req.json();

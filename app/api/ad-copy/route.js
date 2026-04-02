@@ -2,6 +2,8 @@ import { callGemini, parseGeminiJSON } from '@/lib/gemini';
 import { adCopyPrompt } from '@/lib/prompts';
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const { apiKey, keywordData, websiteData, industry, serviceAreas } = await req.json();

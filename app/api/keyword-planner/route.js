@@ -7,6 +7,8 @@ import { NextResponse } from 'next/server';
  * Returns enriched keyword data with real Google metrics.
  * Used by the "Enrich with Google Data" button on existing clients.
  */
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     if (!isGoogleAdsConfigured()) {

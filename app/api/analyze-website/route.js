@@ -2,6 +2,8 @@ import { callGemini, parseGeminiJSON } from '@/lib/gemini';
 import { websiteAnalysisPrompt } from '@/lib/prompts';
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const { apiKey, websiteUrl, industry } = await req.json();
@@ -12,7 +14,7 @@ export async function POST(req) {
     }
 
     const prompt = websiteAnalysisPrompt(websiteUrl, industry);
-    const raw = await callGemini(geminiKey, prompt);
+    const raw = await callGemini(geminiKey, prompt, { maxTokens: 16384 });
     const data = parseGeminiJSON(raw);
 
     return NextResponse.json({ success: true, data });
