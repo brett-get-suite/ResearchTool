@@ -76,10 +76,17 @@ function ClientRow({ client, onDelete }) {
 
 export default function Dashboard() {
   const router = useRouter();
+  const [accounts, setAccounts] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [supabaseOk, setSupabaseOk] = useState(false);
   const [quickUrl, setQuickUrl] = useState('');
+
+  useEffect(() => {
+    fetch('/api/accounts').then(r => r.json()).then(data => {
+      setAccounts(Array.isArray(data) ? data : []);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const ok = isSupabaseConfigured();
@@ -141,6 +148,26 @@ export default function Dashboard() {
           New Research
         </Link>
       </div>
+
+      {/* Managed Accounts summary */}
+      {accounts.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-end justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-headline font-bold text-on-surface">Managed Accounts</h3>
+              <p className="text-secondary text-xs">Connected Google Ads accounts</p>
+            </div>
+            <Link href="/accounts" className="text-primary text-sm font-label font-semibold hover:underline">
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mb-2">
+            <StatCard icon="link" label="Connected Accounts" value={accounts.length} />
+            <StatCard icon="verified" label="Active" value={accounts.filter(a => a.status === 'active').length} />
+            <StatCard icon="smart_toy" label="AI Agents" value="Active" />
+          </div>
+        </div>
+      )}
 
       {/* Supabase warning */}
       {!supabaseOk && (

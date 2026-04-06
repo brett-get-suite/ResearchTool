@@ -3,8 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const NAV = [
-  { href: '/',            label: 'Dashboard',          icon: 'dashboard' },
+const MANAGEMENT_NAV = [
+  { href: '/',          label: 'Dashboard',  icon: 'dashboard' },
+  { href: '/accounts',  label: 'Accounts',   icon: 'manage_accounts' },
+  { href: '/agents',    label: 'Agents',     icon: 'smart_toy' },
+  { href: '/brand-lab', label: 'Brand Lab',  icon: 'palette' },
+];
+
+const RESEARCH_NAV = [
   { href: '/research',    label: 'New Research',        icon: 'manage_search' },
   { href: '/clients',     label: 'Client Management',   icon: 'groups' },
   { href: '/competitors', label: 'Competitor Analysis', icon: 'analytics' },
@@ -30,8 +36,25 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 space-y-0.5">
-        {NAV.map(({ href, label, icon }) => (
+      <nav className="flex-1 space-y-0.5 overflow-y-auto">
+        <p className="text-[9px] font-label font-bold text-secondary/50 uppercase tracking-widest px-3 mb-1 mt-2">Management</p>
+        {MANAGEMENT_NAV.map(({ href, label, icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+              isActive(href)
+                ? 'text-primary font-semibold bg-primary/5 border-r-2 border-primary'
+                : 'text-secondary font-medium hover:bg-surface-high hover:text-on-surface'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[20px]">{icon}</span>
+            <span className="font-label">{label}</span>
+          </Link>
+        ))}
+        <div className="my-3 border-t border-outline-variant/10" />
+        <p className="text-[9px] font-label font-bold text-secondary/50 uppercase tracking-widest px-3 mb-1">Research</p>
+        {RESEARCH_NAV.map(({ href, label, icon }) => (
           <Link
             key={href}
             href={href}
