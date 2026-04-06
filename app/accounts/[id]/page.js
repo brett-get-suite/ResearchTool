@@ -241,20 +241,26 @@ export default function AccountPage({ params }) {
       </div>
 
       {/* ── Stats row ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { icon: 'visibility',      label: 'Impressions',  value: (acctMetrics?.impressions || 0).toLocaleString() },
-          { icon: 'ads_click',       label: 'Clicks',       value: (acctMetrics?.clicks || 0).toLocaleString() },
-          { icon: 'attach_money',    label: 'Cost',         value: fmtCost((acctMetrics?.cost_micros || 0) / 1_000_000) },
-          { icon: 'conversion_path', label: 'Conversions',  value: (acctMetrics?.conversions || 0).toLocaleString() },
-        ].map(s => (
-          <div key={s.label} className="card p-4 text-center">
-            <span className="material-symbols-outlined text-primary text-[20px]">{s.icon}</span>
-            <p className="text-2xl font-headline font-bold text-on-surface mt-1">{s.value}</p>
-            <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest">{s.label}</p>
-          </div>
-        ))}
-      </div>
+      {metricsLoading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          {[1,2,3,4].map(i => <StatCardSkeleton key={i} />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          {[
+            { icon: 'visibility',      label: 'Impressions',  value: (acctMetrics?.impressions || 0).toLocaleString() },
+            { icon: 'ads_click',       label: 'Clicks',       value: (acctMetrics?.clicks || 0).toLocaleString() },
+            { icon: 'attach_money',    label: 'Cost',         value: fmtCost((acctMetrics?.cost_micros || 0) / 1_000_000) },
+            { icon: 'conversion_path', label: 'Conversions',  value: (acctMetrics?.conversions || 0).toLocaleString() },
+          ].map(s => (
+            <div key={s.label} className="card p-4 text-center">
+              <span className="material-symbols-outlined text-primary text-[20px]">{s.icon}</span>
+              <p className="text-2xl font-headline font-bold text-on-surface mt-1">{s.value}</p>
+              <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ── Tab bar ── */}
       <div className="flex gap-1 mb-0 border-b border-outline-variant/15 overflow-x-auto">

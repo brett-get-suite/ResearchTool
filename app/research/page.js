@@ -728,7 +728,7 @@ function ResearchPageInner() {
 
           <div className="card rounded-tl-none overflow-hidden">
             {/* KEYWORDS */}
-            <ErrorBoundary>
+            <ErrorBoundary key={activeTab}>
             {activeTab === 'keywords' && keywordData && (
               <div>
                 {(keywordData.keyword_groups || []).map((group, gi) => (
