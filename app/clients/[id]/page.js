@@ -35,8 +35,7 @@ export default function ClientDetailPage() {
   const [trendsLoading, setTrendsLoading] = useState(false);
 
   const fetchTrends = useCallback(async (client) => {
-    // Derive keyword from industry
-    const keyword = client.industry || 'contractor';
+    const keyword = client.primary_keyword || client.services?.[0] || client.industry || 'home services';
     // Try to extract state abbreviation from service areas like "Greensboro, NC"
     const firstArea = client.service_areas?.[0] || '';
     const stateMatch = firstArea.match(/,\s*([A-Z]{2})$/);
@@ -46,7 +45,7 @@ export default function ClientDetailPage() {
     try {
       const res = await fetch(`/api/trends?keyword=${encodeURIComponent(keyword)}&geo=${encodeURIComponent(geo)}`);
       const data = await res.json();
-      setTrendsData(data);
+      if (res.ok && data.multipliers) setTrendsData(data);
     } catch (e) {
       console.warn('Trends fetch failed:', e);
     } finally {
@@ -59,7 +58,7 @@ export default function ClientDetailPage() {
       setClient(clientData);
       if (clientData) fetchTrends(clientData);
     }).catch(e => setError(e.message)).finally(() => setLoading(false));
-  }, [id]);
+  }, [id, fetchTrends]);
 
   useEffect(() => {
     if (client?.industry) {
@@ -168,6 +167,7 @@ export default function ClientDetailPage() {
           keywordData: client.keyword_data,
           competitorData: client.competitor_data,
           calibration: client.calibration || null,
+          seasonalMultipliers: trendsData?.multipliers ?? null,
         }),
       });
       const json = await res.json();

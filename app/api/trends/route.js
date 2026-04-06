@@ -5,7 +5,7 @@ const trendsCache = {};
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 function getCacheKey(keyword, geo) {
-  return `${keyword}|${geo}`;
+  return `${keyword.toLowerCase()}|${geo}`;
 }
 
 function isStale(entry) {
@@ -92,7 +92,10 @@ export async function GET(req) {
   }
 
   try {
-    const rawValues = await fetchGoogleTrends(keyword, geo);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Trends request timed out')), 10000)
+    );
+    const rawValues = await Promise.race([fetchGoogleTrends(keyword, geo), timeoutPromise]);
     if (rawValues.length < 12) throw new Error(`Insufficient data: only ${rawValues.length} months`);
 
     const multipliers = normalizeToMultipliers(rawValues.slice(-12));
