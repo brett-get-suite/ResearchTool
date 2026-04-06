@@ -30,7 +30,7 @@ export async function GET(req) {
   // Nominatim fallback
   try {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&featuretype=city&addressdetails=1`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'ppc-recon/1.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': `ppc-recon/1.0 (${process.env.NOMINATIM_CONTACT || 'support@ppcrecon.com'})` } });
     const data = await res.json();
     return NextResponse.json(
       data.map(item => ({

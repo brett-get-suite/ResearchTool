@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export default function ServiceAreaInput({ value, onChange }) {
   // value: string[] (chip labels), onChange: (string[]) => void
@@ -11,6 +11,10 @@ export default function ServiceAreaInput({ value, onChange }) {
   const [showAllNearby, setShowAllNearby] = useState(false);
   const debounceRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearTimeout(debounceRef.current);
+  }, []);
 
   const fetchSuggestions = useCallback(async (q) => {
     if (q.length < 2) { setSuggestions([]); return; }

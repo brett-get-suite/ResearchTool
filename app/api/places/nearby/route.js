@@ -20,6 +20,7 @@ export async function GET(req) {
       const res = await fetch(url);
       const data = await res.json();
       if (data.status === 'OK') {
+        // Note: Google Nearby Search returns bare names without state; Nominatim path includes state
         return NextResponse.json(
           data.results.slice(0, 8).map(p => ({
             label: p.name,
@@ -38,11 +39,11 @@ export async function GET(req) {
     const deg = milesToDeg(radius);
     const viewbox = `${lng - deg},${lat + deg},${lng + deg},${lat - deg}`;
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=8&featuretype=city&viewbox=${viewbox}&bounded=1&addressdetails=1`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'ppc-recon/1.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': `ppc-recon/1.0 (${process.env.NOMINATIM_CONTACT || 'support@ppcrecon.com'})` } });
     const data = await res.json();
     return NextResponse.json(
       data.map(item => ({
-        label: item.address?.city || item.address?.town || item.name,
+        label: [item.address?.city || item.address?.town || item.name, item.address?.state].filter(Boolean).join(', '),
         lat: parseFloat(item.lat),
         lng: parseFloat(item.lon),
       })).filter(item => item.label)
