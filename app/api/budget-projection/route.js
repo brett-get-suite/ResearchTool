@@ -13,6 +13,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Gemini API key is required' }, { status: 400 });
     }
 
+    // Note: seasonalMultipliers will be added here in Task 6 (Google Trends)
     const prompt = budgetProjectionPrompt(businessName, industry, serviceAreas, keywordData, competitorData, calibration);
     const raw = await callGemini(geminiKey, prompt, { maxTokens: 8192, thinkingBudget: 1024 });
     const data = parseGeminiJSON(raw);

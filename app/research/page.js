@@ -496,6 +496,7 @@ function ResearchPageInner() {
                         type="number"
                         className="field-input"
                         placeholder="e.g. 4200"
+                        min="0.01"
                         value={calibration.spend}
                         onChange={e => setCalibration(prev => ({ ...prev, spend: e.target.value }))}
                       />
@@ -506,6 +507,7 @@ function ResearchPageInner() {
                         type="number"
                         className="field-input"
                         placeholder="e.g. 18"
+                        min="1"
                         value={calibration.leads}
                         onChange={e => setCalibration(prev => ({ ...prev, leads: e.target.value }))}
                       />
