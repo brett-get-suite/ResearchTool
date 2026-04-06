@@ -14,7 +14,8 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const body = await request.json();
-    const account = await updateAccount(params.id, body);
+    const { name, settings, google_login_customer_id, status } = body;
+    const account = await updateAccount(params.id, { name, settings, google_login_customer_id, status });
     return NextResponse.json(account);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

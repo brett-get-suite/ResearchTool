@@ -7,6 +7,9 @@ export async function POST(request, { params }) {
   try {
     const action = await getAgentAction(params.actionId);
     if (!action) return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+    if (action.account_id !== params.id) {
+      return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+    }
     if (action.status === 'undone') return NextResponse.json({ error: 'Already undone' }, { status: 400 });
     if (!action.before_state) return NextResponse.json({ error: 'No before state to restore' }, { status: 400 });
 

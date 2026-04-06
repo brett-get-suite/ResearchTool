@@ -58,6 +58,14 @@ export async function GET(request) {
     );
   }
 
+  const state = searchParams.get('state');
+  const expectedState = request.cookies.get('oauth_state')?.value;
+  if (!state || !expectedState || state !== expectedState) {
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}/accounts?error=invalid_state`
+    );
+  }
+
   try {
     const tokens = await exchangeCodeForTokens(code);
     const accessToken = tokens.access_token;
@@ -70,8 +78,12 @@ export async function GET(request) {
     const resourceNames = await fetchAccessibleAccounts(accessToken);
     const firstId = resourceNames[0]?.replace('customers/', '');
 
+    if (!firstId) {
+      throw new Error('No accessible Google Ads accounts found for this Google login.');
+    }
+
     let accountName = 'Google Ads Account';
-    let customerId = firstId || 'unknown';
+    let customerId = firstId;
 
     if (firstId) {
       const info = await fetchCustomerInfo(accessToken, firstId);

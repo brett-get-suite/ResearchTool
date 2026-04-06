@@ -6,5 +6,7 @@ export async function GET(request) {
   const state = searchParams.get('state') || crypto.randomUUID();
 
   const url = buildOAuthUrl(state);
-  return NextResponse.redirect(url);
+  const response = NextResponse.redirect(url);
+  response.cookies.set('oauth_state', state, { httpOnly: true, sameSite: 'lax', maxAge: 600 });
+  return response;
 }
