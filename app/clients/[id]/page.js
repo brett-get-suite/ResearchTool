@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getClient, deleteClient, updateClient } from '@/lib/supabase';
 import { getDefaultBenchmarks, getSeasonalMultipliers, getServiceFrequency, TAM_CONSTANTS } from '@/lib/benchmarks';
@@ -31,9 +31,34 @@ export default function ClientDetailPage() {
   const [enriching, setEnriching] = useState(false);
   const [enrichError, setEnrichError] = useState('');
   const [hasGoogleAds, setHasGoogleAds] = useState(false);
+  const [trendsData, setTrendsData] = useState(null);
+  const [trendsLoading, setTrendsLoading] = useState(false);
+
+  const fetchTrends = useCallback(async (client) => {
+    // Derive keyword from industry
+    const keyword = client.industry || 'contractor';
+    // Try to extract state abbreviation from service areas like "Greensboro, NC"
+    const firstArea = client.service_areas?.[0] || '';
+    const stateMatch = firstArea.match(/,\s*([A-Z]{2})$/);
+    const geo = stateMatch ? `US-${stateMatch[1]}` : 'US';
+
+    setTrendsLoading(true);
+    try {
+      const res = await fetch(`/api/trends?keyword=${encodeURIComponent(keyword)}&geo=${encodeURIComponent(geo)}`);
+      const data = await res.json();
+      setTrendsData(data);
+    } catch (e) {
+      console.warn('Trends fetch failed:', e);
+    } finally {
+      setTrendsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    getClient(id).then(setClient).catch(e => setError(e.message)).finally(() => setLoading(false));
+    getClient(id).then(clientData => {
+      setClient(clientData);
+      if (clientData) fetchTrends(clientData);
+    }).catch(e => setError(e.message)).finally(() => setLoading(false));
   }, [id]);
 
   useEffect(() => {
@@ -862,7 +887,9 @@ export default function ClientDetailPage() {
                   {bp.budget_tiers?.length > 0 && (() => {
                     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                     const currentMonth = new Date().getMonth();
-                    const multipliers = getSeasonalMultipliers(client.industry || '');
+                    const multipliers = (trendsData?.source === 'google_trends' && trendsData?.multipliers?.length === 12)
+                      ? trendsData.multipliers
+                      : getSeasonalMultipliers(client.industry || '');
                     const tier = bp.budget_tiers.find(t => t.level === selectedTier) || bp.budget_tiers[0];
                     const baseBudget = tier?.monthly_budget || 0;
                     const baseLeads = tier?.expected_monthly_leads || 0;
@@ -879,7 +906,16 @@ export default function ClientDetailPage() {
 
                     return (
                       <div>
-                        <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">12-Month Seasonal Budget Plan</p>
+                        <div className="flex items-center gap-2 mb-3">
+                          <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest">12-Month Seasonal Budget Plan</p>
+                          {trendsLoading ? (
+                            <span className="text-[10px] font-label text-secondary">Loading trends…</span>
+                          ) : trendsData?.source === 'google_trends' ? (
+                            <span className="text-[10px] font-label font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700">GOOGLE TRENDS DATA</span>
+                          ) : (
+                            <span className="text-[10px] font-label font-bold px-2 py-0.5 rounded bg-surface-high text-secondary">ESTIMATED</span>
+                          )}
+                        </div>
 
                         {/* Annual summary */}
                         <div className="p-4 bg-primary/[0.04] border border-primary/15 rounded-xl flex flex-wrap gap-6 mb-4">
