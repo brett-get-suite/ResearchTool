@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,7 +22,7 @@ function LoginForm() {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        router.push(redirect);
+        window.location.href = redirect;
       } else {
         const data = await res.json();
         setError(data.error || 'Invalid password.');
