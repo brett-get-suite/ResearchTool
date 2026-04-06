@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
 // Relative time helper
 function relativeTime(isoString) {
@@ -42,296 +42,210 @@ function StatusBadge({ status }) {
   );
 }
 
-function AgentCard({ agent, lastRun, onRun, running, disabled }) {
-  const status = running ? 'running' : (lastRun?.status ?? 'idle');
-  const actionsCount = lastRun?.actions_taken ?? null;
-
-  return (
-    <div className="card p-5 flex flex-col gap-3">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="material-symbols-outlined text-primary text-[22px] shrink-0">
-            {agent.icon}
-          </span>
-          <p className="font-headline font-bold text-on-surface text-base leading-tight truncate">
-            {agent.name}
-          </p>
-        </div>
-        <StatusBadge status={status} />
-      </div>
-
-      {/* Last run */}
-      <div className="flex items-center gap-1.5 text-xs text-secondary">
-        <span className="material-symbols-outlined text-[14px]">schedule</span>
-        <span>Last run: {relativeTime(lastRun?.created_at)}</span>
-      </div>
-
-      {/* Actions taken */}
-      {actionsCount != null && (
-        <div className="flex items-center gap-1.5 text-xs text-secondary">
-          <span className="material-symbols-outlined text-[14px]">check_circle</span>
-          <span>{actionsCount} action{actionsCount !== 1 ? 's' : ''} taken</span>
-        </div>
-      )}
-
-      {/* Run Now button */}
-      <button
-        onClick={onRun}
-        disabled={running || disabled}
-        className="pill-btn-primary justify-center text-sm mt-auto disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {running ? (
-          <>
-            <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-            Running…
-          </>
-        ) : (
-          <>
-            <span className="material-symbols-outlined text-[16px]">play_arrow</span>
-            Run Now
-          </>
-        )}
-      </button>
-    </div>
-  );
-}
-
-
 export default function AgentsPage() {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccountId, setSelectedAccountId] = useState('');
-  const [recentRuns, setRecentRuns] = useState([]);
+  const [recentRuns, setRecentRuns] = useState([]);  // cross-account
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [loadingRuns, setLoadingRuns] = useState(false);
-  // { [agentType]: { running: bool, lastRun: action | null } }
   const [agentState, setAgentState] = useState(
-    Object.fromEntries(AGENT_CONFIG.map(a => [a.type, { running: false, lastRun: null }]))
+    Object.fromEntries(AGENT_CONFIG.map(a => [a.type, { running: false, lastRun: null, totalActions: 0, successRate: null }]))
   );
   const [runError, setRunError] = useState(null);
 
-  // Load accounts on mount
+  // Load accounts + cross-account runs on mount
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/accounts', { signal: controller.signal })
-      .then(r => r.json())
-      .then(data => {
-        const list = Array.isArray(data) ? data : [];
-        setAccounts(list);
-        if (list.length) setSelectedAccountId(list[0].id);
-      })
-      .catch(err => { if (err.name !== 'AbortError') console.error(err); })
-      .finally(() => setLoadingAccounts(false));
-    return () => controller.abort();
-  }, []);
+    Promise.all([
+      fetch('/api/accounts', { signal: controller.signal }).then(r => r.json()).catch(() => []),
+      fetch('/api/agents/runs?limit=20', { signal: controller.signal }).then(r => r.json()).catch(() => []),
+    ]).then(([accountsList, runs]) => {
+      const list = Array.isArray(accountsList) ? accountsList : [];
+      setAccounts(list);
+      if (list.length) setSelectedAccountId(list[0].id);
+      const runList = Array.isArray(runs) ? runs : [];
+      setRecentRuns(runList);
 
-  // Load recent runs when account changes
-  const loadRecentRuns = useCallback(async (accountId) => {
-    if (!accountId) return;
-    setLoadingRuns(true);
-    try {
-      const res = await fetch(`/api/accounts/${accountId}/actions?limit=20`);
-      const data = await res.json();
-      const runs = Array.isArray(data) ? data : [];
-      setRecentRuns(runs);
-
-      // Update lastRun per agent type from most recent action
+      // Compute per-agent stats from cross-account runs
       setAgentState(prev => {
         const next = { ...prev };
         for (const agent of AGENT_CONFIG) {
-          const lastForType = runs.find(r => r.agent_type === agent.type);
-          next[agent.type] = { ...next[agent.type], lastRun: lastForType ?? null };
+          const agentRuns = runList.filter(r => r.agent_type === agent.type || r.type === agent.type);
+          const lastRun = agentRuns[0] ?? null;
+          const totalActions = agentRuns.reduce((s, r) => s + (r.actions_taken ?? 0), 0);
+          const completed = agentRuns.filter(r => r.status === 'completed').length;
+          const successRate = agentRuns.length > 0 ? Math.round((completed / agentRuns.length) * 100) : null;
+          next[agent.type] = { ...next[agent.type], lastRun, totalActions, successRate };
         }
         return next;
       });
-    } catch (err) {
-      console.error('Failed to load recent runs:', err);
-    } finally {
-      setLoadingRuns(false);
-    }
+    }).catch(() => {}).finally(() => setLoadingAccounts(false));
+    return () => controller.abort();
   }, []);
 
-  useEffect(() => {
-    if (selectedAccountId) loadRecentRuns(selectedAccountId);
-  }, [selectedAccountId, loadRecentRuns]);
-
   const handleRunAgent = async (agentType) => {
-    const accountId = selectedAccountId; // capture before any async state changes
-    if (!accountId) return;
+    if (!selectedAccountId) { setRunError('Select an account first'); return; }
     setRunError(null);
-    setAgentState(prev => ({
-      ...prev,
-      [agentType]: { ...prev[agentType], running: true },
-    }));
-
+    setAgentState(prev => ({ ...prev, [agentType]: { ...prev[agentType], running: true } }));
     try {
       const res = await fetch(`/api/agents/${agentType}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accountId }),
+        body: JSON.stringify({ accountId: selectedAccountId }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || `Agent ${agentType} failed`);
-      }
-    } catch (err) {
-      console.error(`Agent ${agentType} error:`, err);
-      setRunError(`${agentType}: ${err.message}`);
-    } finally {
+      const result = await res.json();
+      const accountName = accounts.find(a => a.id === selectedAccountId)?.name || selectedAccountId;
+      const newRun = {
+        agent_type: agentType,
+        status: result.success ? 'completed' : 'failed',
+        created_at: new Date().toISOString(),
+        actions_taken: result.actionsCount ?? 0,
+        accounts: { name: accountName },
+      };
+      setRecentRuns(prev => [newRun, ...prev.slice(0, 19)]);
       setAgentState(prev => ({
         ...prev,
-        [agentType]: { ...prev[agentType], running: false },
+        [agentType]: {
+          ...prev[agentType],
+          running: false,
+          lastRun: newRun,
+          totalActions: (prev[agentType].totalActions || 0) + (newRun.actions_taken || 0),
+        },
       }));
-      // Refresh runs list (use captured accountId, not current state)
-      await loadRecentRuns(accountId);
+    } catch (err) {
+      setRunError(`${agentType} agent failed: ${err.message}`);
+      setAgentState(prev => ({ ...prev, [agentType]: { ...prev[agentType], running: false } }));
     }
+  };
+
+  const handleGlobalToggle = async (agentType, enabled) => {
+    await Promise.allSettled(accounts.map(acc =>
+      fetch(`/api/accounts/${acc.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ settings: { agents: { [agentType]: enabled } } }),
+      })
+    ));
   };
 
   const anyRunning = Object.values(agentState).some(s => s.running);
 
   return (
-    <div className="px-8 py-10">
+    <div className="p-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">
-          Agent Dashboard
-        </h2>
-        <p className="text-secondary text-sm">Monitor and control your AI optimization agents</p>
-      </div>
-
-      {/* Account selector */}
-      <div className="card p-4 mb-6 flex items-center gap-4">
-        <span className="material-symbols-outlined text-primary text-[20px] shrink-0">account_tree</span>
-        <div className="flex-1 min-w-0">
-          <label className="field-label">Active Account</label>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-headline font-bold text-on-surface">Agent Dashboard</h1>
+          <p className="text-sm text-secondary font-label mt-1">AI agents running across all connected accounts</p>
+        </div>
+        <div className="flex items-center gap-3">
           {loadingAccounts ? (
-            <div className="h-8 w-48 bg-outline-variant/10 rounded animate-pulse" />
-          ) : accounts.length === 0 ? (
-            <p className="text-sm text-secondary">No accounts connected</p>
+            <div className="h-9 w-48 bg-surface-high rounded-lg animate-pulse" />
           ) : (
             <select
               value={selectedAccountId}
               onChange={e => setSelectedAccountId(e.target.value)}
-              className="field-input max-w-xs"
+              className="field-input w-48 py-2"
             >
-              <option value="" disabled>Select an account to run agents</option>
-              {accounts.map(a => (
-                <option key={a.id} value={a.id}>{a.name || 'Unnamed Account'}</option>
-              ))}
+              {accounts.length === 0 && <option value="">No accounts connected</option>}
+              {accounts.map(a => <option key={a.id} value={a.id}>{a.name || a.customer_id}</option>)}
             </select>
           )}
         </div>
       </div>
 
-      {/* Error banner */}
       {runError && (
-        <div className="mb-4 flex items-center gap-2 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
-          <span className="material-symbols-outlined text-[16px]">error</span>
-          <span>{runError}</span>
-          <button
-            onClick={() => setRunError(null)}
-            className="ml-auto material-symbols-outlined text-[16px] hover:opacity-70"
-          >
-            close
-          </button>
-        </div>
+        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700 font-label">{runError}</div>
       )}
 
-      {/* Agent cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
-        {AGENT_CONFIG.map(agent => (
-          <AgentCard
-            key={agent.type}
-            agent={agent}
-            lastRun={agentState[agent.type]?.lastRun}
-            running={agentState[agent.type]?.running}
-            disabled={!selectedAccountId || anyRunning}
-            onRun={() => handleRunAgent(agent.type)}
-          />
-        ))}
+      {/* Agent cards grid — 3 columns */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {AGENT_CONFIG.map(agent => {
+          const state = agentState[agent.type];
+          return (
+            <div key={agent.type} className="card p-5 flex flex-col gap-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-primary text-[22px]">{agent.icon}</span>
+                  <p className="font-headline font-bold text-on-surface text-sm">{agent.name}</p>
+                </div>
+                <StatusBadge status={state.running ? 'running' : (state.lastRun?.status ?? 'idle')} />
+              </div>
+              <div className="space-y-1 text-xs text-secondary font-label">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[13px]">schedule</span>
+                  Last run: {relativeTime(state.lastRun?.created_at)}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                  {state.totalActions || 0} total actions
+                </div>
+                {state.successRate !== null && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[13px]">percent</span>
+                    {state.successRate}% success rate
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2 mt-auto">
+                <button
+                  onClick={() => handleRunAgent(agent.type)}
+                  disabled={state.running || anyRunning || !selectedAccountId}
+                  className="flex-1 pill-btn-primary justify-center text-xs disabled:opacity-50"
+                >
+                  {state.running ? (
+                    <><span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span> Running…</>
+                  ) : (
+                    <><span className="material-symbols-outlined text-[14px]">play_arrow</span> Run Now</>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleGlobalToggle(agent.type, false)}
+                  title="Disable globally across all accounts"
+                  className="p-2 rounded-lg text-secondary hover:bg-surface-high hover:text-red-600 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[16px]">pause_circle</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Recent runs */}
-      <div className="card overflow-hidden">
-        <div className="px-5 py-4 border-b border-outline-variant/15 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[18px]">history</span>
-            <h3 className="font-headline font-bold text-on-surface text-base">Recent Runs</h3>
-          </div>
-          {loadingRuns && (
-            <span className="material-symbols-outlined text-secondary text-[18px] animate-spin">
-              progress_activity
-            </span>
-          )}
-        </div>
-
-        {!selectedAccountId ? (
-          <div className="px-5 py-10 text-center text-secondary text-sm">
-            Select an account to view recent runs
-          </div>
-        ) : loadingRuns && recentRuns.length === 0 ? (
-          <div className="divide-y divide-outline-variant/10">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className="px-5 py-3.5 flex items-center gap-3 animate-pulse">
-                <div className="h-4 w-28 bg-outline-variant/10 rounded" />
-                <div className="h-4 w-16 bg-outline-variant/10 rounded" />
-                <div className="ml-auto h-4 w-20 bg-outline-variant/10 rounded" />
-              </div>
-            ))}
+      {/* Recent runs timeline — cross-account */}
+      <div>
+        <h2 className="text-sm font-headline font-bold text-on-surface mb-3">Recent Runs — All Accounts</h2>
+        {loadingAccounts ? (
+          <div className="space-y-2">
+            {[1,2,3].map(i => <div key={i} className="h-14 bg-surface-high rounded-xl animate-pulse" />)}
           </div>
         ) : recentRuns.length === 0 ? (
-          <div className="px-5 py-10 text-center text-secondary text-sm">
-            No agent runs recorded yet for this account
-          </div>
+          <div className="card p-6 text-center text-sm text-secondary font-label">No agent runs yet</div>
         ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Agent</th>
-                <th>Trigger</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentRuns.map(run => {
-                const agentConf = AGENT_CONFIG.find(a => a.type === run.agent_type);
-                return (
-                  <tr key={run.id}>
-                    <td>
-                      <div className="flex items-center gap-1.5">
-                        {agentConf && (
-                          <span className="material-symbols-outlined text-primary text-[14px]">
-                            {agentConf.icon}
-                          </span>
-                        )}
-                        <span className="font-label font-semibold text-on-surface capitalize">
-                          {agentConf?.name ?? run.agent_type}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="text-xs text-secondary capitalize">{run.action_type ?? '—'}</span>
-                    </td>
-                    <td>
-                      <span className="text-xs text-secondary line-clamp-1 max-w-xs">
-                        {run.description ?? '—'}
-                      </span>
-                    </td>
-                    <td>
-                      <StatusBadge status={run.status} />
-                    </td>
-                    <td>
-                      <span className="text-xs text-secondary whitespace-nowrap">
-                        {relativeTime(run.created_at)}
-                      </span>
-                    </td>
+          <div className="card overflow-hidden">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Account</th>
+                  <th>Agent</th>
+                  <th>Actions</th>
+                  <th>Status</th>
+                  <th>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentRuns.map((run, i) => (
+                  <tr key={run.id || i}>
+                    <td className="font-medium text-on-surface">{run.accounts?.name || run.account_name || '—'}</td>
+                    <td><span className="capitalize text-secondary font-label">{run.agent_type || run.type}</span></td>
+                    <td>{run.actions_taken ?? '—'}</td>
+                    <td><StatusBadge status={run.status} /></td>
+                    <td className="text-secondary font-label text-xs">{relativeTime(run.created_at)}</td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
