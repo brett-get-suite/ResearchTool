@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient_db, updateClient, isSupabaseConfigured } from '@/lib/supabase';
 import ServiceAreaInput from '@/components/ServiceAreaInput';
+import Skeleton from '@/components/Skeleton';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // ─── Constants ────────────────────────────────────────────────────
 const INDUSTRIES = [
@@ -631,9 +633,7 @@ function ResearchPageInner() {
       {/* ── STEP 2: LOADING ── */}
       {currentStep === 2 && loading && (
         <div className="fade-up max-w-lg mx-auto text-center py-20">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/[0.08] flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-[32px] animate-spin">progress_activity</span>
-          </div>
+          <Skeleton rows={3} height="h-6" className="my-4" />
           <h3 className="text-2xl font-headline font-bold text-on-surface mb-2">Running Research Pipeline</h3>
           <p className="text-secondary text-sm mb-8">{loadingPhase}</p>
           <div className="card p-6 text-left space-y-4">
@@ -728,6 +728,7 @@ function ResearchPageInner() {
 
           <div className="card rounded-tl-none overflow-hidden">
             {/* KEYWORDS */}
+            <ErrorBoundary>
             {activeTab === 'keywords' && keywordData && (
               <div>
                 {(keywordData.keyword_groups || []).map((group, gi) => (
@@ -955,6 +956,7 @@ function ResearchPageInner() {
                 )}
               </div>
             )}
+            </ErrorBoundary>
           </div>
 
           {/* Start over */}
@@ -985,7 +987,7 @@ function ResearchPageInner() {
 
 export default function ResearchPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-20"><span className="material-symbols-outlined text-primary text-[32px]" style={{ animation: 'spin 1s linear infinite' }}>progress_activity</span></div>}>
+    <Suspense fallback={<Skeleton rows={3} height="h-6" className="my-4" />}>
       <ResearchPageInner />
     </Suspense>
   );

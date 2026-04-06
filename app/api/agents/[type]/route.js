@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import { runAgent, AGENT_TYPES } from '@/lib/agents/index';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 // POST /api/agents/[type]
 // Body: { accountId }
 export async function POST(request, { params }) {
+  const { allowed } = checkRateLimit(request, { limit: 5, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests — please wait a moment' }, { status: 429 });
+  }
   try {
     const { type } = params;
     const { accountId } = await request.json();

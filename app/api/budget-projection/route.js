@@ -1,10 +1,15 @@
 import { callGemini, parseGeminiJSON } from '@/lib/gemini';
 import { budgetProjectionPrompt } from '@/lib/prompts';
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export const maxDuration = 60;
 
 export async function POST(req) {
+  const { allowed } = checkRateLimit(req, { limit: 10, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests — please wait a moment' }, { status: 429 });
+  }
   try {
     const { apiKey, businessName, industry, serviceAreas, keywordData, competitorData, calibration, seasonalMultipliers } = await req.json();
 

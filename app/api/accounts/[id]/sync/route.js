@@ -2,8 +2,13 @@ import { NextResponse } from 'next/server';
 import { getAccountClient } from '@/lib/google-ads-auth';
 import { fetchCampaigns, fetchAdGroups, fetchKeywords, fetchCampaignMetrics } from '@/lib/google-ads-query';
 import { saveSnapshot, updateAccount } from '@/lib/supabase';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(request, { params }) {
+  const { allowed } = checkRateLimit(request, { limit: 5, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests — please wait a moment' }, { status: 429 });
+  }
   try {
     const client = await getAccountClient(params.id);
 

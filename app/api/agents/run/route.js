@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { runAgent, AGENT_TYPES } from '@/lib/agents/index';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 // POST /api/agents/run
 // Body: { type, accountId, trigger? }
 // OR: { accountId } to run all scheduled agents for an account
 export async function POST(request) {
+  const { allowed } = checkRateLimit(request, { limit: 5, windowMs: 60_000 });
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests — please wait a moment' }, { status: 429 });
+  }
   try {
     const { type, accountId, trigger = 'scheduled' } = await request.json();
 

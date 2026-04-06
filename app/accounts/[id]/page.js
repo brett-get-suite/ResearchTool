@@ -11,6 +11,8 @@ import AdCopyPanel from '@/components/dashboard/AdCopyPanel';
 import ChangeLogTab from '@/components/dashboard/ChangeLogTab';
 import AuditTab from '@/components/dashboard/AuditTab';
 import AccountSettings from '@/components/dashboard/AccountSettings';
+import { StatCardSkeleton, TableSkeleton } from '@/components/Skeleton';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // ─── Format helpers ──────────────────────────────────────────────────────────
 
@@ -274,6 +276,7 @@ export default function AccountPage({ params }) {
 
       {/* ── Tab content ── */}
       <div className="mt-6">
+      <ErrorBoundary key={activeTab}>
 
         {/* ════ Overview ════ */}
         {activeTab === 'overview' && (
@@ -295,29 +298,35 @@ export default function AccountPage({ params }) {
             </div>
 
             {/* Hero stats */}
-            {(() => {
-              const totalCost = metrics?.total_cost ?? campaigns.reduce((s, c) => s + (c.cost || 0), 0);
-              const conversions = metrics?.conversions ?? campaigns.reduce((s, c) => s + (c.conversions || 0), 0);
-              const clicks = metrics?.total_clicks ?? campaigns.reduce((s, c) => s + (c.clicks || 0), 0);
-              const totalBudget = campaigns.reduce((s, c) => s + (c.daily_budget || 0), 0) * 30;
-              const budgetUsedPct = totalBudget > 0 ? (totalCost / totalBudget) * 100 : 0;
-              const cpl = conversions > 0 ? totalCost / conversions : null;
-              const avgCpc = clicks > 0 ? totalCost / clicks : null;
-              return (
-                <div className="grid grid-cols-5 gap-4 mb-6">
-                  <StatCard label="Cost Per Lead" value={cpl ? `$${cpl.toFixed(2)}` : '—'} subvalue="Primary metric" color="primary" />
-                  <StatCard label="Total Spend" value={fmtCost(totalCost)} />
-                  <StatCard label="Conversions" value={conversions} subvalue="Leads" color="gold" />
-                  <StatCard label="Budget Used"
-                    value={`${Math.round(budgetUsedPct)}%`}
-                    subvalue={`${fmtCost(totalCost)} of ${fmtCost(totalBudget)}`}
-                    progress={budgetUsedPct}
-                    progressColor={budgetUsedPct > 90 ? 'red' : budgetUsedPct > 75 ? 'yellow' : 'primary'}
-                  />
-                  <StatCard label="Avg CPC" value={avgCpc ? `$${avgCpc.toFixed(2)}` : '—'} />
-                </div>
-              );
-            })()}
+            {metricsLoading ? (
+              <div className="grid grid-cols-5 gap-4 mb-6">
+                {[1,2,3,4,5].map(i => <StatCardSkeleton key={i} />)}
+              </div>
+            ) : (
+              (() => {
+                const totalCost = metrics?.total_cost ?? campaigns.reduce((s, c) => s + (c.cost || 0), 0);
+                const conversions = metrics?.conversions ?? campaigns.reduce((s, c) => s + (c.conversions || 0), 0);
+                const clicks = metrics?.total_clicks ?? campaigns.reduce((s, c) => s + (c.clicks || 0), 0);
+                const totalBudget = campaigns.reduce((s, c) => s + (c.daily_budget || 0), 0) * 30;
+                const budgetUsedPct = totalBudget > 0 ? (totalCost / totalBudget) * 100 : 0;
+                const cpl = conversions > 0 ? totalCost / conversions : null;
+                const avgCpc = clicks > 0 ? totalCost / clicks : null;
+                return (
+                  <div className="grid grid-cols-5 gap-4 mb-6">
+                    <StatCard label="Cost Per Lead" value={cpl ? `$${cpl.toFixed(2)}` : '—'} subvalue="Primary metric" color="primary" />
+                    <StatCard label="Total Spend" value={fmtCost(totalCost)} />
+                    <StatCard label="Conversions" value={conversions} subvalue="Leads" color="gold" />
+                    <StatCard label="Budget Used"
+                      value={`${Math.round(budgetUsedPct)}%`}
+                      subvalue={`${fmtCost(totalCost)} of ${fmtCost(totalBudget)}`}
+                      progress={budgetUsedPct}
+                      progressColor={budgetUsedPct > 90 ? 'red' : budgetUsedPct > 75 ? 'yellow' : 'primary'}
+                    />
+                    <StatCard label="Avg CPC" value={avgCpc ? `$${avgCpc.toFixed(2)}` : '—'} />
+                  </div>
+                );
+              })()
+            )}
 
             {/* Charts */}
             {(() => {
@@ -337,7 +346,7 @@ export default function AccountPage({ params }) {
             {/* Campaign table */}
             <div className="mb-4">
               <h2 className="text-sm font-headline font-bold text-on-surface mb-3">Campaigns</h2>
-              <CampaignTable campaigns={campaigns} accountId={id} onRefresh={handleSync} />
+              {metricsLoading ? <TableSkeleton rows={3} cols={7} /> : <CampaignTable campaigns={campaigns} accountId={id} onRefresh={handleSync} />}
             </div>
 
             {/* Action bar */}
@@ -410,6 +419,7 @@ export default function AccountPage({ params }) {
           <AccountSettings accountId={id} campaigns={campaigns} />
         )}
 
+      </ErrorBoundary>
       </div>
     </div>
   );
