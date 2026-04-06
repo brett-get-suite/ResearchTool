@@ -4,16 +4,37 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap');
 
+/* Light mode (default) */
 :root {
   --sidebar-width: 256px;
+  --bg: #f4f6fa;
+  --sidebar: #1e2a3a;
+  --card: #ffffff;
+  --primary: #2d5be3;
+  --accent: #f5a623;
+  --border: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --sidebar: #131820;
+  --card: #1a2230;
+  --primary: #2d5be3;
+  --accent: #f5a623;
+  --border: #2a3348;
+  --text-primary: #ffffff;
+  --text-secondary: #8b9ab3;
 }
 
 * { box-sizing: border-box; }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #faf9fa;
-  color: #1b1c1d;
+  background: var(--bg);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
 

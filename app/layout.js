@@ -1,6 +1,7 @@
 import './globals.css';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import ThemeProvider from '@/components/ThemeProvider';
 
 export const metadata = {
   title: 'PPC Recon — Google Ads Intelligence',
@@ -19,11 +20,13 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="bg-surface min-h-screen">
-        <Sidebar />
-        <Header />
-        <main className="ml-64 pt-16 min-h-screen">
-          {children}
-        </main>
+        <ThemeProvider>
+          <Sidebar />
+          <Header />
+          <main className="ml-64 pt-16 min-h-screen">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );
