@@ -7,6 +7,11 @@ export async function GET(request) {
 
   const url = buildOAuthUrl(state);
   const response = NextResponse.redirect(url);
-  response.cookies.set('oauth_state', state, { httpOnly: true, sameSite: 'lax', maxAge: 600 });
+  response.cookies.set('oauth_state', state, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 600,
+  });
   return response;
 }

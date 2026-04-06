@@ -48,7 +48,7 @@ export async function GET(request) {
 
   if (error) {
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/accounts?error=${encodeURIComponent(error)}`
+      `${process.env.NEXT_PUBLIC_APP_URL}/accounts?error=oauth_denied`
     );
   }
 
@@ -100,13 +100,15 @@ export async function GET(request) {
       status: 'active',
     });
 
-    return NextResponse.redirect(
+    const successRedirect = NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/accounts/${account.id}?connected=true`
     );
+    successRedirect.cookies.delete('oauth_state');
+    return successRedirect;
   } catch (err) {
     console.error('OAuth callback error:', err);
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/accounts?error=${encodeURIComponent(err.message)}`
+      `${process.env.NEXT_PUBLIC_APP_URL}/accounts?error=connection_failed`
     );
   }
 }
