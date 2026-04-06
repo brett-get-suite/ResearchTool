@@ -76,7 +76,7 @@ export default function Sidebar() {
       <div className="pt-6 border-t border-white/10 space-y-0.5">
         <button
           onClick={toggle}
-          className="w-full flex items-center gap-3 px-3 py-2 text-white/60 hover:text-white hover:bg-white/10 transition-colors rounded-lg text-sm font-label mb-2"
+          className="w-full flex items-center gap-3 px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors rounded-lg text-sm font-label mb-2"
         >
           <span className="material-symbols-outlined text-[20px]">
             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
