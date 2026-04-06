@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: 'var(--primary)',
+        primary: 'rgb(var(--primary-rgb) / <alpha-value>)',
         'primary-hover': '#0a3d8f',
         'primary-container': '#3366cc',
         'primary-fixed': '#d9e2ff',
@@ -31,7 +31,7 @@ module.exports = {
         'on-variant': 'var(--text-secondary)',
         'on-primary': '#ffffff',
         outline: '#737784',
-        'outline-variant': 'var(--border)',
+        'outline-variant': 'rgb(var(--border-rgb) / <alpha-value>)',
         error: '#ba1a1a',
         'error-container': '#ffdad6',
       },

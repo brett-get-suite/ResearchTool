@@ -11,8 +11,10 @@
   --sidebar: #1e2a3a;
   --card: #ffffff;
   --primary: #2d5be3;
+  --primary-rgb: 45 91 227;
   --accent: #f5a623;
   --border: #e2e8f0;
+  --border-rgb: 226 232 240;
   --text-primary: #0f172a;
   --text-secondary: #64748b;
 }
@@ -23,8 +25,10 @@
   --sidebar: #131820;
   --card: #1a2230;
   --primary: #2d5be3;
+  --primary-rgb: 45 91 227;
   --accent: #f5a623;
   --border: #2a3348;
+  --border-rgb: 42 51 72;
   --text-primary: #ffffff;
   --text-secondary: #8b9ab3;
 }
