@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export default function ServiceAreaInput({ value, onChange }) {
   // value: string[] (chip labels), onChange: (string[]) => void
