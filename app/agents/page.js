@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Relative time helper
 function relativeTime(isoString) {
@@ -55,6 +55,12 @@ export default function AgentsPage() {
   );
   const [runError, setRunError] = useState(null);
 
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => { isMountedRef.current = false; };
+  }, []);
+
   // Load accounts + cross-account runs on mount
   useEffect(() => {
     const controller = new AbortController();
@@ -67,6 +73,17 @@ export default function AgentsPage() {
       if (list.length) setSelectedAccountId(list[0].id);
       const runList = Array.isArray(runs) ? runs : [];
       setRecentRuns(runList);
+
+      // Derive global enabled state from accounts — disabled if any account explicitly disables it
+      setAgentEnabled(() => {
+        const next = {};
+        for (const agent of AGENT_CONFIG) {
+          next[agent.type] = list.every(acc =>
+            acc.settings?.agents?.[agent.type] !== false
+          );
+        }
+        return next;
+      });
 
       // Compute per-agent stats from cross-account runs
       setAgentState(prev => {
@@ -104,6 +121,7 @@ export default function AgentsPage() {
         actions_taken: result.actionsCount ?? 0,
         accounts: { name: accountName },
       };
+      if (!isMountedRef.current) return;
       setRecentRuns(prev => [newRun, ...prev.slice(0, 19)]);
       setAgentState(prev => ({
         ...prev,
@@ -115,6 +133,7 @@ export default function AgentsPage() {
         },
       }));
     } catch (err) {
+      if (!isMountedRef.current) return;
       setRunError(`${agentType} agent failed: ${err.message}`);
       setAgentState(prev => ({ ...prev, [agentType]: { ...prev[agentType], running: false } }));
     }
@@ -124,7 +143,7 @@ export default function AgentsPage() {
     setAgentEnabled(prev => ({ ...prev, [agentType]: enabled }));
     await Promise.allSettled(accounts.map(acc =>
       fetch(`/api/accounts/${acc.id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings: { agents: { [agentType]: enabled } } }),
       })
@@ -162,7 +181,7 @@ export default function AgentsPage() {
       )}
 
       {/* Agent cards grid — 3 columns */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {AGENT_CONFIG.map(agent => {
           const state = agentState[agent.type];
           return (

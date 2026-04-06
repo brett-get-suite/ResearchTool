@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const limit = parseInt(searchParams.get('limit') || '20');
+  const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10) || 20, 100);
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
