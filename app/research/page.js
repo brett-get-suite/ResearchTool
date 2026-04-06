@@ -633,7 +633,7 @@ function ResearchPageInner() {
       {/* ── STEP 2: LOADING ── */}
       {currentStep === 2 && loading && (
         <div className="fade-up max-w-lg mx-auto text-center py-20">
-          <Skeleton rows={3} height="h-6" className="my-4" />
+          <span className="material-symbols-outlined text-primary text-[48px] animate-spin">progress_activity</span>
           <h3 className="text-2xl font-headline font-bold text-on-surface mb-2">Running Research Pipeline</h3>
           <p className="text-secondary text-sm mb-8">{loadingPhase}</p>
           <div className="card p-6 text-left space-y-4">
@@ -987,7 +987,7 @@ function ResearchPageInner() {
 
 export default function ResearchPage() {
   return (
-    <Suspense fallback={<Skeleton rows={3} height="h-6" className="my-4" />}>
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton rows={3} height="h-6" className="my-4" /></div>}>
       <ResearchPageInner />
     </Suspense>
   );

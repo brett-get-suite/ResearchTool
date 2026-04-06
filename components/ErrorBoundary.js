@@ -22,6 +22,8 @@ export default class ErrorBoundary extends Component {
         <div className="card p-6 flex flex-col items-center gap-3 text-center">
           <span className="material-symbols-outlined text-[32px] text-secondary/40">error_outline</span>
           <p className="text-sm text-secondary font-label">This section couldn't load.</p>
+          {/* Note: Retry re-renders children with same props. If the error is deterministic,
+              the boundary will immediately re-catch. */}
           <button
             onClick={() => this.setState({ hasError: false })}
             className="pill-btn-secondary text-xs"

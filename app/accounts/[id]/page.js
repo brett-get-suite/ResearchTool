@@ -282,7 +282,7 @@ export default function AccountPage({ params }) {
 
       {/* ── Tab content ── */}
       <div className="mt-6">
-      <ErrorBoundary key={activeTab}>
+        <ErrorBoundary key={activeTab}>
 
         {/* ════ Overview ════ */}
         {activeTab === 'overview' && (
@@ -425,7 +425,7 @@ export default function AccountPage({ params }) {
           <AccountSettings accountId={id} campaigns={campaigns} />
         )}
 
-      </ErrorBoundary>
+        </ErrorBoundary>
       </div>
     </div>
   );

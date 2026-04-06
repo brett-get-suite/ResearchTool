@@ -1,4 +1,4 @@
-export default function Skeleton({ className = '', rows = 1, height = 'h-4' }) {
+export function Skeleton({ className = '', rows = 1, height = 'h-4' }) {
   return (
     <div className={`space-y-2 ${className}`}>
       {Array.from({ length: rows }).map((_, i) => (
@@ -8,9 +8,11 @@ export default function Skeleton({ className = '', rows = 1, height = 'h-4' }) {
   );
 }
 
+export default Skeleton;
+
 export function StatCardSkeleton() {
   return (
-    <div className="card p-5 space-y-2">
+    <div className="card p-4 space-y-2">
       <div className="h-3 w-24 bg-surface-high rounded animate-pulse" />
       <div className="h-8 w-20 bg-surface-high rounded animate-pulse" />
       <div className="h-3 w-16 bg-surface-high rounded animate-pulse" />
