@@ -142,6 +142,7 @@ export default function ClientDetailPage() {
           serviceAreas: client.service_areas,
           keywordData: client.keyword_data,
           competitorData: client.competitor_data,
+          calibration: client.calibration || null,
         }),
       });
       const json = await res.json();

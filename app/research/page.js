@@ -63,6 +63,10 @@ function ResearchPageInner() {
   const [competitorData, setCompetitorData] = useState(null);
   const [lowHangingFruit, setLowHangingFruit] = useState(null);
 
+  // Calibration state
+  const [calibration, setCalibration] = useState({ spend: '', leads: '' });
+  const [showCalibration, setShowCalibration] = useState(false);
+
   // UI state
   const [loading, setLoading] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState('');
@@ -204,12 +208,16 @@ function ResearchPageInner() {
 
       // Save completed research to Supabase
       if (isSupabaseConfigured() && clientId) {
+        const calibrationPayload = calibration.spend && calibration.leads
+          ? { spend: Number(calibration.spend), leads: Number(calibration.leads) }
+          : null;
         await updateClient(clientId, {
           selected_services: selectedServices,
           service_areas: serviceAreas,
           keyword_data: kwResult.data,
           competitor_data: compResult.data,
           low_hanging_fruit: lhfResult.data,
+          calibration: calibrationPayload,
           researched_at: new Date().toISOString(),
           status: 'complete',
         });
@@ -460,6 +468,54 @@ function ResearchPageInner() {
                       </button>
                     </span>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Calibration */}
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setShowCalibration(v => !v)}
+                className="flex items-center gap-1.5 text-xs text-secondary hover:text-primary transition-colors font-label"
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {showCalibration ? 'expand_less' : 'expand_more'}
+                </span>
+                Calibrate with real numbers (optional)
+              </button>
+              {showCalibration && (
+                <div className="mt-3 p-4 bg-surface-low rounded-xl border border-outline-variant/20 space-y-3">
+                  <p className="text-xs text-secondary font-label">
+                    Anchor budget projections to your client's actual results instead of industry benchmarks.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="field-label">Monthly Ad Spend ($)</label>
+                      <input
+                        type="number"
+                        className="field-input"
+                        placeholder="e.g. 4200"
+                        value={calibration.spend}
+                        onChange={e => setCalibration(prev => ({ ...prev, spend: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="field-label">Leads per Month (#)</label>
+                      <input
+                        type="number"
+                        className="field-input"
+                        placeholder="e.g. 18"
+                        value={calibration.leads}
+                        onChange={e => setCalibration(prev => ({ ...prev, leads: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                  {calibration.spend && calibration.leads && Number(calibration.leads) > 0 && (
+                    <p className="text-xs text-primary font-label font-semibold">
+                      ✓ Actual CPL: ${Math.round(Number(calibration.spend) / Number(calibration.leads))} — will be used to anchor all tiers
+                    </p>
+                  )}
                 </div>
               )}
             </div>
