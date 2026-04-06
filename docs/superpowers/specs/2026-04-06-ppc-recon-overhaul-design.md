@@ -1,6 +1,6 @@
 # PPC Recon — Overhaul Design Spec
 **Date:** 2026-04-06  
-**Scope:** Design system (dark/light mode), performance dashboard, budget projection fix, location autocomplete
+**Scope:** Design system (dark/light mode), full account dashboard with tabs, budget projection fix, location autocomplete, agent dashboard, Google Trends seasonality, production polish
 
 ---
 
@@ -70,17 +70,61 @@ Columns: Name | Status | Spend | Clicks | Conversions | CPL | Daily Budget
 
 #### Action Bar (below table)
 - **Sync Data** button — calls `POST /api/accounts/[id]/sync`, shows spinner, refreshes data on completion
-- **Run AI Audit** button — calls `POST /api/agents/run` with `type: "audit"`, opens a slide-in panel showing audit results (health score, issues, quick wins)
+- **Run AI Audit** button — calls `POST /api/agents/run` with `type: "audit"`, navigates to Audit tab on completion
+
+### Full Tab Structure
+The Overview tab (above) is the default. The full account page has 7 tabs. All tab content lazy-loads on first activation.
+
+**Tab 1 — Overview** (described above)
+
+**Tab 2 — Campaigns**
+- Full campaign table: Name, Status, Daily Budget, Impressions, Clicks, CTR, Cost, Conversions, CPL
+- Inline actions per row: Pause/Enable toggle, Edit Budget (inline number input + save)
+- "Create Campaign" button → `/accounts/[id]/campaigns/new` (wizard already exists)
+- Sortable columns, search/filter by name
+
+**Tab 3 — Keywords**
+- Cross-campaign keyword table: Keyword, Match Type, Ad Group, Campaign, Impressions, Clicks, CPC, Cost, Conversions, Quality Score
+- Inline actions: Pause/Enable, Edit Bid
+- Agent suggestions highlighted with a yellow accent badge: "AI suggests pausing — $42 spent, 0 conversions"
+- Filter: All / Active / Paused / Agent Flagged
+
+**Tab 4 — Ad Copy**
+- RSA ads grouped by ad group, showing headline/description pinning, approval status, CTR
+- "Generate New Ads" button → triggers ad copy agent for that ad group
+- Shows asset-level performance where available (pin slot CTR)
+
+**Tab 5 — Change Log**
+- Chronological list of all agent actions for this account (`agent_actions` table)
+- Each row: timestamp, agent type badge, description, before→after diff, Undo button
+- Filter by agent type (Bid / Budget / Keyword / Ad Copy / Negative)
+- Undo calls `POST /api/accounts/[id]/actions/[actionId]/undo`
+
+**Tab 6 — Audit**
+- Latest AI account audit: health score (0-100), issue list with severity badges, quick wins, wasted spend estimate
+- "Re-run Audit" button → triggers audit agent, refreshes tab
+- Issue cards: each shows impact estimate, recommended fix, one-click "Apply Fix" where automatable
+
+**Tab 7 — Settings**
+- Per-agent enable/disable toggles (Keyword, Bid, Budget, Ad Copy, Negative)
+- Bid adjustment cap (default ±20%, slider 5–35%)
+- Budget adjustment cap (default ±15%, slider 5–25%)
+- Excluded campaigns (multi-select — agents skip these)
+- Settings saved to `accounts.settings` JSONB column
 
 ### Component Structure
 ```
-app/accounts/[id]/page.js          ← full overhaul (currently exists)
+app/accounts/[id]/page.js          ← full overhaul (tabbed layout)
 components/dashboard/
   StatCard.js                      ← reusable hero stat card
-  SpendChart.js                    ← bar chart component
-  ConversionsChart.js              ← line chart component
+  SpendChart.js                    ← bar chart (Recharts)
+  ConversionsChart.js              ← line chart (Recharts)
   CampaignTable.js                 ← sortable campaign table
-  AuditPanel.js                    ← slide-in audit results panel
+  KeywordTable.js                  ← keyword table with agent flags
+  AdCopyPanel.js                   ← RSA ad group viewer
+  ChangeLogTab.js                  ← action history + undo
+  AuditTab.js                      ← audit report display
+  AccountSettings.js               ← agent settings form
 ```
 
 ---
@@ -158,17 +202,97 @@ Add `GOOGLE_MAPS_API_KEY` to `.env.example` with comment: `# Optional — enable
 
 ---
 
+---
+
+## 5. Agent Dashboard (`/agents`)
+
+### Goal
+Give bosses visibility into what the AI agents are doing across all connected accounts. Already partially exists as a page — needs a proper UI built on top of the existing `/api/agents/` infrastructure.
+
+### Layout
+- **Agent cards row** — one card per agent type (Keyword, Bid, Budget, Ad Copy, Negative, Audit). Each shows: status (Active/Paused), last run time, total actions taken all-time, success rate.
+- **Recent runs timeline** — last 20 agent runs across all accounts, showing account name, agent type, actions taken, duration, status badge (completed/failed).
+- **Global toggles** — enable/disable each agent type globally across all accounts (writes to each account's settings).
+
+### Data
+- `agent_runs` table (already exists) — queried via new `GET /api/agents/runs` route
+- `agent_actions` table (already exists) — aggregate counts per type
+
+### New route needed
+`GET /api/agents/runs?limit=20` — returns recent runs across all accounts with account name joined.
+
+---
+
+## 6. Google Trends Seasonality
+
+### Goal
+Replace the hardcoded seasonality multipliers in `lib/benchmarks.js` with real Google Trends data for the specific market being researched. Shows clients an accurate 12-month picture of when demand peaks and troughs.
+
+### How it works
+Google Trends has an unofficial JSON endpoint that returns a 12-month relative interest index (0–100) for any search term. No API key required.
+
+**New route: `GET /api/trends?keyword=<kw>&geo=<state>`**
+- Fetches `https://trends.google.com/trends/api/explore` with appropriate params
+- Parses the 12-month interest-over-time data
+- Returns normalized multipliers (1.0 = average month) for the 12 months
+- Caches result for 24 hours (in-memory or Supabase if needed)
+- Falls back to `lib/benchmarks.js` hardcoded values if Trends fetch fails
+
+**Integration points:**
+1. Budget tab in client detail (`/clients/[id]`) — replace hardcoded seasonal chart with real trend data fetched for the client's top keyword + state
+2. Budget projection prompt (`lib/prompts.js`) — inject real seasonal multipliers when available so Gemini's budget model uses actual demand curves
+
+**UI change:** In the seasonal 12-month chart, add a small "GOOGLE TRENDS DATA" badge (blue) when real data is used, replacing the current "ESTIMATED" indicator.
+
+---
+
+## 7. Production Polish
+
+### Loading Skeletons
+Replace spinners with skeleton loaders on:
+- Account detail page tabs (pulse animation matching card shapes)
+- Campaign table rows (3 skeleton rows while loading)
+- Dashboard stat cards (pulse boxes at correct dimensions)
+- Research results tabs
+
+Pattern: use a `Skeleton` component (`components/Skeleton.js`) that renders animated gray boxes. Each data component renders `<Skeleton />` when its loading prop is true.
+
+### Error Boundaries
+Wrap each major tab and section in a React error boundary so one failed fetch doesn't crash the whole page.
+
+Pattern: `components/ErrorBoundary.js` — catches render errors, shows:
+> "This section couldn't load. [Retry]"
+
+Apply to: each account tab, each research result tab, the dashboard stat section.
+
+### Rate Limiting on API Routes
+Prevent accidental Gemini cost spikes from rapid re-runs or external probing.
+
+Implementation: simple in-memory rate limiter in a `lib/rateLimit.js` module.
+- Gemini-backed routes (analyze-website, keyword-research, competitor-audit, etc.): **10 requests per minute per IP**
+- Google Ads write routes (sync, agents/run): **5 requests per minute per IP**
+- Read routes: no limit
+
+Each rate-limited route calls `checkRateLimit(request, { limit, window })` at the top and returns `429` if exceeded.
+
+---
+
 ## Implementation Order
 
-1. **Design tokens + dark/light toggle** — affects everything, do first so all subsequent work uses the new system
-2. **Location autocomplete** — self-contained, no dependencies on other changes
-3. **Budget projection fix** — small prompt + form changes
-4. **Performance dashboard** — largest piece, builds on new design system
+1. **Design tokens + dark/light toggle** — foundation, everything builds on this
+2. **Budget projection fix** — quick win, fixes the most visible problem immediately
+3. **Location autocomplete** — self-contained feature
+4. **Performance dashboard + full account tabs** — largest piece
+5. **Agent dashboard** — builds on account tab infrastructure
+6. **Google Trends seasonality** — adds real data to existing budget views
+7. **Production polish** — skeletons, error boundaries, rate limiting last (polish pass)
 
 ---
 
 ## Out of Scope
 - Full auth/user system (already added session middleware)
-- Multi-account management beyond what exists
-- Email reports or scheduled exports
+- Competitor intelligence via SpyFu/SEMrush (requires paid API)
+- Geo-targeting heatmap (requires map rendering library)
+- Call tracking integration (requires CallRail etc.)
+- Email/Slack reports
 - Mobile responsive overhaul (desktop-first for now)
