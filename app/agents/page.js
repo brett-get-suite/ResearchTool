@@ -47,9 +47,11 @@ export default function AgentsPage() {
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [recentRuns, setRecentRuns] = useState([]);  // cross-account
   const [loadingAccounts, setLoadingAccounts] = useState(true);
-  const [loadingRuns, setLoadingRuns] = useState(false);
   const [agentState, setAgentState] = useState(
     Object.fromEntries(AGENT_CONFIG.map(a => [a.type, { running: false, lastRun: null, totalActions: 0, successRate: null }]))
+  );
+  const [agentEnabled, setAgentEnabled] = useState(
+    Object.fromEntries(AGENT_CONFIG.map(a => [a.type, true]))
   );
   const [runError, setRunError] = useState(null);
 
@@ -119,6 +121,7 @@ export default function AgentsPage() {
   };
 
   const handleGlobalToggle = async (agentType, enabled) => {
+    setAgentEnabled(prev => ({ ...prev, [agentType]: enabled }));
     await Promise.allSettled(accounts.map(acc =>
       fetch(`/api/accounts/${acc.id}`, {
         method: 'PATCH',
@@ -200,11 +203,17 @@ export default function AgentsPage() {
                   )}
                 </button>
                 <button
-                  onClick={() => handleGlobalToggle(agent.type, false)}
-                  title="Disable globally across all accounts"
-                  className="p-2 rounded-lg text-secondary hover:bg-surface-high hover:text-red-600 transition-colors"
+                  onClick={() => handleGlobalToggle(agent.type, !agentEnabled[agent.type])}
+                  title={agentEnabled[agent.type] ? 'Disable globally' : 'Enable globally'}
+                  className={`p-2 rounded-lg transition-colors ${
+                    agentEnabled[agent.type]
+                      ? 'text-secondary hover:bg-surface-high hover:text-red-600'
+                      : 'text-red-500 bg-red-50 hover:bg-red-100'
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-[16px]">pause_circle</span>
+                  <span className="material-symbols-outlined text-[16px]">
+                    {agentEnabled[agent.type] ? 'pause_circle' : 'play_circle'}
+                  </span>
                 </button>
               </div>
             </div>
