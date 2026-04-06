@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient_db, updateClient, isSupabaseConfigured } from '@/lib/supabase';
+import ServiceAreaInput from '@/components/ServiceAreaInput';
 
 // ─── Constants ────────────────────────────────────────────────────
 const INDUSTRIES = [
@@ -54,7 +55,6 @@ function ResearchPageInner() {
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [industry, setIndustry] = useState('Plumbing');
   const [serviceAreas, setServiceAreas] = useState([]);
-  const [areaInput, setAreaInput] = useState('');
 
   // Results state
   const [websiteData, setWebsiteData] = useState(null);
@@ -94,15 +94,6 @@ function ResearchPageInner() {
   }, []);
 
   // ─── Handlers ────────────────────────────────────────────────────
-  const addArea = useCallback(() => {
-    const v = areaInput.trim();
-    if (v && !serviceAreas.includes(v)) {
-      setServiceAreas(p => [...p, v]);
-      setAreaInput('');
-    }
-  }, [areaInput, serviceAreas]);
-
-  const removeArea = useCallback((a) => setServiceAreas(p => p.filter(x => x !== a)), []);
   const toggleService = useCallback((name) => {
     setSelectedServices(p => p.includes(name) ? p.filter(s => s !== name) : [...p, name]);
   }, []);
@@ -443,33 +434,7 @@ function ResearchPageInner() {
             {/* Service areas */}
             <div>
               <label className="field-label">Service Areas</label>
-              <div className="flex gap-2">
-                <input
-                  className="field-input flex-1"
-                  placeholder="e.g. Greensboro NC, 27401, High Point"
-                  value={areaInput}
-                  onChange={e => setAreaInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addArea())}
-                />
-                <button
-                  onClick={addArea}
-                  className="px-4 py-2 bg-surface-high hover:bg-surface-dim text-on-surface rounded-lg transition-colors font-label font-medium text-sm"
-                >
-                  Add
-                </button>
-              </div>
-              {serviceAreas.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {serviceAreas.map(a => (
-                    <span key={a} className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/[0.08] text-primary text-sm font-label rounded-lg border border-primary/20">
-                      {a}
-                      <button onClick={() => removeArea(a)}>
-                        <span className="material-symbols-outlined text-[14px]">close</span>
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
+              <ServiceAreaInput value={serviceAreas} onChange={setServiceAreas} />
             </div>
 
             {/* Calibration */}
@@ -599,28 +564,7 @@ function ResearchPageInner() {
               {/* Service areas */}
               <div className="card p-5">
                 <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Service Areas</p>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    className="field-input text-sm flex-1"
-                    placeholder="Add area..."
-                    value={areaInput}
-                    onChange={e => setAreaInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addArea())}
-                  />
-                  <button onClick={addArea} className="px-3 py-2 bg-surface-high hover:bg-surface-dim rounded-lg transition-colors text-sm font-label">
-                    Add
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {serviceAreas.map(a => (
-                    <span key={a} className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/[0.08] text-primary text-xs font-label rounded-lg border border-primary/20">
-                      {a}
-                      <button onClick={() => removeArea(a)}>
-                        <span className="material-symbols-outlined text-[12px]">close</span>
-                      </button>
-                    </span>
-                  ))}
-                </div>
+                <ServiceAreaInput value={serviceAreas} onChange={setServiceAreas} />
               </div>
 
               {/* USPs */}
