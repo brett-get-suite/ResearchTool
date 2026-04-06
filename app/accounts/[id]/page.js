@@ -374,9 +374,17 @@ export default function AccountPage({ params }) {
 
         {/* ════ Keywords ════ */}
         {activeTab === 'keywords' && (
-          <KeywordTable keywords={keywords} accountId={id} onRefresh={() => {
-            fetch(`/api/accounts/${id}/keywords`).then(r => r.json()).then(d => setKeywords(Array.isArray(d) ? d : []));
-          }} />
+          <KeywordTable
+            keywords={keywords}
+            accountId={id}
+            agentSuggestions={actions
+              .filter(a => a.agent_type === 'keyword' && a.keyword)
+              .map(a => ({ keyword: a.keyword, suggestion: a.description || 'Review suggested' }))
+            }
+            onRefresh={() => {
+              fetch(`/api/accounts/${id}/keywords`).then(r => r.json()).then(d => setKeywords(Array.isArray(d) ? d : []));
+            }}
+          />
         )}
 
         {/* ════ Ad Copy ════ */}
