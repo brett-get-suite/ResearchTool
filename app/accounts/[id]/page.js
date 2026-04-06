@@ -70,6 +70,7 @@ export default function AccountPage({ params }) {
   const [loadedTabs, setLoadedTabs] = useState(new Set(['overview']));
   const [dateRange, setDateRange] = useState('LAST_30_DAYS');
   const [runningAudit, setRunningAudit] = useState(false);
+  const [metricsLoading, setMetricsLoading] = useState(false);
 
   // ── Initial load ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -79,19 +80,11 @@ export default function AccountPage({ params }) {
     const run = async () => {
       setLoading(true);
       try {
-        const [accountRes, metricsRes] = await Promise.all([
+        const [accountRes, actionsRes] = await Promise.all([
           fetch(`/api/accounts/${id}`, { signal }).then(r => r.json()),
-          fetch(`/api/accounts/${id}/metrics`, { signal }).then(r => r.json()).catch(() => null),
-        ]);
-        setAccount(accountRes);
-        setMetrics(metricsRes);
-
-        // Overview + Campaigns tabs load campaigns on mount
-        const [campaignsRes, actionsRes] = await Promise.all([
-          fetch(`/api/accounts/${id}/campaigns`, { signal }).then(r => r.json()).catch(() => []),
           fetch(`/api/accounts/${id}/actions?limit=10`, { signal }).then(r => r.json()).catch(() => []),
         ]);
-        setCampaigns(Array.isArray(campaignsRes) ? campaignsRes : []);
+        setAccount(accountRes);
         setActions(Array.isArray(actionsRes) ? actionsRes : []);
       } catch (err) {
         if (err.name !== 'AbortError') console.error('Failed to load account:', err);
@@ -108,15 +101,21 @@ export default function AccountPage({ params }) {
   useEffect(() => {
     if (!id) return;
     const controller = new AbortController();
+    setMetricsLoading(true);
     Promise.all([
       fetch(`/api/accounts/${id}/metrics?range=${dateRange}`, { signal: controller.signal }).then(r => r.json()).catch(() => null),
       fetch(`/api/accounts/${id}/campaigns?range=${dateRange}`, { signal: controller.signal }).then(r => r.json()).catch(() => []),
     ]).then(([m, c]) => {
       setMetrics(m);
       setCampaigns(Array.isArray(c) ? c : []);
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => setMetricsLoading(false));
     return () => controller.abort();
   }, [id, dateRange]);
+
+  // ── Reset loaded tabs on account change ───────────────────────────────────
+  useEffect(() => {
+    setLoadedTabs(new Set(['overview']));
+  }, [id]);
 
   // ── Lazy tab data loading ──────────────────────────────────────────────────
   const loadTabData = useCallback(async (tab) => {
@@ -155,8 +154,8 @@ export default function AccountPage({ params }) {
       await fetch(`/api/accounts/${id}/sync`, { method: 'POST' });
       const [accountRes, metricsRes, campaignsRes] = await Promise.all([
         fetch(`/api/accounts/${id}`).then(r => r.json()),
-        fetch(`/api/accounts/${id}/metrics`).then(r => r.json()).catch(() => null),
-        fetch(`/api/accounts/${id}/campaigns`).then(r => r.json()).catch(() => []),
+        fetch(`/api/accounts/${id}/metrics?range=${dateRange}`).then(r => r.json()).catch(() => null),
+        fetch(`/api/accounts/${id}/campaigns?range=${dateRange}`).then(r => r.json()).catch(() => []),
       ]);
       setAccount(accountRes);
       setMetrics(metricsRes);
@@ -329,8 +328,8 @@ export default function AccountPage({ params }) {
               const fallbackConv = convData.length === 0 ? [{ date: 'Current', conversions: campaigns.reduce((s, c) => s + (c.conversions || 0), 0) }] : convData;
               return (
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <SpendChart data={fallbackSpend} loading={loading} />
-                  <ConversionsChart data={fallbackConv} loading={loading} />
+                  <SpendChart data={fallbackSpend} loading={metricsLoading} />
+                  <ConversionsChart data={fallbackConv} loading={metricsLoading} />
                 </div>
               );
             })()}
