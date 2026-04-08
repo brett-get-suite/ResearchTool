@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import StatCard from '@/components/dashboard/StatCard';
 import SpendChart from '@/components/dashboard/SpendChart';
@@ -59,7 +59,7 @@ const TABS = [
 ];
 
 export default function AccountPage({ params }) {
-  const { id } = use(params);
+  const { id } = params;
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [account, setAccount]     = useState(null);
