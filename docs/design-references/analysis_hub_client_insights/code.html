@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analysis Hub | SolarEdge Solutions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#004494",
+                    "on-tertiary-container": "#081486",
+                    "on-background": "#dae2fd",
+                    "on-tertiary": "#131e8c",
+                    "error-container": "#93000a",
+                    "tertiary": "#bdc2ff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-secondary-container": "#00311f",
+                    "background": "#0b1326",
+                    "outline": "#8c909f",
+                    "on-error-container": "#ffdad6",
+                    "on-surface-variant": "#c2c6d5",
+                    "tertiary-container": "#7c87f3",
+                    "surface-container-low": "#131b2e",
+                    "on-tertiary-fixed-variant": "#2f3aa3",
+                    "surface-bright": "#31394d",
+                    "on-secondary": "#003824",
+                    "secondary-container": "#00a572",
+                    "on-tertiary-fixed": "#000767",
+                    "primary-fixed-dim": "#adc6ff",
+                    "on-error": "#690005",
+                    "surface-container-high": "#222a3d",
+                    "surface-dim": "#0b1326",
+                    "on-primary-container": "#00285c",
+                    "primary": "#adc6ff",
+                    "primary-fixed": "#d8e2ff",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container": "#171f33",
+                    "tertiary-fixed-dim": "#bdc2ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-surface": "#dae2fd",
+                    "on-primary": "#002e69",
+                    "surface-tint": "#adc6ff",
+                    "inverse-surface": "#dae2fd",
+                    "secondary-fixed-dim": "#4edea3",
+                    "surface-container-lowest": "#060e20",
+                    "inverse-on-surface": "#283044",
+                    "surface-container-highest": "#2d3449",
+                    "on-primary-fixed": "#001a41",
+                    "surface-variant": "#2d3449",
+                    "inverse-primary": "#005ac1",
+                    "tertiary-fixed": "#e0e0ff",
+                    "primary-container": "#4d8efe",
+                    "surface": "#0b1326",
+                    "secondary": "#4edea3",
+                    "outline-variant": "#424753",
+                    "error": "#ffb4ab"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1326; color: #dae2fd; }
+        .glass-panel { background: rgba(23, 31, 51, 0.6); backdrop-filter: blur(20px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="antialiased">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#060e20] shadow-2xl shadow-[#000000]/40 flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tight text-[#adc6ff]">AdArchitect</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1 font-semibold">AI-Driven Marketing</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="pipeline">plumbing</span>
+<span class="text-sm font-['Inter'] tracking-wide">Client Pipeline</span>
+</a>
+<a class="flex items-center px-6 py-3 border-l-4 border-[#adc6ff] bg-[#171f33] text-[#adc6ff] font-semibold transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="insights">insights</span>
+<span class="text-sm font-['Inter'] tracking-wide">Analysis Hub</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="analytics">analytics</span>
+<span class="text-sm font-['Inter'] tracking-wide">Keyword Engine</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="smart_toy">smart_toy</span>
+<span class="text-sm font-['Inter'] tracking-wide">Agent Controls</span>
+</a>
+</nav>
+<div class="px-6 mb-8">
+<button class="w-full py-2.5 bg-gradient-to-br from-[#adc6ff] to-[#4d8efe] text-[#00285c] font-bold rounded-xl text-sm scale-95 active:scale-90 transition-all shadow-lg shadow-primary/20">
+                New Analysis
+            </button>
+</div>
+<div class="mt-auto space-y-1 border-t border-outline-variant/10 pt-4">
+<a class="flex items-center px-6 py-2.5 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
+<span class="text-sm font-['Inter'] tracking-wide">Settings</span>
+</a>
+<a class="flex items-center px-6 py-2.5 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="contact_support">contact_support</span>
+<span class="text-sm font-['Inter'] tracking-wide">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#0b1326]/60 backdrop-blur-xl flex items-center justify-between px-8">
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary text-sm mr-2" data-icon="language">language</span>
+<span class="text-xs font-medium">solaredge-solutions.com</span>
+<span class="mx-2 text-outline-variant">|</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-tighter">AI Scanned</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 border-r border-outline-variant/20 pr-6">
+<button class="text-slate-400 hover:text-white transition-opacity relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-secondary rounded-full border-2 border-background"></span>
+</button>
+<button class="text-slate-400 hover:text-white transition-opacity">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-background">Organization Logo</p>
+<p class="text-[10px] text-slate-400">SolarEdge Solutions</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-tertiary-container flex items-center justify-center text-on-primary font-bold text-xs overflow-hidden">
+<img alt="Organization Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDizc3VCYVbZ9HPSWfveANDebC6_AnYF3Pn37NMAU0hjYVZUf5tBmrgNY7vLbcjwVAlgKjq3yD0CvpBx0igddrhFZq1972knPuucoXyzIjdV4_u-qoUN1j0lIMScJ0FVNUmdqaeDXjKASqCOJYfvSn_X6mDFPGUrG7nEipMY13161EHnM9o3dULanLfLEf0DpLfmoeXSXgjpoXlUS4ChM_YYnesvYlToruyZvQ9vgo7Hwyxr__Ges-Fm8Hm3LYLTZk4IEjSS3bQRbc"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-8 pb-12 min-h-screen">
+<!-- Header Section -->
+<div class="mb-10 flex items-end justify-between">
+<div>
+<nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium">
+<span>Clients</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary-fixed-dim">SolarEdge Solutions</span>
+</nav>
+<h2 class="text-4xl font-black tracking-tight text-white">Analysis Hub</h2>
+<p class="text-slate-400 mt-2 max-w-lg body-md">Comprehensive semantic audit and performance mapping generated by Gemini 1.5 Pro.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 bg-surface-container hover:bg-surface-container-high text-sm font-semibold rounded-xl border border-outline-variant/20 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span> Export PDF
+                </button>
+<button class="px-5 py-2.5 bg-primary text-on-primary-container text-sm font-bold rounded-xl hover:opacity-90 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="refresh">refresh</span> Re-crawl Site
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Audit Score Card (Large) -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container rounded-full p-8 flex flex-col justify-between relative overflow-hidden group border border-outline-variant/5">
+<div class="absolute -top-12 -right-12 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all"></div>
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="verified">verified</span> Landing Page Audit
+                        </h3>
+<span class="label-sm px-3 py-1 bg-secondary-container/20 text-secondary border border-secondary/20 rounded-full">OPTIMIZED</span>
+</div>
+<div class="flex items-center gap-10 my-8">
+<div class="relative flex items-center justify-center">
+<svg class="w-32 h-32 transform -rotate-90">
+<circle class="text-surface-container-high" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364" stroke-dashoffset="36" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-5xl font-black text-white leading-none">A-</span>
+<span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Grade</span>
+</div>
+</div>
+<div class="flex-1">
+<p class="text-sm text-slate-400 italic mb-4 leading-relaxed">"Excellent technical foundation. Semantic depth is strong, but conversion hooks could be more aggressive in the hero section."</p>
+<div class="flex gap-4">
+<div class="flex flex-col">
+<span class="text-xl font-bold text-white">92/100</span>
+<span class="text-[9px] text-slate-500 uppercase font-bold">SEO Score</span>
+</div>
+<div class="w-px h-8 bg-outline-variant/20"></div>
+<div class="flex flex-col">
+<span class="text-xl font-bold text-white">88%</span>
+<span class="text-[9px] text-slate-500 uppercase font-bold">UX Index</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-x-6 gap-y-3 pt-6 border-t border-outline-variant/10">
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-slate-300">Semantic H1 Structure</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-slate-300">Mobile Fluidity</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-slate-300">Fast LCP (&lt;1.2s)</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-slate-300">SSL Encryption</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-slate-300">JSON-LD Schema</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-error text-[18px]" data-icon="error">error</span>
+<span class="text-slate-300">CTA Contrast Ratio</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="text-slate-300">Alt-Text Compliance</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-error text-[18px]" data-icon="error">error</span>
+<span class="text-slate-300">Internal Link Depth</span>
+</div>
+</div>
+</div>
+<!-- Website Analysis Section (Mid-size) -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-low rounded-full p-8 border border-outline-variant/10">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-lg font-bold text-white">Website Analysis</h3>
+<div class="flex gap-2">
+<span class="label-sm px-2 py-0.5 bg-surface-container-high rounded text-slate-400">Scanned: 14 mins ago</span>
+</div>
+</div>
+<div class="space-y-8">
+<!-- Detected Services -->
+<div>
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Detected Services</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-1.5 bg-surface-container-high text-primary rounded-full text-xs font-semibold border border-primary/10">Residential Solar</span>
+<span class="px-4 py-1.5 bg-surface-container-high text-primary rounded-full text-xs font-semibold border border-primary/10">Battery Storage (Tesla Powerwall)</span>
+<span class="px-4 py-1.5 bg-surface-container-high text-primary rounded-full text-xs font-semibold border border-primary/10">Commercial PV Panels</span>
+<span class="px-4 py-1.5 bg-surface-container-high text-primary rounded-full text-xs font-semibold border border-primary/10">EV Charging Install</span>
+</div>
+</div>
+<!-- Core USPs -->
+<div>
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Core Unique Selling Points</h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/5">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-secondary-container" data-icon="shield">shield</span>
+<span class="text-sm font-bold text-white">25-year Warranty</span>
+</div>
+<p class="text-[11px] text-slate-400">Full parts &amp; labor protection found in footer terms.</p>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/5">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-secondary-container" data-icon="home_pin">home_pin</span>
+<span class="text-sm font-bold text-white">Local Installers</span>
+</div>
+<p class="text-[11px] text-slate-400">Emphasizes "in-house teams" rather than subcontractors.</p>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/5">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-secondary-container" data-icon="finance">finance</span>
+<span class="text-sm font-bold text-white">$0 Down Options</span>
+</div>
+<p class="text-[11px] text-slate-400">Competitive financing detected on 'Costs' sub-page.</p>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/5">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-secondary-container" data-icon="bolt">bolt</span>
+<span class="text-sm font-bold text-white">Tier 1 Panels</span>
+</div>
+<p class="text-[11px] text-slate-400">Partnerships with Maxeon and REC identified.</p>
+</div>
+</div>
+</div>
+<!-- Service Areas -->
+<div>
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Target Service Areas</h4>
+<div class="flex items-center gap-4 p-4 bg-surface-container rounded-xl">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</div>
+<div class="flex-1">
+<div class="flex gap-2">
+<span class="text-xs text-white font-medium">Southern California (Orange County, San Diego, Inland Empire)</span>
+</div>
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full mt-2">
+<div class="bg-primary w-[85%] h-full rounded-full"></div>
+</div>
+</div>
+<span class="text-xs font-bold text-slate-400">High Density</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Low-Hanging Fruit Widget (Long/Slim) -->
+<div class="col-span-12 lg:col-span-8 bg-[#131b2e] rounded-full p-8 border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-lg font-bold text-white">Low-Hanging Fruit Keywords</h3>
+<p class="text-xs text-slate-500 mt-1">High-value, low-competition opportunities for immediate campaign launch.</p>
+</div>
+<span class="material-symbols-outlined text-tertiary" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-outline-variant/10">
+<th class="pb-3 font-bold">Keyword Cluster</th>
+<th class="pb-3 font-bold">Intent</th>
+<th class="pb-3 font-bold">Avg. CPC</th>
+<th class="pb-3 font-bold">Diff.</th>
+<th class="pb-3 font-bold text-right">Potential ROI</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-4">
+<span class="text-sm font-semibold text-white block">solar battery backup san diego</span>
+<span class="text-[10px] text-slate-500">Long-tail specific location</span>
+</td>
+<td class="py-4">
+<span class="px-2 py-0.5 rounded bg-tertiary-container/10 text-tertiary text-[10px] font-bold">TRANSACTIONAL</span>
+</td>
+<td class="py-4 text-sm text-slate-300 font-mono">$12.40</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-12 bg-outline-variant/20 h-1 rounded-full">
+<div class="bg-secondary w-1/4 h-full rounded-full"></div>
+</div>
+<span class="text-[10px] text-secondary font-bold">Low</span>
+</div>
+</td>
+<td class="py-4 text-right">
+<span class="text-sm font-bold text-secondary">High</span>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-4">
+<span class="text-sm font-semibold text-white block">tesla powerwall installer orange county</span>
+<span class="text-[10px] text-slate-500">Brand-specific intent</span>
+</td>
+<td class="py-4">
+<span class="px-2 py-0.5 rounded bg-tertiary-container/10 text-tertiary text-[10px] font-bold">TRANSACTIONAL</span>
+</td>
+<td class="py-4 text-sm text-slate-300 font-mono">$18.90</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-12 bg-outline-variant/20 h-1 rounded-full">
+<div class="bg-secondary w-2/4 h-full rounded-full"></div>
+</div>
+<span class="text-[10px] text-secondary font-bold">Med</span>
+</div>
+</td>
+<td class="py-4 text-right">
+<span class="text-sm font-bold text-secondary">Very High</span>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container/30 transition-colors">
+<td class="py-4">
+<span class="text-sm font-semibold text-white block">commercial solar incentives 2024</span>
+<span class="text-[10px] text-slate-500">Information to conversion</span>
+</td>
+<td class="py-4">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">EDUCATIONAL</span>
+</td>
+<td class="py-4 text-sm text-slate-300 font-mono">$8.20</td>
+<td class="py-4">
+<div class="flex items-center gap-2">
+<div class="w-12 bg-outline-variant/20 h-1 rounded-full">
+<div class="bg-secondary w-1/5 h-full rounded-full"></div>
+</div>
+<span class="text-[10px] text-secondary font-bold">Low</span>
+</div>
+</td>
+<td class="py-4 text-right">
+<span class="text-sm font-bold text-secondary">Med</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Ad Copy Preview (Small/Vertical) -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container rounded-full p-8 border border-outline-variant/10 flex flex-col justify-between">
+<div>
+<h3 class="text-lg font-bold text-white mb-6">AI Ad Concept</h3>
+<div class="bg-surface-container-highest p-4 rounded-xl border border-outline-variant/20 shadow-inner">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Google Search Preview</span>
+</div>
+<p class="text-xs text-primary font-medium mb-1">Ad · www.solaredge-solutions.com</p>
+<h4 class="text-sm font-bold text-blue-400 mb-1 hover:underline cursor-pointer">Top-Rated Solar in Orange County | $0 Down Installation</h4>
+<p class="text-[11px] text-slate-300 leading-relaxed">Save up to 40% on energy bills with SolarEdge Solutions. 25-year warranty, in-house local experts. Get a free quote today!</p>
+</div>
+</div>
+<div class="mt-8">
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Suggested Focus</h4>
+<div class="space-y-2">
+<div class="flex items-center justify-between text-xs py-2 border-b border-outline-variant/10">
+<span class="text-slate-400">Primary Angle</span>
+<span class="text-white font-semibold">Reliability &amp; Trust</span>
+</div>
+<div class="flex items-center justify-between text-xs py-2 border-b border-outline-variant/10">
+<span class="text-slate-400">Pain Point</span>
+<span class="text-white font-semibold">Rising Utility Rates</span>
+</div>
+<div class="flex items-center justify-between text-xs py-2">
+<span class="text-slate-400">Secondary Offer</span>
+<span class="text-white font-semibold">Free Battery Audit</span>
+</div>
+</div>
+<button class="w-full mt-6 py-2 bg-tertiary/10 hover:bg-tertiary/20 text-tertiary text-xs font-bold rounded-lg border border-tertiary/30 transition-all">
+                        Generate More Variations
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="flex items-center gap-3 bg-secondary text-on-secondary px-6 py-4 rounded-full font-bold shadow-2xl shadow-secondary/30 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+            Create Campaign
+        </button>
+</div>
+</body></html>

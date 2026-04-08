@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Keyword Engine | AdArchitect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#004494",
+                        "on-tertiary-container": "#081486",
+                        "on-background": "#dae2fd",
+                        "on-tertiary": "#131e8c",
+                        "error-container": "#93000a",
+                        "tertiary": "#bdc2ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary-container": "#00311f",
+                        "background": "#0b1326",
+                        "outline": "#8c909f",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#c2c6d5",
+                        "tertiary-container": "#7c87f3",
+                        "surface-container-low": "#131b2e",
+                        "on-tertiary-fixed-variant": "#2f3aa3",
+                        "surface-bright": "#31394d",
+                        "on-secondary": "#003824",
+                        "secondary-container": "#00a572",
+                        "on-tertiary-fixed": "#000767",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-error": "#690005",
+                        "surface-container-high": "#222a3d",
+                        "surface-dim": "#0b1326",
+                        "on-primary-container": "#00285c",
+                        "primary": "#adc6ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container": "#171f33",
+                        "tertiary-fixed-dim": "#bdc2ff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-surface": "#dae2fd",
+                        "on-primary": "#002e69",
+                        "surface-tint": "#adc6ff",
+                        "inverse-surface": "#dae2fd",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-container-lowest": "#060e20",
+                        "inverse-on-surface": "#283044",
+                        "surface-container-highest": "#2d3449",
+                        "on-primary-fixed": "#001a41",
+                        "surface-variant": "#2d3449",
+                        "inverse-primary": "#005ac1",
+                        "tertiary-fixed": "#e0e0ff",
+                        "primary-container": "#4d8efe",
+                        "surface": "#0b1326",
+                        "secondary": "#4edea3",
+                        "outline-variant": "#424753",
+                        "error": "#ffb4ab"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background overflow-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#060e20] shadow-2xl shadow-[#000000]/40 flex flex-col py-6 z-50">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-[#adc6ff]">AdArchitect</h1>
+<p class="text-[10px] text-slate-400 font-label tracking-[0.1em] uppercase">AI-Driven Marketing</p>
+</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-3 px-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                New Analysis
+            </button>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 py-3 px-6 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="pipeline">plumbing</span>
+<span class="font-['Inter'] text-sm tracking-wide">Client Pipeline</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-6 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Inter'] text-sm tracking-wide">Analysis Hub</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-6 border-l-4 border-[#adc6ff] bg-[#171f33] text-[#adc6ff] font-semibold transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Inter'] text-sm tracking-wide">Keyword Engine</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-6 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-['Inter'] text-sm tracking-wide">Agent Controls</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10">
+<a class="flex items-center gap-3 py-3 px-6 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-sm tracking-wide">Settings</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-6 text-slate-400 hover:text-white hover:bg-[#131b2e] transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-['Inter'] text-sm tracking-wide">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#0b1326]/60 backdrop-blur-xl z-40 flex items-center justify-between px-8">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-lg">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm text-on-surface w-64 focus:ring-1 focus:ring-primary transition-all" placeholder="Search strategy..." type="text"/>
+</div>
+<nav class="flex gap-6">
+<a class="text-slate-400 hover:text-white font-['Inter'] text-sm transition-opacity" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-white font-['Inter'] text-sm transition-opacity" href="#">Reports</a>
+<a class="text-slate-400 hover:text-white font-['Inter'] text-sm transition-opacity" href="#">History</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 mr-4 border-r border-outline-variant/20 pr-4">
+<button class="p-2 text-slate-400 hover:text-white transition-opacity"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 text-slate-400 hover:text-white transition-opacity"><span class="material-symbols-outlined">help_outline</span></button>
+</div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="text-right">
+<p class="text-sm font-semibold text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-slate-400 uppercase tracking-tighter">Strategic Lead</p>
+</div>
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full border-2 border-primary/20 group-hover:border-primary/50 transition-all" data-alt="portrait of a professional male marketer in his 30s wearing a neutral sweater against a dark studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX8y99XYemg4NrAvuJ7MsgEgN5MoYuteE2nElT5vZEujIA3294B7uj5mWz0eiBZeuwVz5VD-txynfSve7ImU2aGXoCodrm7J0KCHESkpPa-HGLObs06bDsSB3vI29-o9nU9I6cQS0xwsO9XXoNDzK0p4Sr0o9GmNqC6XJFxOvrnQukkwfX7DrK-dl_kPS-977Ycq2F2papO-DIoVhD_n9Aw4_T2SRM9_Bh3-3tt98mS-qQNBIi5J2ef882WIGgmSQB_h9zDnqeixg"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 h-screen overflow-y-auto px-8 pb-12">
+<div class="max-w-[1600px] mx-auto pt-8">
+<!-- Header & Actions -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<div class="flex items-center gap-2 text-tertiary mb-1">
+<span class="material-symbols-outlined text-base">psychology</span>
+<span class="label-sm text-[10px] uppercase tracking-widest font-bold">Strategy Module</span>
+</div>
+<h2 class="text-4xl font-extrabold tracking-tight text-white">Keyword Intelligence Engine</h2>
+<p class="text-on-surface-variant max-w-2xl mt-2">Surface high-intent opportunities and semantic gaps with real-time auction data integration.</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high hover:bg-surface-bright text-primary font-semibold rounded-xl transition-all active:scale-95 group">
+<span class="material-symbols-outlined group-hover:translate-y-0.5 transition-transform">download</span>
+                    Export to Google Ads CSV
+                </button>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Intent Mapping Chart -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container rounded-xl p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-semibold text-white">Intent Distribution</h3>
+<span class="material-symbols-outlined text-on-surface-variant">donut_small</span>
+</div>
+<div class="relative h-64 flex items-center justify-center">
+<!-- SVG Pie Chart Placeholder -->
+<svg class="w-48 h-48 transform -rotate-90">
+<circle cx="96" cy="96" fill="transparent" r="80" stroke="#4d8efe" stroke-dasharray="502" stroke-dashoffset="150" stroke-width="24"></circle>
+<circle cx="96" cy="96" fill="transparent" r="80" stroke="#4edea3" stroke-dasharray="502" stroke-dashoffset="350" stroke-width="24"></circle>
+<circle cx="96" cy="96" fill="transparent" r="80" stroke="#bdc2ff" stroke-dasharray="502" stroke-dashoffset="450" stroke-width="24"></circle>
+</svg>
+<div class="absolute text-center">
+<p class="text-2xl font-bold text-white">4.2k</p>
+<p class="text-[10px] text-slate-400 uppercase tracking-widest">Total Vol</p>
+</div>
+</div>
+</div>
+<div class="space-y-3 mt-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary-container"></span>
+<span class="text-sm text-on-surface-variant">Transactional</span>
+</div>
+<span class="text-sm font-bold text-white">45%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-sm text-on-surface-variant">Informational</span>
+</div>
+<span class="text-sm font-bold text-white">32%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-tertiary"></span>
+<span class="text-sm text-on-surface-variant">Navigational</span>
+</div>
+<span class="text-sm font-bold text-white">23%</span>
+</div>
+</div>
+</div>
+<!-- Metrics Overview Cards -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container rounded-xl p-6 border-l-4 border-primary">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Avg. CPC</p>
+<h4 class="text-3xl font-black text-white">$4.82</h4>
+<div class="mt-4 flex items-center gap-1 text-secondary text-xs">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span>12% below industry avg</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 border-l-4 border-secondary">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Efficiency Score</p>
+<h4 class="text-3xl font-black text-white">92/100</h4>
+<div class="mt-4 flex items-center gap-1 text-secondary text-xs">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+<span>AI Optimized Path</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 border-l-4 border-tertiary">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Est. Conversions</p>
+<h4 class="text-3xl font-black text-white">840</h4>
+<div class="mt-4 flex items-center gap-1 text-primary text-xs">
+<span class="material-symbols-outlined text-sm">show_chart</span>
+<span>+5.4% Projection</span>
+</div>
+</div>
+<!-- Main Keyword Table -->
+<div class="col-span-12 bg-surface-container rounded-xl overflow-hidden">
+<div class="px-6 py-4 bg-surface-container-high/50 flex items-center justify-between">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Keyword Priority Matrix</h3>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-slate-400"><span class="material-symbols-outlined text-lg">filter_list</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-slate-400"><span class="material-symbols-outlined text-lg">sort</span></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="border-b border-outline-variant/10">
+<tr class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+<th class="px-6 py-4">Keyword String</th>
+<th class="px-6 py-4 text-center">Intent</th>
+<th class="px-6 py-4 text-right">Monthly Searches</th>
+<th class="px-6 py-4 text-right">CPC Estimate</th>
+<th class="px-6 py-4">Competition Level</th>
+<th class="px-6 py-4 text-center">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-medium text-white">enterprise ai marketing tools</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary rounded-full text-[10px] font-bold uppercase tracking-tighter border border-secondary/20">Transactional</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right tabular-nums text-on-surface-variant">24,500</td>
+<td class="px-6 py-5 text-right tabular-nums text-white font-semibold">$12.40</td>
+<td class="px-6 py-5">
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-error h-full" style="width: 85%"></div>
+</div>
+<span class="text-[10px] text-error font-bold mt-1 block">High</span>
+</td>
+<td class="px-6 py-5 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-medium text-white">how to automate ad bidding</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-primary-container/20 text-primary rounded-full text-[10px] font-bold uppercase tracking-tighter border border-primary/20">Informational</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right tabular-nums text-on-surface-variant">8,200</td>
+<td class="px-6 py-5 text-right tabular-nums text-white font-semibold">$3.15</td>
+<td class="px-6 py-5">
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 35%"></div>
+</div>
+<span class="text-[10px] text-secondary font-bold mt-1 block">Low</span>
+</td>
+<td class="px-6 py-5 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-medium text-white">AdArchitect platform login</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-tertiary-container/20 text-tertiary rounded-full text-[10px] font-bold uppercase tracking-tighter border border-tertiary/20">Navigational</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right tabular-nums text-on-surface-variant">1,450</td>
+<td class="px-6 py-5 text-right tabular-nums text-white font-semibold">$0.85</td>
+<td class="px-6 py-5">
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 15%"></div>
+</div>
+<span class="text-[10px] text-primary font-bold mt-1 block">Very Low</span>
+</td>
+<td class="px-6 py-5 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-medium text-white">best ppc management software 2024</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary rounded-full text-[10px] font-bold uppercase tracking-tighter border border-secondary/20">Transactional</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right tabular-nums text-on-surface-variant">12,800</td>
+<td class="px-6 py-5 text-right tabular-nums text-white font-semibold">$18.90</td>
+<td class="px-6 py-5">
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-error h-full" style="width: 95%"></div>
+</div>
+<span class="text-[10px] text-error font-bold mt-1 block">Critical</span>
+</td>
+<td class="px-6 py-5 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-medium text-white">ai marketing automation benefits</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-primary-container/20 text-primary rounded-full text-[10px] font-bold uppercase tracking-tighter border border-primary/20">Informational</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right tabular-nums text-on-surface-variant">5,600</td>
+<td class="px-6 py-5 text-right tabular-nums text-white font-semibold">$4.25</td>
+<td class="px-6 py-5">
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 55%"></div>
+</div>
+<span class="text-[10px] text-primary font-bold mt-1 block">Medium</span>
+</td>
+<td class="px-6 py-5 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-surface-container-low/30 border-t border-outline-variant/10 flex items-center justify-between">
+<span class="text-xs text-slate-400">Showing 5 of 124 results</span>
+<div class="flex gap-1">
+<button class="px-3 py-1 bg-surface-container-high rounded text-xs text-white">1</button>
+<button class="px-3 py-1 hover:bg-surface-container-high rounded text-xs text-slate-400">2</button>
+<button class="px-3 py-1 hover:bg-surface-container-high rounded text-xs text-slate-400">3</button>
+<span class="px-2 text-slate-400">...</span>
+<button class="px-3 py-1 hover:bg-surface-container-high rounded text-xs text-slate-400">25</button>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Recommendations Side-Car -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-surface-container-high/40 backdrop-blur-md rounded-xl p-6 border border-outline-variant/10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h3 class="font-bold text-white tracking-wide">Architect Insights</h3>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-4">
+                            Found a high-opportunity cluster in <span class="text-secondary font-semibold">"Enterprise Automation"</span>. High volume with declining CPC. 
+                        </p>
+<div class="bg-surface-container-lowest p-4 rounded-lg space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-sm">check_circle</span>
+<span class="text-xs text-on-surface">Target Long-Tail Informational</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-sm">check_circle</span>
+<span class="text-xs text-on-surface">Optimize Transactional Bid Caps</span>
+</div>
+</div>
+</div>
+<div class="relative rounded-xl overflow-hidden group aspect-[4/3]">
+<img alt="Data Visualization Concept" class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-60 transition-all duration-700" data-alt="abstract digital visualization of interconnected data nodes in deep blue and glowing neon emerald green wires" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC84IRZpoZGUCp4ioyiI-j71eOKOuJI3Z3cjHeiJocfrRhxOu_sePp1A4X_7XUZkM0bLFtW-MWiKiXnL0EDBioAnwo7IBc_1sbDtEvmuMET9XWooptxwOfqOqNMEvzrNl-vBP7aqil5E914zKhyRqN5ghJwuTVUQB3ewefcI3JDBmOWTZbQhqzYQsf4pcCre8HI82nc-S2hxALeqaDTg3joZ4FzIhglDG8PApIRb_LiOGG312mcLSlHfSD2iQOuBKzAdzOG6gsUbXA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent flex flex-col justify-end p-6">
+<p class="text-xs font-bold text-tertiary uppercase tracking-widest mb-1">Advanced Forecasting</p>
+<h5 class="text-lg font-bold text-white mb-2">Predictive CPC Trends</h5>
+<button class="text-xs font-semibold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                                View Full Projection <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
 
 export default function AccountSettings({ accountId, campaigns = [] }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [mode, setMode] = useState('lead_gen');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -19,6 +20,7 @@ export default function AccountSettings({ accountId, campaigns = [] }) {
       .then(r => r.json())
       .then(data => {
         if (data.settings) setSettings({ ...DEFAULT_SETTINGS, ...data.settings });
+        if (data.mode) setMode(data.mode);
       })
       .catch(() => {});
   }, [accountId]);
@@ -29,7 +31,7 @@ export default function AccountSettings({ accountId, campaigns = [] }) {
       await fetch(`/api/accounts/${accountId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings }),
+        body: JSON.stringify({ settings, mode }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -57,6 +59,37 @@ export default function AccountSettings({ accountId, campaigns = [] }) {
 
   return (
     <div className="max-w-2xl space-y-6">
+      <div className="card p-5">
+        <p className="font-headline font-bold text-on-surface mb-1">Account Mode</p>
+        <p className="text-xs text-secondary font-label mb-4">
+          Determines how this account is analyzed — affects metrics, benchmarks, and recommendations throughout.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setMode('lead_gen')}
+            className={`p-4 rounded-xl border-2 text-left transition-all ${
+              mode === 'lead_gen'
+                ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                : 'border-surface-high hover:border-surface-high'
+            }`}
+          >
+            <p className="font-label font-bold text-sm text-on-surface mb-1">Lead Gen</p>
+            <p className="text-xs text-secondary">CPA-focused. Conversions = calls &amp; form fills. Good = low CPA with high intent.</p>
+          </button>
+          <button
+            onClick={() => setMode('ecommerce')}
+            className={`p-4 rounded-xl border-2 text-left transition-all ${
+              mode === 'ecommerce'
+                ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                : 'border-surface-high hover:border-surface-high'
+            }`}
+          >
+            <p className="font-label font-bold text-sm text-on-surface mb-1">E-Commerce</p>
+            <p className="text-xs text-secondary">ROAS-focused. Conversions = purchases. Good = high ROAS with revenue scale.</p>
+          </button>
+        </div>
+      </div>
+
       <div className="card p-5">
         <p className="font-headline font-bold text-on-surface mb-4">Agent Toggles</p>
         <div className="space-y-3">
