@@ -12,7 +12,7 @@ import ChangeLogTab from '@/components/dashboard/ChangeLogTab';
 import AuditTab from '@/components/dashboard/AuditTab';
 import AccountSettings from '@/components/dashboard/AccountSettings';
 import ReportUpload from '@/components/upload/ReportUpload';
-import { StatCardSkeleton, TableSkeleton } from '@/components/Skeleton';
+import { StatCardSkeleton, TableSkeleton } from '@/components/ui/Skeleton';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // ─── Format helpers ──────────────────────────────────────────────────────────

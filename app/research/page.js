@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient_db, updateClient, isSupabaseConfigured } from '@/lib/supabase';
 import ServiceAreaInput from '@/components/ServiceAreaInput';
-import Skeleton from '@/components/Skeleton';
+import Skeleton from '@/components/ui/Skeleton';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // ─── Constants ────────────────────────────────────────────────────
