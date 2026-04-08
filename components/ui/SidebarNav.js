@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const MAIN_NAV = [
   { href: '/', label: 'Dashboard', icon: 'space_dashboard' },
   { href: '/accounts', label: 'Ad Accounts', icon: 'account_tree' },
+  { href: '/keywords', label: 'Keyword Engine', icon: 'analytics' },
   { href: '/agents', label: 'AI Agents', icon: 'smart_toy' },
   { href: '/research', label: 'Research', icon: 'query_stats' },
 ];
@@ -19,9 +20,21 @@ const TOOLS_NAV = [
 export default function SidebarNav() {
   const pathname = usePathname();
 
+  // Extract account ID from current URL if on an account page
+  const accountIdMatch = pathname.match(/\/accounts\/([^/]+)/);
+  const currentAccountId = accountIdMatch ? accountIdMatch[1] : null;
+
   function isActive(href) {
     if (href === '/') return pathname === '/';
+    if (href === '/keywords') return pathname.includes('/keywords');
     return pathname.startsWith(href);
+  }
+
+  function resolveHref(href) {
+    if (href === '/keywords' && currentAccountId) {
+      return `/accounts/${currentAccountId}/keywords`;
+    }
+    return href;
   }
 
   return (
@@ -45,10 +58,11 @@ export default function SidebarNav() {
         <div className="text-label-sm text-on-surface-variant/60 px-3 pb-1.5 pt-3">Manage</div>
         {MAIN_NAV.map((item) => {
           const active = isActive(item.href);
+          const href = resolveHref(item.href);
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
                 active
                   ? 'bg-primary/10 text-primary font-semibold'
