@@ -117,6 +117,7 @@ export default function ReportUpload({ accountId, onUploadComplete }) {
       <ColumnMapper
         headers={parsed.headers}
         sampleRows={parsed.rows.slice(0, 3)}
+        allRows={parsed.rows}
         onConfirm={(type, remappedRows) => {
           setNeedsMapping(false);
           handleUpload(type, remappedRows);

@@ -56,7 +56,7 @@ export default function SidebarNav() {
               }`}
             >
               {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full" />
               )}
               <span className="material-symbols-outlined text-xl">{item.icon}</span>
               {item.label}
@@ -84,12 +84,15 @@ export default function SidebarNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
                   active
                     ? 'bg-primary/10 text-primary font-semibold'
                     : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
                 }`}
               >
+                {active && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full" />
+                )}
                 <span className="material-symbols-outlined text-xl">{item.icon}</span>
                 {item.label}
               </Link>

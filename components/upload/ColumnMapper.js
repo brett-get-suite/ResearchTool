@@ -45,14 +45,15 @@ const REPORT_TYPE_MAPPINGS = {
   ],
 };
 
-export default function ColumnMapper({ headers, sampleRows, onConfirm, onCancel }) {
+export default function ColumnMapper({ headers, sampleRows, allRows, onConfirm, onCancel }) {
   const [selectedType, setSelectedType] = useState('keyword');
   const [mapping, setMapping] = useState({});
 
   const requiredCols = REPORT_TYPE_MAPPINGS[selectedType] || [];
 
   const applyMapping = () => {
-    const remappedRows = sampleRows.map(row => {
+    const rowsToRemap = allRows || sampleRows;
+    const remappedRows = rowsToRemap.map(row => {
       const newRow = { ...row };
       Object.entries(mapping).forEach(([internal, userCol]) => {
         if (userCol && userCol !== internal && newRow[userCol] !== undefined) {

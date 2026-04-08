@@ -30,27 +30,25 @@ export default function HeroMetrics({ accounts, metrics }) {
       <StatCard
         label="Total Ad Spend"
         value={fmtMoney(totalSpend)}
-        delta="+12.4%"
-        deltaLabel="vs last mo"
+        deltaLabel="All accounts"
         icon="payments"
       />
       <StatCard
         label="Avg. ROAS"
-        value={`${avgRoas.toFixed(2)}x`}
-        delta="+0.5x"
-        deltaLabel="portfolio-wide"
+        value={avgRoas > 0 ? `${avgRoas.toFixed(2)}x` : '\u2014'}
+        deltaLabel="Portfolio-wide"
         icon="trending_up"
       />
       <StatCard
         label="Total Leads"
         value={totalConversions >= 1000 ? `${(totalConversions / 1000).toFixed(1)}k` : String(totalConversions)}
-        deltaLabel="Across all channels"
+        deltaLabel="All channels"
         icon="group"
       />
       <StatCard
         label="AI Agents Active"
         value={`${activeAgents}/${totalAgentSlots}`}
-        deltaLabel="Processing Live Streams"
+        deltaLabel="Processing"
         icon="smart_toy"
       />
     </div>

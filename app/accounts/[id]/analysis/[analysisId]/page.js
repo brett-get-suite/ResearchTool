@@ -1,8 +1,8 @@
 // app/accounts/[id]/analysis/[analysisId]/page.js
 'use client';
 
-import { use, useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import TabNav from '@/components/ui/TabNav';
 import StatusBadge from '@/components/ui/StatusBadge';
 import GradientButton from '@/components/ui/GradientButton';
@@ -24,8 +24,8 @@ const SECTIONS = [
   { id: 'actions', label: 'Actions', icon: 'checklist' },
 ];
 
-export default function AnalysisPage({ params }) {
-  const { id: accountId, analysisId } = use(params);
+export default function AnalysisPage() {
+  const { id: accountId, analysisId } = useParams();
   const router = useRouter();
 
   const [analysis, setAnalysis] = useState(null);

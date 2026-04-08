@@ -211,7 +211,7 @@ select option {
 
 /* Form field */
 .field-input {
-  background-color: var(--surface-container-high) !important;
+  background-color: var(--surface-container-high);
   color: var(--on-surface);
   border: 1px solid var(--outline-variant);
   border-radius: 12px;

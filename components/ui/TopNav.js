@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 const NAV_LINKS = [
@@ -10,14 +10,24 @@ const NAV_LINKS = [
 ];
 
 function useClickOutside(ref, handler) {
+  const savedHandler = useRef(handler);
+  savedHandler.current = handler;
+
   useEffect(() => {
     const listener = (e) => {
       if (!ref.current || ref.current.contains(e.target)) return;
-      handler();
+      savedHandler.current();
+    };
+    const escListener = (e) => {
+      if (e.key === 'Escape') savedHandler.current();
     };
     document.addEventListener('mousedown', listener);
-    return () => document.removeEventListener('mousedown', listener);
-  }, [ref, handler]);
+    document.addEventListener('keydown', escListener);
+    return () => {
+      document.removeEventListener('mousedown', listener);
+      document.removeEventListener('keydown', escListener);
+    };
+  }, [ref]);
 }
 
 export default function TopNav() {
@@ -81,6 +91,9 @@ export default function TopNav() {
         <div ref={notifRef} className="relative">
           <button
             onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); setHelpOpen(false); }}
+            aria-expanded={notifOpen}
+            aria-haspopup="true"
+            aria-label="Notifications"
             className="p-2 rounded-xl hover:bg-surface-variant/50 transition-colors relative"
           >
             <span className="material-symbols-outlined text-on-surface-variant text-xl">notifications</span>
@@ -118,9 +131,12 @@ export default function TopNav() {
         <div ref={helpRef} className="relative">
           <button
             onClick={() => { setHelpOpen(!helpOpen); setNotifOpen(false); setProfileOpen(false); }}
+            aria-expanded={helpOpen}
+            aria-haspopup="true"
+            aria-label="Help and resources"
             className="p-2 rounded-xl hover:bg-surface-variant/50 transition-colors"
           >
-            <span className="material-symbols-outlined text-on-surface-variant text-xl">help</span>
+            <span className="material-symbols-outlined text-on-surface-variant text-xl" aria-hidden="true">help</span>
           </button>
 
           {helpOpen && (
@@ -148,6 +164,9 @@ export default function TopNav() {
         <div ref={profileRef} className="relative ml-1">
           <button
             onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); setHelpOpen(false); }}
+            aria-expanded={profileOpen}
+            aria-haspopup="true"
+            aria-label="User menu"
             className="flex items-center gap-2.5 pl-3 pr-2 py-1.5 rounded-xl hover:bg-surface-variant/50 transition-colors"
           >
             <div className="text-right hidden sm:block">

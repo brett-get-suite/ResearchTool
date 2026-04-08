@@ -1,6 +1,8 @@
 export default function StatCard({ label, value, delta, deltaLabel, icon, className = '' }) {
-  const isPositive = delta && !delta.startsWith('-');
-  const deltaColor = isPositive ? 'text-secondary' : 'text-error';
+  const numericDelta = delta ? parseFloat(delta) : 0;
+  const isPositive = numericDelta > 0;
+  const isNegative = numericDelta < 0;
+  const deltaColor = isPositive ? 'text-secondary' : isNegative ? 'text-error' : 'text-on-surface-variant';
 
   return (
     <div className={`bg-surface-container rounded-xl p-6 ${className}`}>
@@ -18,7 +20,7 @@ export default function StatCard({ label, value, delta, deltaLabel, icon, classN
           {delta && (
             <span className={`flex items-center gap-0.5 text-sm font-medium ${deltaColor}`}>
               <span className="material-symbols-outlined text-base">
-                {isPositive ? 'trending_up' : 'trending_down'}
+                {isPositive ? 'trending_up' : isNegative ? 'trending_down' : 'trending_flat'}
               </span>
               {delta}
             </span>

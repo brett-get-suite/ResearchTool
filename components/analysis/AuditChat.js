@@ -59,8 +59,8 @@ export default function AuditChat({ accountId, analysisId, focusContext, onClear
           <p className="font-label font-bold text-on-surface text-sm">Audit Assistant</p>
           <p className="text-[10px] text-on-surface-variant font-label">AI on computed data — not real-time</p>
         </div>
-        <button onClick={() => setOpen(false)} className="text-on-surface-variant hover:text-on-surface">
-          <span className="material-symbols-outlined text-[20px]">close</span>
+        <button onClick={() => setOpen(false)} aria-label="Close chat panel" className="text-on-surface-variant hover:text-on-surface">
+          <span className="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
         </button>
       </div>
 

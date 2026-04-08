@@ -21,7 +21,14 @@ export default function CircularGrade({ grade, score, size = 160, strokeWidth = 
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg
+        width={size}
+        height={size}
+        className="-rotate-90"
+        role="img"
+        aria-label={`Grade: ${grade}, Score: ${normalizedScore}%`}
+      >
+        <title>{`Grade ${grade} — ${normalizedScore}%`}</title>
         {/* Background circle */}
         <circle
           cx={size / 2}
@@ -46,7 +53,7 @@ export default function CircularGrade({ grade, score, size = 160, strokeWidth = 
         />
       </svg>
       {/* Center text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
         <span className="text-3xl font-bold text-on-surface">{grade}</span>
         <span className="text-label-sm text-on-surface-variant">Grade</span>
       </div>
