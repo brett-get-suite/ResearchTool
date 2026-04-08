@@ -35,38 +35,43 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface">
-      <div className="w-full max-w-sm">
-        <div className="card p-8">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-primary/[0.08] flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-[22px]">lock</span>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      {/* Subtle background glow */}
+      <div
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07] blur-[120px] pointer-events-none"
+        style={{ background: 'radial-gradient(circle, var(--primary-container), transparent 70%)' }}
+      />
+
+      <div className="w-full max-w-sm relative z-10">
+        <div className="bg-surface-container rounded-2xl p-8 border border-outline-variant/20 shadow-ambient">
+          {/* Logo + Title */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center shadow-fab mb-4">
+              <span className="material-symbols-outlined text-on-primary text-2xl">rocket_launch</span>
             </div>
-            <div>
-              <p className="font-headline font-bold text-on-surface text-lg leading-tight">PPC Recon</p>
-              <p className="text-xs text-secondary">Enter your password to continue</p>
-            </div>
+            <h1 className="font-bold text-on-surface text-xl tracking-tight">AdPilot</h1>
+            <p className="text-sm text-on-surface-variant mt-1">Enter your password to continue</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-label font-semibold text-secondary mb-1.5">
+              <label className="block text-xs font-medium text-on-surface-variant mb-2">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="field-input w-full"
-                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl bg-surface-container-high text-on-surface border border-outline-variant/30 focus:border-primary focus:outline-none placeholder:text-on-surface-variant/40 text-sm"
+                placeholder="Enter admin password"
                 autoFocus
                 required
               />
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">
-                <span className="material-symbols-outlined text-[14px]">error</span>
+              <div className="flex items-center gap-2 text-xs text-error bg-error/10 rounded-xl px-3 py-2.5">
+                <span className="material-symbols-outlined text-sm">error</span>
                 {error}
               </div>
             )}
@@ -74,34 +79,29 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="pill-btn-primary w-full justify-center disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl gradient-primary text-on-primary text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-                  Signing in…
+                  <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+                  Signing in...
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[16px]">login</span>
+                  <span className="material-symbols-outlined text-base">login</span>
                   Sign In
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-[10px] text-secondary text-center mt-6">
-            Set your password via the{' '}
-            <code className="font-mono bg-surface-high px-1 rounded">ADMIN_PASSWORD</code>{' '}
-            environment variable.
+          <p className="text-[11px] text-on-surface-variant/60 text-center mt-6">
+            Set via{' '}
+            <code className="font-mono bg-surface-container-high px-1.5 py-0.5 rounded-lg text-primary/80">ADMIN_PASSWORD</code>{' '}
+            env variable
           </p>
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .animate-spin { animation: spin 1s linear infinite; }
-      `}</style>
     </div>
   );
 }
