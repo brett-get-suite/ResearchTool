@@ -2,40 +2,46 @@
 'use client';
 
 import { use, useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import NgramTable       from '@/components/analysis/NgramTable';
-import WastedSpend      from '@/components/analysis/WastedSpend';
-import CampaignRanking  from '@/components/analysis/CampaignRanking';
-import SwotPanel        from '@/components/analysis/SwotPanel';
-import ActionItems      from '@/components/analysis/ActionItems';
-import AuditChat        from '@/components/analysis/AuditChat';
+import { useRouter } from 'next/navigation';
+import TabNav from '@/components/ui/TabNav';
+import StatusBadge from '@/components/ui/StatusBadge';
+import GradientButton from '@/components/ui/GradientButton';
+import GhostButton from '@/components/ui/GhostButton';
+import Skeleton from '@/components/ui/Skeleton';
+import NgramTable from '@/components/analysis/NgramTable';
+import WastedSpend from '@/components/analysis/WastedSpend';
+import CampaignRanking from '@/components/analysis/CampaignRanking';
+import SwotPanel from '@/components/analysis/SwotPanel';
+import ActionItems from '@/components/analysis/ActionItems';
+import AuditChat from '@/components/analysis/AuditChat';
 
 const SECTIONS = [
-  { id: 'summary',   label: 'Summary',   icon: 'dashboard' },
-  { id: 'ngrams',    label: 'N-gram',     icon: 'workspaces' },
-  { id: 'wasted',    label: 'Wasted',     icon: 'money_off' },
-  { id: 'campaigns', label: 'Campaigns',  icon: 'campaign' },
-  { id: 'swot',      label: 'SWOT',       icon: 'psychology' },
-  { id: 'actions',   label: 'Actions',    icon: 'checklist' },
+  { id: 'summary', label: 'Summary', icon: 'dashboard' },
+  { id: 'ngrams', label: 'N-gram', icon: 'workspaces' },
+  { id: 'wasted', label: 'Wasted', icon: 'money_off' },
+  { id: 'campaigns', label: 'Campaigns', icon: 'campaign' },
+  { id: 'swot', label: 'SWOT', icon: 'psychology' },
+  { id: 'actions', label: 'Actions', icon: 'checklist' },
 ];
 
 export default function AnalysisPage({ params }) {
   const { id: accountId, analysisId } = use(params);
+  const router = useRouter();
 
-  const [analysis,  setAnalysis]  = useState(null);
-  const [loading,   setLoading]   = useState(true);
-  const [swot,      setSwot]      = useState(null);
-  const [actions,   setActions]   = useState([]);
+  const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [swot, setSwot] = useState(null);
+  const [actions, setActions] = useState([]);
   const [swotLoading, setSwotLoading] = useState(false);
   const [activeSection, setActiveSection] = useState('summary');
-  const [focusContext,  setFocusContext]  = useState(null);
+  const [focusContext, setFocusContext] = useState(null);
 
   useEffect(() => {
     fetch(`/api/reports/${accountId}/analyses/${analysisId}`)
       .then(r => r.json())
       .then(data => {
         setAnalysis(data);
-        if (data.swot)         setSwot(data.swot);
+        if (data.swot) setSwot(data.swot);
         if (data.action_items) setActions(data.action_items);
         setLoading(false);
       })
@@ -63,123 +69,123 @@ export default function AnalysisPage({ params }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <span className="material-symbols-outlined text-primary text-[40px] animate-spin">progress_activity</span>
+      <div className="space-y-6 fade-up">
+        <Skeleton variant="text" className="h-8 w-64" />
+        <div className="grid grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} variant="card" className="h-24" />)}
+        </div>
       </div>
     );
   }
 
   if (!analysis) {
     return (
-      <div className="px-8 py-10 text-center">
-        <p className="font-headline font-bold text-on-surface mb-2">Analysis not found</p>
-        <Link href={`/accounts/${accountId}`} className="pill-btn-primary text-sm">Back to Account</Link>
+      <div className="text-center py-20">
+        <span className="material-symbols-outlined text-on-surface-variant text-5xl mb-4">error</span>
+        <p className="text-on-surface-variant mb-4">Analysis not found</p>
+        <GhostButton onClick={() => router.push(`/accounts/${accountId}`)}>
+          Back to Account
+        </GhostButton>
       </div>
     );
   }
 
-  const data     = analysis.computed_data || {};
-  const summary  = data.summary  || {};
-  const ngrams   = data.ngrams   || {};
+  const data = analysis.computed_data || {};
+  const summary = data.summary || {};
+  const ngrams = data.ngrams || {};
   const keywords = data.keywords || {};
   const campaigns = data.campaigns || {};
   const warnings = analysis.data_sufficiency_warnings || [];
-  const mode     = analysis.mode || 'lead_gen';
-  const isEcom   = mode === 'ecommerce';
+  const mode = analysis.mode || 'lead_gen';
+  const isEcom = mode === 'ecommerce';
 
   return (
-    <div className="px-8 py-10 pb-24">
+    <div className="space-y-6 fade-up pb-24">
       {/* Header */}
-      <div className="mb-6">
-        <Link href={`/accounts/${accountId}`} className="flex items-center gap-1 text-xs text-secondary hover:text-primary mb-2 w-fit">
-          <span className="material-symbols-outlined text-[14px]">arrow_back</span>
-          Back to Account
-        </Link>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight">Account Audit</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={`text-[10px] font-label font-bold px-2.5 py-1 rounded-full capitalize ${
-                isEcom ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-              }`}>
-                {isEcom ? 'E-Commerce' : 'Lead Gen'}
-              </span>
-              <span className="text-xs text-secondary font-label">
-                {new Date(analysis.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </span>
-            </div>
-          </div>
-          {!swot && (
-            <button onClick={generateSwot} disabled={swotLoading}
-              className="pill-btn-primary disabled:opacity-60">
-              {swotLoading
-                ? <><span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Generating…</>
-                : <><span className="material-symbols-outlined text-[16px]">psychology</span> Generate SWOT + Actions</>
-              }
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-sm text-on-surface-variant mb-1">
+            <button onClick={() => router.push('/')} className="hover:text-primary transition-colors">
+              Clients
             </button>
-          )}
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <button onClick={() => router.push(`/accounts/${accountId}`)} className="hover:text-primary transition-colors">
+              Analysis Hub
+            </button>
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <span className="text-on-surface">Audit</span>
+          </div>
+          <h1 className="text-2xl font-bold text-on-surface">Account Audit</h1>
+          <div className="flex items-center gap-2 mt-1">
+            <StatusBadge
+              status={isEcom ? 'pitching' : 'running'}
+              label={isEcom ? 'E-Commerce' : 'Lead Gen'}
+            />
+            <span className="text-xs text-on-surface-variant">
+              {new Date(analysis.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+          </div>
         </div>
+        {!swot && (
+          <GradientButton onClick={generateSwot} disabled={swotLoading}>
+            {swotLoading ? (
+              <><span className="material-symbols-outlined text-lg animate-spin">progress_activity</span> Generating...</>
+            ) : (
+              <><span className="material-symbols-outlined text-lg">psychology</span> Generate SWOT + Actions</>
+            )}
+          </GradientButton>
+        )}
       </div>
 
       {/* Data sufficiency warnings */}
       {warnings.length > 0 && (
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-1">
-          <p className="text-xs font-label font-bold text-amber-700 mb-1">Data Sufficiency</p>
-          {warnings.map((w, i) => <p key={i} className="text-xs font-label text-amber-700">⚠ {w}</p>)}
+        <div className="rounded-xl bg-tertiary/10 p-4 space-y-1">
+          <p className="text-xs font-label font-bold text-tertiary mb-1">Data Sufficiency</p>
+          {warnings.map((w, i) => <p key={i} className="text-xs font-label text-tertiary">&#9888; {w}</p>)}
         </div>
       )}
 
       {/* Section nav */}
-      <div className="flex gap-1 mb-6 border-b border-outline-variant/15 overflow-x-auto">
-        {SECTIONS.map(s => (
-          <button key={s.id} onClick={() => setActiveSection(s.id)}
-            className={`flex items-center gap-1.5 px-4 py-3 text-sm font-label font-semibold whitespace-nowrap transition-all border-b-2 -mb-px ${
-              activeSection === s.id ? 'text-primary border-primary' : 'text-secondary border-transparent hover:text-on-surface'
-            }`}>
-            <span className="material-symbols-outlined text-[16px]">{s.icon}</span>
-            {s.label}
-          </button>
-        ))}
-      </div>
+      <TabNav tabs={SECTIONS} activeTab={activeSection} onTabChange={setActiveSection} />
 
-      {/* ── Summary ── */}
+      {/* Summary */}
       {activeSection === 'summary' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: 'Total Spend',    value: `$${(summary.totalSpend || 0).toLocaleString()}` },
-              { label: 'Conversions',   value: (summary.totalConversions || 0).toLocaleString() },
+              { label: 'Total Spend', value: `$${(summary.totalSpend || 0).toLocaleString()}` },
+              { label: 'Conversions', value: (summary.totalConversions || 0).toLocaleString() },
               { label: isEcom ? 'Avg ROAS' : 'Avg CPA',
-                value: isEcom ? `${summary.avgRoas || '—'}×` : `$${summary.avgCpa || '—'}` },
-              { label: 'Wasted Spend',  value: `$${(summary.totalWasted || 0).toLocaleString()}`,
-                sub: `${summary.wastedPct || 0}% of total`, color: 'text-red-600' },
+                value: isEcom ? `${summary.avgRoas || '\u2014'}\u00D7` : `$${summary.avgCpa || '\u2014'}` },
+              { label: 'Wasted Spend', value: `$${(summary.totalWasted || 0).toLocaleString()}`,
+                sub: `${summary.wastedPct || 0}% of total`, isError: true },
             ].map(s => (
-              <div key={s.label} className="card p-4">
-                <p className={`text-2xl font-headline font-bold ${s.color || 'text-on-surface'}`}>{s.value}</p>
-                <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mt-1">{s.label}</p>
-                {s.sub && <p className="text-xs font-label text-secondary mt-0.5">{s.sub}</p>}
+              <div key={s.label} className="bg-surface-container rounded-xl p-4">
+                <p className={`text-2xl font-bold ${s.isError ? 'text-error' : 'text-on-surface'}`}>{s.value}</p>
+                <p className="text-label-sm text-on-surface-variant mt-1">{s.label}</p>
+                {s.sub && <p className="text-xs text-on-surface-variant mt-0.5">{s.sub}</p>}
               </div>
             ))}
           </div>
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label: 'Keywords analyzed',     value: summary.keywordCount || 0 },
+              { label: 'Keywords analyzed', value: summary.keywordCount || 0 },
               { label: 'Search terms analyzed', value: summary.searchTermCount || 0 },
-              { label: 'Campaigns',             value: summary.campaignCount || 0 },
+              { label: 'Campaigns', value: summary.campaignCount || 0 },
             ].map(s => (
-              <div key={s.label} className="card p-4 text-center">
-                <p className="text-3xl font-headline font-bold text-on-surface">{s.value}</p>
-                <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mt-1">{s.label}</p>
+              <div key={s.label} className="bg-surface-container rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold text-on-surface">{s.value}</p>
+                <p className="text-label-sm text-on-surface-variant mt-1">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── N-gram Table ── */}
+      {/* N-gram Table */}
       {activeSection === 'ngrams' && (
         <div>
-          <p className="text-sm text-secondary font-label mb-4">
+          <p className="text-sm text-on-surface-variant mb-4">
             Every phrase cluster across all search terms — sorted by spend. Red = zero conversions. Amber = above-average CPA.
             Click any row to focus the chat assistant on that phrase.
           </p>
@@ -192,7 +198,7 @@ export default function AnalysisPage({ params }) {
         </div>
       )}
 
-      {/* ── Wasted Spend ── */}
+      {/* Wasted Spend */}
       {activeSection === 'wasted' && (
         <WastedSpend
           keywords={keywords.zeroConvKeywords || []}
@@ -203,7 +209,7 @@ export default function AnalysisPage({ params }) {
         />
       )}
 
-      {/* ── Campaign Ranking ── */}
+      {/* Campaign Ranking */}
       {activeSection === 'campaigns' && (
         <CampaignRanking
           campaigns={campaigns.rankedCampaigns || []}
@@ -215,16 +221,16 @@ export default function AnalysisPage({ params }) {
         />
       )}
 
-      {/* ── SWOT ── */}
+      {/* SWOT */}
       {activeSection === 'swot' && (
         <div>
           {!swot && !swotLoading && (
             <div className="text-center py-16">
-              <span className="material-symbols-outlined text-4xl text-secondary mb-3 block">psychology</span>
-              <p className="font-label font-semibold text-on-surface mb-4">SWOT not generated yet</p>
-              <button onClick={generateSwot} className="pill-btn-primary">
+              <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-3 block">psychology</span>
+              <p className="font-semibold text-on-surface mb-4">SWOT not generated yet</p>
+              <GradientButton onClick={generateSwot}>
                 Generate SWOT + Action Items
-              </button>
+              </GradientButton>
             </div>
           )}
           <SwotPanel
@@ -235,14 +241,14 @@ export default function AnalysisPage({ params }) {
         </div>
       )}
 
-      {/* ── Action Items ── */}
+      {/* Action Items */}
       {activeSection === 'actions' && (
         <div>
           {!swot && !swotLoading && (
             <div className="mb-4">
-              <button onClick={generateSwot} className="pill-btn-primary text-sm">
+              <GradientButton onClick={generateSwot} className="text-sm">
                 Generate SWOT + Action Items first
-              </button>
+              </GradientButton>
             </div>
           )}
           <ActionItems

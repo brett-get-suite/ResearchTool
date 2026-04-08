@@ -65,10 +65,10 @@ export default function ColumnMapper({ headers, sampleRows, onConfirm, onCancel 
   };
 
   return (
-    <div className="card p-5 space-y-5">
+    <div className="bg-surface-container rounded-xl p-5 space-y-5">
       <div>
-        <p className="font-headline font-bold text-on-surface mb-1">Map Your Columns</p>
-        <p className="text-xs text-secondary font-label">Your file has non-standard column names. Map them to the expected fields.</p>
+        <p className="text-base font-bold text-on-surface mb-1">Map Your Columns</p>
+        <p className="text-xs text-on-surface-variant font-label">Your file has non-standard column names. Map them to the expected fields.</p>
       </div>
 
       <div>
@@ -78,10 +78,10 @@ export default function ColumnMapper({ headers, sampleRows, onConfirm, onCancel 
             <button
               key={type}
               onClick={() => { setSelectedType(type); setMapping({}); }}
-              className={`text-xs font-label font-semibold px-3 py-2 rounded-lg border-2 transition-all ${
+              className={`text-xs font-label font-semibold px-3 py-2 rounded-xl border-2 transition-all ${
                 selectedType === type
-                  ? 'border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]'
-                  : 'border-surface-high text-secondary hover:border-[var(--primary)]/40'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-outline-variant/20 text-on-surface-variant hover:border-primary/40'
               }`}
             >
               {label}
@@ -96,11 +96,11 @@ export default function ColumnMapper({ headers, sampleRows, onConfirm, onCancel 
           {requiredCols.map(({ internal, label }) => (
             <div key={internal} className="flex items-center gap-3">
               <span className="text-xs font-label text-on-surface w-32 shrink-0">{label}</span>
-              <span className="text-secondary text-xs">→</span>
+              <span className="text-on-surface-variant text-xs">&rarr;</span>
               <select
                 value={mapping[internal] || internal}
                 onChange={e => setMapping(prev => ({ ...prev, [internal]: e.target.value }))}
-                className="flex-1 text-xs font-label border border-surface-high rounded-lg px-2 py-1.5 bg-surface text-on-surface"
+                className="flex-1 text-xs font-label border border-outline-variant/20 rounded-xl px-2 py-1.5 bg-surface-container-high text-on-surface"
               >
                 {headers.map(h => (
                   <option key={h} value={h}>{h}</option>
@@ -112,8 +112,8 @@ export default function ColumnMapper({ headers, sampleRows, onConfirm, onCancel 
       </div>
 
       <div className="flex gap-3">
-        <button onClick={onCancel} className="pill-btn-secondary flex-1 text-sm">Cancel</button>
-        <button onClick={applyMapping} className="pill-btn-primary flex-1 text-sm">Confirm Mapping</button>
+        <button onClick={onCancel} className="flex-1 text-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-variant/50 transition-colors font-medium">Cancel</button>
+        <button onClick={applyMapping} className="flex-1 text-sm py-2.5 rounded-xl font-semibold text-on-primary bg-gradient-to-br from-primary to-primary-container transition-opacity">Confirm Mapping</button>
       </div>
     </div>
   );

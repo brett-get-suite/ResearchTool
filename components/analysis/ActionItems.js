@@ -2,9 +2,9 @@
 'use client';
 
 const CONFIDENCE_STYLES = {
-  HIGH:   'bg-emerald-100 text-emerald-700',
-  MEDIUM: 'bg-amber-100 text-amber-700',
-  LOW:    'bg-slate-100 text-slate-600',
+  HIGH:   'bg-secondary/15 text-secondary',
+  MEDIUM: 'bg-tertiary/15 text-tertiary',
+  LOW:    'bg-surface-variant text-on-surface-variant',
 };
 
 const CATEGORY_LABELS = {
@@ -16,11 +16,11 @@ const CATEGORY_LABELS = {
 };
 
 const CATEGORY_COLORS = {
-  NEGATIVE_KEYWORD: 'bg-red-50 text-red-600',
-  PAUSE_KEYWORD:    'bg-orange-50 text-orange-600',
-  SCALE_BUDGET:     'bg-emerald-50 text-emerald-700',
-  RESTRUCTURE:      'bg-blue-50 text-blue-600',
-  BID_ADJUSTMENT:   'bg-purple-50 text-purple-600',
+  NEGATIVE_KEYWORD: 'bg-error/10 text-error',
+  PAUSE_KEYWORD:    'bg-error/10 text-error',
+  SCALE_BUDGET:     'bg-secondary/10 text-secondary',
+  RESTRUCTURE:      'bg-primary/10 text-primary',
+  BID_ADJUSTMENT:   'bg-tertiary/10 text-tertiary',
 };
 
 export default function ActionItems({ items = [], loading = false, warnings = [], onItemClick }) {
@@ -28,9 +28,9 @@ export default function ActionItems({ items = [], loading = false, warnings = []
     return (
       <div className="space-y-3">
         {[1,2,3].map(i => (
-          <div key={i} className="card p-4 animate-pulse">
-            <div className="h-4 bg-surface-high rounded w-3/4 mb-2" />
-            <div className="h-3 bg-surface-high rounded w-full" />
+          <div key={i} className="bg-surface-container rounded-xl p-4 animate-pulse">
+            <div className="h-4 bg-surface-container-high rounded w-3/4 mb-2" />
+            <div className="h-3 bg-surface-container-high rounded w-full" />
           </div>
         ))}
       </div>
@@ -41,33 +41,33 @@ export default function ActionItems({ items = [], loading = false, warnings = []
     <div className="space-y-4">
       {/* Data sufficiency warnings */}
       {warnings.length > 0 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-1">
+        <div className="rounded-xl bg-tertiary/10 p-3 space-y-1">
           {warnings.map((w, i) => (
-            <p key={i} className="text-xs font-label text-amber-700">⚠ {w}</p>
+            <p key={i} className="text-xs font-label text-tertiary">&#9888; {w}</p>
           ))}
         </div>
       )}
 
       {items.length === 0 && (
-        <p className="text-sm text-secondary font-label">No action items yet. Generate SWOT to populate recommendations.</p>
+        <p className="text-sm text-on-surface-variant font-label">No action items yet. Generate SWOT to populate recommendations.</p>
       )}
 
       {items.map((item, i) => (
         <div key={i}
           onClick={() => onItemClick?.(item)}
-          className="card p-4 cursor-pointer hover:border-[var(--primary)]/30 transition-colors">
+          className="bg-surface-container rounded-xl p-4 cursor-pointer hover:bg-surface-container-high transition-colors">
           <div className="flex items-start justify-between gap-3 mb-2">
             <p className="text-sm font-label font-semibold text-on-surface flex-1">{item.description}</p>
             <div className="flex items-center gap-1.5 shrink-0">
               <span className={`text-[10px] font-bold font-label px-2 py-0.5 rounded-full ${CONFIDENCE_STYLES[item.confidence] || CONFIDENCE_STYLES.LOW}`}>
                 {item.confidence}
               </span>
-              <span className={`text-[10px] font-bold font-label px-2 py-0.5 rounded-full ${CATEGORY_COLORS[item.category] || 'bg-slate-100 text-slate-600'}`}>
+              <span className={`text-[10px] font-bold font-label px-2 py-0.5 rounded-full ${CATEGORY_COLORS[item.category] || 'bg-surface-variant text-on-surface-variant'}`}>
                 {CATEGORY_LABELS[item.category] || item.category}
               </span>
             </div>
           </div>
-          <p className="text-xs text-secondary font-label">{item.rationale}</p>
+          <p className="text-xs text-on-surface-variant font-label">{item.rationale}</p>
           {item.estimatedImpact && (
             <p className="text-xs text-primary font-label font-semibold mt-1.5">
               Est. impact: {item.estimatedImpact}

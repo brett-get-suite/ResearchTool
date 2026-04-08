@@ -146,18 +146,18 @@ export default function ReportUpload({ accountId, onUploadComplete }) {
       )}
 
       {file && !success && (
-        <div className="card p-4 space-y-3">
+        <div className="bg-surface-container rounded-xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div>
               <p className="font-label font-semibold text-on-surface text-sm">{file.name}</p>
               {detectedType && (
-                <p className="text-xs text-secondary mt-0.5">
-                  Detected: <span className="text-[var(--primary)] font-semibold">{REPORT_TYPE_LABELS[detectedType]}</span>
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  Detected: <span className="text-primary font-semibold">{REPORT_TYPE_LABELS[detectedType]}</span>
                   {parsed && ` · ${parsed.rows.length.toLocaleString()} rows`}
                 </p>
               )}
             </div>
-            <button onClick={reset} className="text-secondary hover:text-on-surface text-xs font-label">
+            <button onClick={reset} className="text-on-surface-variant hover:text-on-surface text-xs font-label">
               Remove
             </button>
           </div>
@@ -166,7 +166,7 @@ export default function ReportUpload({ accountId, onUploadComplete }) {
             <button
               onClick={() => handleUpload(detectedType)}
               disabled={uploading}
-              className="pill-btn-primary w-full"
+              className="w-full py-2.5 rounded-xl text-sm font-semibold text-on-primary bg-gradient-to-br from-primary to-primary-container transition-opacity disabled:opacity-60"
             >
               {uploading ? 'Uploading…' : `Upload as ${REPORT_TYPE_LABELS[detectedType]}`}
             </button>
@@ -174,14 +174,14 @@ export default function ReportUpload({ accountId, onUploadComplete }) {
 
           {!detectedType && !needsMapping && (
             <div>
-              <p className="text-xs text-secondary font-label mb-2">Select report type manually:</p>
+              <p className="text-xs text-on-surface-variant font-label mb-2">Select report type manually:</p>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(REPORT_TYPE_LABELS).map(([type, label]) => (
                   <button
                     key={type}
                     onClick={() => handleUpload(type)}
                     disabled={uploading}
-                    className="text-xs font-label font-semibold px-3 py-2 rounded-lg border border-surface-high hover:border-[var(--primary)] transition-colors"
+                    className="text-xs font-label font-semibold px-3 py-2 rounded-xl border border-outline-variant/20 text-on-surface hover:border-primary/50 transition-colors"
                   >
                     {label}
                   </button>
@@ -193,15 +193,15 @@ export default function ReportUpload({ accountId, onUploadComplete }) {
       )}
 
       {success && (
-        <div className="card p-4 bg-emerald-50 border border-emerald-200">
-          <p className="text-sm font-label font-semibold text-emerald-700">✓ {success}</p>
+        <div className="bg-secondary/10 rounded-xl p-4">
+          <p className="text-sm font-label font-semibold text-secondary">&#10003; {success}</p>
         </div>
       )}
 
       {error && (
-        <div className="card p-4 bg-red-50 border border-red-200">
-          <p className="text-sm font-label text-red-700">{error}</p>
-          <button onClick={reset} className="text-xs text-red-600 font-semibold mt-1 underline">Try again</button>
+        <div className="bg-error/10 rounded-xl p-4">
+          <p className="text-sm font-label text-error">{error}</p>
+          <button onClick={reset} className="text-xs text-error font-semibold mt-1 underline">Try again</button>
         </div>
       )}
     </div>

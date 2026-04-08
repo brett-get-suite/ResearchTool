@@ -2,10 +2,15 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import StatusBadge from '@/components/ui/StatusBadge';
+import StatCard from '@/components/ui/StatCard';
+import GradientButton from '@/components/ui/GradientButton';
+import GhostButton from '@/components/ui/GhostButton';
+import Skeleton from '@/components/ui/Skeleton';
 
 // Format a raw customer ID string/number into XXX-XXX-XXXX
 function formatCustomerId(raw) {
-  if (!raw) return '—';
+  if (!raw) return '\u2014';
   const digits = String(raw).replace(/\D/g, '');
   if (digits.length === 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
   if (digits.length === 9) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
@@ -29,7 +34,7 @@ function relativeTime(isoString) {
 
 // Format a large number with K/M suffixes
 function fmtNum(n) {
-  if (n == null) return '—';
+  if (n == null) return '\u2014';
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
   return String(n);
@@ -37,89 +42,18 @@ function fmtNum(n) {
 
 // Format currency
 function fmtCost(micros) {
-  if (micros == null) return '—';
+  if (micros == null) return '\u2014';
   const dollars = micros / 1_000_000;
   if (dollars >= 1000) return `$${(dollars / 1000).toFixed(1)}K`;
   return `$${dollars.toFixed(0)}`;
 }
 
-const STATUS_STYLES = {
-  active:       'bg-emerald-50 text-emerald-600',
-  connecting:   'bg-amber-50 text-amber-600',
-  paused:       'bg-slate-100 text-slate-600',
-  disconnected: 'bg-red-50 text-red-600',
-};
-
-function StatusBadge({ status }) {
-  const cls = STATUS_STYLES[status] || STATUS_STYLES.paused;
-  return (
-    <span className={`text-[10px] font-label font-bold px-2.5 py-1 rounded-full capitalize ${cls}`}>
-      {status || 'unknown'}
-    </span>
-  );
-}
-
-// Skeleton card for loading state
-function SkeletonCard() {
-  return (
-    <div className="card p-5 animate-pulse">
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <div className="h-5 w-36 bg-outline-variant/20 rounded mb-2" />
-          <div className="h-3 w-24 bg-outline-variant/10 rounded" />
-        </div>
-        <div className="h-6 w-16 bg-outline-variant/10 rounded-full" />
-      </div>
-      <div className="h-3 w-32 bg-outline-variant/10 rounded mb-4" />
-      <div className="grid grid-cols-4 gap-2 mb-4">
-        {[0, 1, 2, 3].map(i => (
-          <div key={i} className="h-14 bg-outline-variant/10 rounded-lg" />
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <div className="h-8 flex-1 bg-outline-variant/10 rounded-full" />
-        <div className="h-8 flex-1 bg-outline-variant/10 rounded-full" />
-      </div>
-    </div>
-  );
-}
-
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState([]);
-  const [metrics, setMetrics] = useState({});    // { [accountId]: { account, campaigns } }
+  const [metrics, setMetrics] = useState({});
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState({});    // { [accountId]: bool }
+  const [syncing, setSyncing] = useState({});
   const [syncErrors, setSyncErrors] = useState({});
-
-  const loadAccounts = useCallback(async () => {
-    try {
-      const res = await fetch('/api/accounts');
-      const data = await res.json();
-      const list = Array.isArray(data) ? data : [];
-      setAccounts(list);
-      return list;
-    } catch (err) {
-      console.error('Failed to load accounts:', err);
-      return [];
-    }
-  }, []);
-
-  const loadMetrics = useCallback(async (list) => {
-    if (!list.length) return;
-    try {
-      const results = await Promise.all(
-        list.map(a =>
-          fetch(`/api/accounts/${a.id}/metrics`)
-            .then(r => r.json())
-            .then(m => [a.id, m])
-            .catch(() => [a.id, null])
-        )
-      );
-      setMetrics(Object.fromEntries(results));
-    } catch (err) {
-      console.error('Failed to load metrics:', err);
-    }
-  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -162,7 +96,6 @@ export default function AccountsPage() {
     setSyncErrors(s => ({ ...s, [accountId]: null }));
     try {
       await fetch(`/api/accounts/${accountId}/sync`, { method: 'POST' });
-      // Refresh this account + its metrics
       const [accountRes, metricsRes] = await Promise.all([
         fetch(`/api/accounts/${accountId}`).then(r => r.json()),
         fetch(`/api/accounts/${accountId}/metrics`).then(r => r.json()).catch(() => null),
@@ -188,66 +121,52 @@ export default function AccountsPage() {
   }, 0);
 
   return (
-    <div className="px-8 py-10">
+    <div className="space-y-6 fade-up">
       {/* Header */}
-      <div className="mb-8 flex items-end justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">
+          <h2 className="text-2xl font-bold text-on-surface mb-1">
             Managed Accounts
           </h2>
-          <p className="text-secondary text-sm">Connect and manage Google Ads accounts</p>
+          <p className="text-on-surface-variant text-sm">Connect and manage Google Ads accounts</p>
         </div>
-        <button
-          onClick={() => { window.location.href = '/api/auth/google-ads'; }}
-          className="pill-btn-primary"
-        >
-          <span className="material-symbols-outlined text-[18px]">add_link</span>
+        <GradientButton onClick={() => { window.location.href = '/api/auth/google-ads'; }}>
+          <span className="material-symbols-outlined text-lg">add_link</span>
           Connect Account
-        </button>
+        </GradientButton>
       </div>
 
-      {/* Summary stats row — only when accounts exist */}
+      {/* Summary stats row */}
       {!loading && accounts.length > 0 && (
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[
-            { icon: 'account_tree',    label: 'Total Accounts',      value: accounts.length },
-            { icon: 'verified',        label: 'Active Accounts',     value: activeCount },
-            { icon: 'attach_money',    label: 'Total Monthly Spend', value: fmtTotalSpend },
-            { icon: 'conversion_path', label: 'Total Conversions',   value: fmtNum(totalConversions) },
-          ].map(s => (
-            <div key={s.label} className="card p-4 text-center">
-              <span className="material-symbols-outlined text-primary text-[20px]">{s.icon}</span>
-              <p className="text-xl font-headline font-bold text-on-surface mt-1">{s.value}</p>
-              <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest">{s.label}</p>
-            </div>
-          ))}
+        <div className="grid grid-cols-4 gap-4">
+          <StatCard label="Total Accounts" value={accounts.length} icon="account_tree" />
+          <StatCard label="Active Accounts" value={activeCount} icon="verified" />
+          <StatCard label="Total Monthly Spend" value={fmtTotalSpend} icon="attach_money" />
+          <StatCard label="Total Conversions" value={fmtNum(totalConversions)} icon="conversion_path" />
         </div>
       )}
 
       {/* Loading state */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[0, 1, 2].map(i => <SkeletonCard key={i} />)}
+          {[0, 1, 2].map(i => <Skeleton key={i} variant="card" className="h-48" />)}
         </div>
       ) : accounts.length === 0 ? (
         /* Empty state */
-        <div className="card p-16 text-center">
-          <span className="material-symbols-outlined text-[56px] text-outline-variant mb-4">
+        <div className="bg-surface-container rounded-xl p-16 text-center">
+          <span className="material-symbols-outlined text-[56px] text-on-surface-variant mb-4">
             account_balance
           </span>
-          <p className="font-headline font-bold text-on-surface text-xl mb-2">
+          <p className="font-bold text-on-surface text-xl mb-2">
             No accounts connected yet
           </p>
-          <p className="text-sm text-secondary mb-8 max-w-sm mx-auto">
+          <p className="text-sm text-on-surface-variant mb-8 max-w-sm mx-auto">
             Connect a Google Ads account to start managing campaigns, tracking performance, and unlocking AI-powered insights.
           </p>
-          <button
-            onClick={() => { window.location.href = '/api/auth/google-ads'; }}
-            className="pill-btn-primary"
-          >
-            <span className="material-symbols-outlined text-[18px]">add_link</span>
+          <GradientButton onClick={() => { window.location.href = '/api/auth/google-ads'; }}>
+            <span className="material-symbols-outlined text-lg">add_link</span>
             Connect Your First Account
-          </button>
+          </GradientButton>
         </div>
       ) : (
         /* Account cards grid */
@@ -259,28 +178,28 @@ export default function AccountsPage() {
 
             const pills = [
               { label: 'Impressions', value: fmtNum(acct?.impressions) },
-              { label: 'Clicks',      value: fmtNum(acct?.clicks) },
-              { label: 'Cost',        value: fmtCost(acct?.cost_micros) },
-              { label: 'Conv.',       value: fmtNum(acct?.conversions) },
+              { label: 'Clicks', value: fmtNum(acct?.clicks) },
+              { label: 'Cost', value: fmtCost(acct?.cost_micros) },
+              { label: 'Conv.', value: fmtNum(acct?.conversions) },
             ];
 
             return (
-              <div key={account.id} className="card p-5 flex flex-col gap-3">
+              <div key={account.id} className="bg-surface-container rounded-xl p-5 flex flex-col gap-3">
                 {/* Card header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-xl font-headline font-bold text-on-surface leading-tight truncate">
+                    <p className="text-xl font-bold text-on-surface leading-tight truncate">
                       {account.name || 'Unnamed Account'}
                     </p>
-                    <p className="text-[11px] text-secondary font-label mt-0.5">
+                    <p className="text-[11px] text-on-surface-variant font-label mt-0.5">
                       {formatCustomerId(account.google_customer_id)}
                     </p>
                   </div>
-                  <StatusBadge status={account.status} />
+                  <StatusBadge status={account.status === 'active' ? 'active' : account.status === 'connecting' ? 'running' : 'idle'} label={account.status} />
                 </div>
 
                 {/* Last synced */}
-                <div className="flex items-center gap-1.5 text-xs text-secondary">
+                <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                   <span className="material-symbols-outlined text-[14px]">schedule</span>
                   <span>Synced {relativeTime(account.last_synced_at)}</span>
                 </div>
@@ -288,9 +207,9 @@ export default function AccountsPage() {
                 {/* Metric pills */}
                 <div className="grid grid-cols-4 gap-2">
                   {pills.map(p => (
-                    <div key={p.label} className="bg-surface-high rounded-lg p-2 text-center">
+                    <div key={p.label} className="bg-surface-container-high rounded-xl p-2 text-center">
                       <p className="font-mono font-semibold text-on-surface text-sm leading-tight">{p.value}</p>
-                      <p className="text-[9px] font-label font-bold text-secondary uppercase tracking-widest mt-0.5">{p.label}</p>
+                      <p className="text-label-sm text-on-surface-variant mt-0.5">{p.label}</p>
                     </div>
                   ))}
                 </div>
@@ -299,24 +218,24 @@ export default function AccountsPage() {
                 <div className="flex gap-2 mt-auto pt-1">
                   <Link
                     href={`/accounts/${account.id}`}
-                    className="pill-btn-primary flex-1 justify-center text-sm"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold text-on-primary bg-gradient-to-br from-primary to-primary-container"
                   >
                     <span className="material-symbols-outlined text-[16px]">open_in_new</span>
                     View Account
                   </Link>
-                  <button
+                  <GhostButton
                     onClick={() => handleSync(account.id)}
                     disabled={isSyncing}
-                    className="pill-btn-secondary flex-1 justify-center text-sm disabled:opacity-60"
+                    className="flex-1 justify-center text-sm"
                   >
                     <span className={`material-symbols-outlined text-[16px] ${isSyncing ? 'animate-spin' : ''}`}>
                       {isSyncing ? 'progress_activity' : 'sync'}
                     </span>
-                    {isSyncing ? 'Syncing…' : 'Sync'}
-                  </button>
+                    {isSyncing ? 'Syncing...' : 'Sync'}
+                  </GhostButton>
                 </div>
                 {syncErrors[account.id] && (
-                  <p className="text-xs text-red-500 mt-1">{syncErrors[account.id]}</p>
+                  <p className="text-xs text-error mt-1">{syncErrors[account.id]}</p>
                 )}
               </div>
             );
