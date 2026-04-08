@@ -2,8 +2,8 @@ import './globals.css';
 import AppShell from '@/components/ui/AppShell';
 
 export const metadata = {
-  title: 'PPC Recon — AI-Driven Marketing',
-  description: 'Autonomous Google Ads research, audit, and optimization platform',
+  title: 'AdPilot — Autonomous Ads AI',
+  description: 'AI-powered Google Ads management, analysis, and optimization platform',
 };
 
 export default function RootLayout({ children }) {

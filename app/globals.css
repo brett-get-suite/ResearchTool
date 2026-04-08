@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════════════════════════════════
-   PPC Recon — "The Intelligence Layer" Design Tokens
+   AdPilot — "The Intelligence Layer" Design Tokens
    Dark mode only. No light theme.
    ══════════════════════════════════════════════════════════════ */
 
 :root {
   /* ── Layout ── */
-  --sidebar-width: 264px;
+  --sidebar-width: 260px;
 
   /* ── Background ── */
-  --background: #0b1326;
+  --background: #0a1120;
 
   /* ── Primary (Action Blue) ── */
   --primary: #adc6ff;
   --primary-container: #4d8efe;
-  --on-primary: #ffffff;
+  --on-primary: #0a1120;
 
   /* ── Secondary (Success/Growth Emerald) ── */
   --secondary: #4edea3;
@@ -35,23 +35,23 @@
   --on-error-container: #ffb4ab;
 
   /* ── Surface Tiers (Tonal Layering) ── */
-  --surface-container-lowest: #060e20;
-  --surface-container-low: #131b2e;
-  --surface-container: #171f33;
-  --surface-container-high: #222a3d;
-  --surface-container-highest: #2d3548;
+  --surface-container-lowest: #060d1c;
+  --surface-container-low: #111828;
+  --surface-container: #161d2f;
+  --surface-container-high: #1e2740;
+  --surface-container-highest: #283250;
 
   /* ── Surface Variant (Glass backgrounds) ── */
-  --surface-variant: #1e2638;
-  --surface-bright: #2a3348;
+  --surface-variant: #1a2236;
+  --surface-bright: #253040;
 
   /* ── Text ── */
-  --on-surface: #e0e0e0;
-  --on-surface-variant: #8a919e;
+  --on-surface: #eaeef4;
+  --on-surface-variant: #8994a8;
 
   /* ── Outline ── */
-  --outline: #5a6272;
-  --outline-variant: #3a4255;
+  --outline: #5a6478;
+  --outline-variant: #333d52;
 }
 
 /* ── Global Resets ── */
@@ -81,7 +81,7 @@ body {
 
 /* ── Glass Effect ── */
 .glass {
-  background: rgba(30, 38, 56, 0.6);
+  background: rgba(22, 29, 47, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -110,6 +110,21 @@ body {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg,
+    var(--surface-container) 25%,
+    var(--surface-container-high) 50%,
+    var(--surface-container) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
 /* ── Typography Utilities ── */
 .text-display-lg {
   font-size: 3.5rem;
@@ -136,4 +151,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   line-height: 1.4;
+}
+
+/* ── Dropdown / Panel ── */
+.dropdown-panel {
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }

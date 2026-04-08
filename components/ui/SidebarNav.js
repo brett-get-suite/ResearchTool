@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const PRIMARY_NAV = [
-  { href: '/', label: 'Client Pipeline', icon: 'trending_up' },
-  { href: '/analysis', label: 'Analysis Hub', icon: 'query_stats' },
-  { href: '/keywords', label: 'Keyword Engine', icon: 'grid_view' },
-  { href: '/agents', label: 'Agent Controls', icon: 'smart_toy' },
+const MAIN_NAV = [
+  { href: '/', label: 'Dashboard', icon: 'space_dashboard' },
+  { href: '/accounts', label: 'Ad Accounts', icon: 'account_tree' },
+  { href: '/agents', label: 'AI Agents', icon: 'smart_toy' },
+  { href: '/research', label: 'Research', icon: 'query_stats' },
 ];
 
-const SECONDARY_NAV = [
+const TOOLS_NAV = [
   { href: '/brand-lab', label: 'Brand Lab', icon: 'palette' },
+  { href: '/competitors', label: 'Competitors', icon: 'groups' },
   { href: '/reports', label: 'Reports', icon: 'assessment' },
 ];
 
@@ -24,35 +25,38 @@ export default function SidebarNav() {
   }
 
   return (
-    <aside className="fixed top-0 left-0 h-screen flex flex-col bg-surface-container-lowest z-40"
-           style={{ width: 'var(--sidebar-width)' }}>
+    <aside
+      className="fixed top-0 left-0 h-screen flex flex-col bg-surface-container-lowest z-40"
+      style={{ width: 'var(--sidebar-width)' }}
+    >
       {/* Logo */}
-      <div className="px-6 py-5 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
-          <span className="material-symbols-outlined text-on-primary text-lg">architecture</span>
+      <div className="px-5 py-5 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-fab">
+          <span className="material-symbols-outlined text-on-primary text-lg">rocket_launch</span>
         </div>
         <div>
-          <div className="text-on-surface font-bold text-sm tracking-tight">PPC Recon</div>
-          <div className="text-on-surface-variant text-label-sm">AI-Driven Marketing</div>
+          <div className="text-on-surface font-bold text-sm tracking-tight">AdPilot</div>
+          <div className="text-on-surface-variant text-[10px] tracking-wide uppercase">Autonomous Ads AI</div>
         </div>
       </div>
 
-      {/* Primary Nav */}
-      <nav className="flex-1 px-3 mt-2 space-y-1">
-        {PRIMARY_NAV.map((item) => {
+      {/* Main Nav */}
+      <nav className="flex-1 px-3 mt-1 space-y-0.5">
+        <div className="text-label-sm text-on-surface-variant/60 px-3 pb-1.5 pt-3">Manage</div>
+        {MAIN_NAV.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors relative ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
                 active
-                  ? 'bg-surface-variant text-primary font-semibold'
+                  ? 'bg-primary/10 text-primary font-semibold'
                   : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
               }`}
             >
               {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
               )}
               <span className="material-symbols-outlined text-xl">{item.icon}</span>
               {item.label}
@@ -61,27 +65,28 @@ export default function SidebarNav() {
         })}
 
         {/* New Analysis CTA */}
-        <div className="pt-4">
+        <div className="pt-4 pb-2">
           <Link
             href="/research"
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl gradient-primary text-on-primary text-sm font-semibold transition-transform active:scale-95 w-full"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-on-primary text-sm font-semibold transition-transform active:scale-[0.97] w-full shadow-fab"
           >
-            <span className="material-symbols-outlined text-lg">add</span>
+            <span className="material-symbols-outlined text-lg">add_circle</span>
             New Analysis
           </Link>
         </div>
 
-        {/* Secondary Nav */}
-        <div className="pt-6 space-y-1">
-          {SECONDARY_NAV.map((item) => {
+        {/* Tools Nav */}
+        <div className="space-y-0.5">
+          <div className="text-label-sm text-on-surface-variant/60 px-3 pb-1.5 pt-3">Tools</div>
+          {TOOLS_NAV.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                   active
-                    ? 'bg-surface-variant text-primary font-semibold'
+                    ? 'bg-primary/10 text-primary font-semibold'
                     : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
                 }`}
               >
@@ -94,23 +99,18 @@ export default function SidebarNav() {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 pb-5 space-y-1">
+      <div className="px-3 pb-4 space-y-0.5">
         <Link
           href="/settings"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface transition-colors"
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+            pathname === '/settings'
+              ? 'bg-primary/10 text-primary font-semibold'
+              : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
+          }`}
         >
           <span className="material-symbols-outlined text-xl">settings</span>
           Settings
         </Link>
-        <a
-          href="https://github.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface transition-colors"
-        >
-          <span className="material-symbols-outlined text-xl">help</span>
-          Support
-        </a>
       </div>
     </aside>
   );

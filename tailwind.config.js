@@ -37,10 +37,12 @@ module.exports = {
         headline: ['Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        DEFAULT: '2px',
-        lg: '4px',
-        xl: '8px',
-        full: '12px',
+        DEFAULT: '6px',
+        md: '8px',
+        lg: '10px',
+        xl: '12px',
+        '2xl': '16px',
+        '3xl': '20px',
         pill: '9999px',
       },
       boxShadow: {
