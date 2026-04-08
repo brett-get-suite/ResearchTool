@@ -19,23 +19,23 @@ const intentBadge = (intent) => {
   return map[intent] || 'badge-navigational';
 };
 const cpcClass = (cpc) => cpc < 10 ? 'cpc-low' : cpc < 30 ? 'cpc-mid' : 'cpc-high';
-const compColor = (c) => c === 'low' ? 'bg-emerald-100 text-emerald-700' : c === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
-const threatColor = (t) => t === 'high' ? 'bg-red-100 text-red-700' : t === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-surface-high text-secondary';
+const compColor = (c) => c === 'low' ? 'bg-secondary/15 text-secondary' : c === 'medium' ? 'bg-tertiary/15 text-tertiary' : 'bg-error/15 text-error';
+const threatColor = (t) => t === 'high' ? 'bg-error/15 text-error' : t === 'medium' ? 'bg-tertiary/15 text-tertiary' : 'bg-surface-high text-secondary';
 
 // ─── Sub-components ───────────────────────────────────────────────
 function PhaseRow({ label, done, active }) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-emerald-100' : active ? 'bg-primary/10' : 'bg-surface-high'}`}>
+      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-secondary/15' : active ? 'bg-primary/10' : 'bg-surface-high'}`}>
         {done ? (
-          <span className="material-symbols-outlined text-[14px] text-emerald-700">check</span>
+          <span className="material-symbols-outlined text-[14px] text-secondary">check</span>
         ) : active ? (
           <span className="material-symbols-outlined text-[14px] text-primary animate-spin">progress_activity</span>
         ) : (
           <div className="w-2 h-2 rounded-full bg-outline-variant" />
         )}
       </div>
-      <span className={`text-sm font-label ${done ? 'text-emerald-700' : active ? 'text-primary font-semibold' : 'text-secondary'}`}>
+      <span className={`text-sm font-label ${done ? 'text-secondary' : active ? 'text-primary font-semibold' : 'text-secondary'}`}>
         {label}
       </span>
     </div>
@@ -348,7 +348,7 @@ function ResearchPageInner() {
             {i > 0 && <div className={`w-8 h-px ${i <= currentStep ? 'bg-primary' : 'bg-outline-variant'}`} />}
             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-label font-semibold transition-all ${
               i === currentStep ? 'bg-primary text-white' :
-              i < currentStep ? 'bg-emerald-100 text-emerald-700' :
+              i < currentStep ? 'bg-secondary/15 text-secondary' :
               'bg-surface-high text-secondary'
             }`}>
               {i < currentStep && <span className="material-symbols-outlined text-[12px]">check</span>}
@@ -360,7 +360,7 @@ function ResearchPageInner() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-error/10 text-error text-sm">
           <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
           <div className="flex-1">
             <p className="font-label font-semibold">Something went wrong</p>
@@ -378,9 +378,9 @@ function ResearchPageInner() {
           <div className="card p-8 space-y-6">
             {/* API Key */}
             {hasServerKey ? (
-              <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <span className="material-symbols-outlined text-emerald-700 text-[18px]">check_circle</span>
-                <span className="text-sm font-label font-semibold text-emerald-700">API key configured via environment variable</span>
+              <div className="flex items-center gap-2 p-3 bg-secondary/10 rounded-lg">
+                <span className="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+                <span className="text-sm font-label font-semibold text-secondary">API key configured via environment variable</span>
               </div>
             ) : (
               <div>
@@ -550,8 +550,8 @@ function ResearchPageInner() {
                       <span className="ml-2 text-xs text-secondary">{svc.category}</span>
                     </div>
                     <span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${
-                      svc.estimated_value === 'high' ? 'bg-emerald-100 text-emerald-700' :
-                      svc.estimated_value === 'medium' ? 'bg-amber-100 text-amber-700' :
+                      svc.estimated_value === 'high' ? 'bg-secondary/15 text-secondary' :
+                      svc.estimated_value === 'medium' ? 'bg-tertiary/15 text-tertiary' :
                       'bg-surface-high text-secondary'
                     }`}>
                       {svc.estimated_value} value
@@ -576,7 +576,7 @@ function ResearchPageInner() {
                   <ul className="space-y-2">
                     {websiteData.unique_selling_points.map((usp, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-on-variant">
-                        <span className="material-symbols-outlined text-emerald-700 text-[14px] shrink-0 mt-0.5">check</span>
+                        <span className="material-symbols-outlined text-secondary text-[14px] shrink-0 mt-0.5">check</span>
                         {usp}
                       </li>
                     ))}
@@ -593,7 +593,7 @@ function ResearchPageInner() {
                 ].map(({ label, val }) => (
                   <div key={label} className="flex justify-between">
                     <span className="text-secondary font-label">{label}</span>
-                    <span className={val ? 'text-emerald-700 font-label font-semibold' : 'text-outline font-label'}>
+                    <span className={val ? 'text-secondary font-label font-semibold' : 'text-outline font-label'}>
                       {val ? 'Yes' : 'No'}
                     </span>
                   </div>
@@ -681,7 +681,7 @@ function ResearchPageInner() {
             {[
               { icon: 'key_visualizer', label: 'Total Keywords', value: stats.total, color: 'text-primary' },
               { icon: 'target_arrow',   label: 'Transactional',  value: stats.transactional, color: 'text-amber-600' },
-              { icon: 'payments',       label: 'Avg CPC',        value: `$${stats.avgCpc}`, color: 'text-emerald-700' },
+              { icon: 'payments',       label: 'Avg CPC',        value: `$${stats.avgCpc}`, color: 'text-secondary' },
               { icon: 'star',           label: 'Opportunities',  value: lowHangingFruit?.top_opportunities?.length || 0, color: 'text-tertiary' },
             ].map(s => (
               <div key={s.label} className="card p-5">
@@ -763,8 +763,8 @@ function ResearchPageInner() {
                               <td><span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${compColor(kw.competition)}`}>{kw.competition}</span></td>
                               <td>
                                 <span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${
-                                  kw.priority === 'high' ? 'bg-red-100 text-red-700' :
-                                  kw.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
+                                  kw.priority === 'high' ? 'bg-error/15 text-error' :
+                                  kw.priority === 'medium' ? 'bg-tertiary/15 text-tertiary' :
                                   'bg-surface-high text-secondary'
                                 }`}>{kw.priority}</span>
                               </td>
@@ -780,7 +780,7 @@ function ResearchPageInner() {
                     <p className="font-label font-bold text-on-surface text-sm mb-3">Negative Keywords</p>
                     <div className="flex flex-wrap gap-2">
                       {keywordData.negative_keywords.map((nk, i) => (
-                        <span key={i} className="px-3 py-1 bg-red-50 text-red-700 text-xs font-label rounded-lg border border-red-100">{nk}</span>
+                        <span key={i} className="px-3 py-1 bg-error/10 text-error text-xs font-label rounded-lg border border-error/15">{nk}</span>
                       ))}
                     </div>
                   </div>
@@ -807,12 +807,12 @@ function ResearchPageInner() {
 
                 {/* Opportunity gaps */}
                 {competitorData.market_analysis?.opportunity_gaps?.length > 0 && (
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                    <p className="text-sm font-label font-bold text-emerald-700 mb-2">Opportunity Gaps</p>
+                  <div className="p-4 bg-secondary/10 rounded-xl">
+                    <p className="text-sm font-label font-bold text-secondary mb-2">Opportunity Gaps</p>
                     <ul className="space-y-1.5">
                       {competitorData.market_analysis.opportunity_gaps.map((gap, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-on-variant">
-                          <span className="material-symbols-outlined text-emerald-700 text-[14px] shrink-0 mt-0.5">trending_up</span>
+                          <span className="material-symbols-outlined text-secondary text-[14px] shrink-0 mt-0.5">trending_up</span>
                           {gap}
                         </li>
                       ))}
@@ -847,7 +847,7 @@ function ResearchPageInner() {
                     <p className="text-sm font-label font-bold text-on-surface mb-2">Competitor Terms to Negate</p>
                     <div className="flex flex-wrap gap-2">
                       {competitorData.competitor_keywords_to_negate.map((t, i) => (
-                        <span key={i} className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-label rounded-lg border border-red-100">{t}</span>
+                        <span key={i} className="px-2.5 py-1 bg-error/10 text-error text-xs font-label rounded-lg border border-error/15">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -945,11 +945,11 @@ function ResearchPageInner() {
                   </div>
                 )}
                 {competitorData?.market_analysis?.peak_seasons?.length > 0 && (
-                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p className="text-sm font-label font-bold text-amber-700 mb-2">Peak Seasons</p>
+                  <div className="mt-4 p-4 bg-tertiary/10 rounded-xl">
+                    <p className="text-sm font-label font-bold text-tertiary mb-2">Peak Seasons</p>
                     <div className="flex flex-wrap gap-2">
                       {competitorData.market_analysis.peak_seasons.map((s, i) => (
-                        <span key={i} className="text-xs px-3 py-1 bg-amber-100 text-amber-700 font-label rounded-lg">{s}</span>
+                        <span key={i} className="text-xs px-3 py-1 bg-tertiary/15 text-tertiary font-label rounded-lg">{s}</span>
                       ))}
                     </div>
                   </div>

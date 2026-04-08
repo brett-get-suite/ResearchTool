@@ -165,7 +165,7 @@ function ReportsContent() {
                     <p className="font-label font-semibold text-on-surface text-sm truncate">{client.name}</p>
                     <p className="text-[11px] text-secondary truncate">{client.industry} · {(client.service_areas||[]).length} areas</p>
                   </div>
-                  <span className="text-[10px] font-label font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 shrink-0">DONE</span>
+                  <span className="text-[10px] font-label font-bold px-2 py-0.5 rounded-full bg-secondary/15 text-secondary shrink-0">DONE</span>
                 </button>
               ))}
             </div>

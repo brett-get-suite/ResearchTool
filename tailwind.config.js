@@ -27,6 +27,11 @@ module.exports = {
         'surface-container-highest': 'var(--surface-container-highest)',
         'surface-variant': 'var(--surface-variant)',
         'surface-bright': 'var(--surface-bright)',
+        // Legacy aliases (used by pre-Phase 1 pages)
+        'surface': 'var(--surface-container)',
+        'surface-high': 'var(--surface-container-high)',
+        'surface-low': 'var(--surface-container-low)',
+        'surface-lowest': 'var(--surface-container-lowest)',
         'on-surface': 'var(--on-surface)',
         'on-surface-variant': 'var(--on-surface-variant)',
         outline: 'var(--outline)',

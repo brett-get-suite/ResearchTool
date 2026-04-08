@@ -27,10 +27,10 @@ const AGENT_CONFIG = [
 ];
 
 const STATUS_STYLES = {
-  running:   'bg-amber-50 text-amber-600',
-  completed: 'bg-emerald-50 text-emerald-600',
-  failed:    'bg-red-50 text-red-600',
-  idle:      'bg-slate-100 text-slate-500',
+  running:   'bg-tertiary/15 text-tertiary',
+  completed: 'bg-secondary/15 text-secondary',
+  failed:    'bg-error/15 text-error',
+  idle:      'bg-surface-variant text-on-surface-variant',
 };
 
 function StatusBadge({ status }) {
@@ -177,7 +177,7 @@ export default function AgentsPage() {
       </div>
 
       {runError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700 font-label">{runError}</div>
+        <div className="mb-4 p-3 bg-error/10 rounded-xl text-sm text-error font-label">{runError}</div>
       )}
 
       {/* Agent cards grid — 3 columns */}
@@ -224,10 +224,10 @@ export default function AgentsPage() {
                 <button
                   onClick={() => handleGlobalToggle(agent.type, !agentEnabled[agent.type])}
                   title={agentEnabled[agent.type] ? 'Disable globally' : 'Enable globally'}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`p-2 rounded-xl transition-colors ${
                     agentEnabled[agent.type]
-                      ? 'text-secondary hover:bg-surface-high hover:text-red-600'
-                      : 'text-red-500 bg-red-50 hover:bg-red-100'
+                      ? 'text-secondary hover:bg-surface-container-high hover:text-error'
+                      : 'text-error bg-error/10 hover:bg-error/15'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[16px]">

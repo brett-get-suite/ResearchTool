@@ -66,16 +66,16 @@ export default function CompetitorsPage() {
     <div className="px-8 py-10">
       <div className="mb-8">
         <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">Competitor Analysis</h2>
-        <p className="text-secondary text-sm">Enter a competitor URL to analyze their services, ad strategy, and find gaps you can exploit.</p>
+        <p className="text-on-surface-variant text-sm">Enter a competitor URL to analyze their services, ad strategy, and find gaps you can exploit.</p>
       </div>
 
       {/* Input card */}
       <div className="card p-8 max-w-2xl mb-8">
         {/* API Key */}
         {hasServerKey ? (
-          <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg mb-6">
-            <span className="material-symbols-outlined text-emerald-700 text-[18px]">check_circle</span>
-            <span className="text-sm font-label font-semibold text-emerald-700">API key configured via environment variable</span>
+          <div className="flex items-center gap-2 p-3 bg-secondary/10 rounded-xl mb-6">
+            <span className="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+            <span className="text-sm font-label font-semibold text-secondary">API key configured via environment variable</span>
           </div>
         ) : (
           <div className="mb-6">
@@ -95,8 +95,8 @@ export default function CompetitorsPage() {
             <div className="flex flex-wrap gap-2">
               {INDUSTRIES.map(ind => (
                 <button key={ind} onClick={() => setIndustry(ind)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-label font-medium border transition-all ${
-                    industry === ind ? 'bg-primary text-white border-primary' : 'bg-surface-lowest border-outline-variant/30 text-secondary hover:border-outline hover:text-on-surface'
+                  className={`px-3 py-1.5 rounded-xl text-sm font-label font-medium border transition-all ${
+                    industry === ind ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container-low border-outline-variant/30 text-on-surface-variant hover:border-outline hover:text-on-surface'
                   }`}>
                   {ind}
                 </button>
@@ -135,7 +135,7 @@ export default function CompetitorsPage() {
       </div>
 
       {error && (
-        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm max-w-2xl">
+        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-error/10 text-error text-sm max-w-2xl">
           <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
           <p className="flex-1">{error}</p>
           <button onClick={() => setError('')}><span className="material-symbols-outlined text-[16px]">close</span></button>
@@ -158,7 +158,7 @@ export default function CompetitorsPage() {
                   { label: 'Emergency Services', val: result.siteData?.emergency_services },
                   { label: 'Reviews', val: result.siteData?.has_reviews_displayed },
                 ].map(({ label, val }) => (
-                  <div key={label} className={`text-center px-3 py-2 rounded-lg text-xs font-label font-semibold ${val ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-high text-secondary'}`}>
+                  <div key={label} className={`text-center px-3 py-2 rounded-lg text-xs font-label font-semibold ${val ? 'bg-secondary/15 text-secondary' : 'bg-surface-high text-secondary'}`}>
                     <span className="material-symbols-outlined text-[16px] block mb-0.5">{val ? 'check' : 'close'}</span>
                     {label}
                   </div>
@@ -187,7 +187,7 @@ export default function CompetitorsPage() {
                 <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-2">Unique Selling Points</p>
                 <div className="flex flex-wrap gap-2">
                   {result.siteData.unique_selling_points.map((usp, i) => (
-                    <span key={i} className="text-xs px-3 py-1 bg-amber-50 text-amber-700 font-label rounded-lg border border-amber-200">{usp}</span>
+                    <span key={i} className="text-xs px-3 py-1 bg-tertiary/10 text-tertiary font-label rounded-lg border border-tertiary/20">{usp}</span>
                   ))}
                 </div>
               </div>
@@ -248,7 +248,7 @@ export default function CompetitorsPage() {
                         <td className="text-sm text-on-variant max-w-xs">{opp.why}</td>
                         <td className={`font-mono text-sm font-bold ${cpcClass(opp.estimated_cpc||0)}`}>${(opp.estimated_cpc||0).toFixed(2)}</td>
                         <td className="font-mono text-sm text-on-variant">{(opp.estimated_monthly_searches||0).toLocaleString()}</td>
-                        <td><span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${opp.competition==='low'?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}>{opp.competition}</span></td>
+                        <td><span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${opp.competition==='low'?'bg-secondary/15 text-secondary':'bg-tertiary/15 text-tertiary'}`}>{opp.competition}</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -263,7 +263,7 @@ export default function CompetitorsPage() {
               <p className="font-label font-bold text-on-surface mb-3">Add These as Negative Keywords in YOUR Campaigns</p>
               <div className="flex flex-wrap gap-2">
                 {result.competitors.competitor_keywords_to_negate.map((t, i) => (
-                  <span key={i} className="px-3 py-1 bg-red-50 text-red-700 text-xs font-label rounded-lg border border-red-100">{t}</span>
+                  <span key={i} className="px-3 py-1 bg-error/10 text-error text-xs font-label rounded-lg border border-error/15">{t}</span>
                 ))}
               </div>
             </div>

@@ -87,12 +87,12 @@ export default function BrandLabPage() {
         <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">
           Brand Lab
         </h2>
-        <p className="text-secondary text-sm">Generate an AI brand identity profile from any website</p>
+        <p className="text-on-surface-variant text-sm">Generate an AI brand identity profile from any website</p>
       </div>
 
       {/* Account selector */}
       <div className="card p-6 mb-6">
-        <label className="block text-sm font-label font-bold text-secondary uppercase tracking-widest mb-3">
+        <label className="block text-sm font-label font-bold text-on-surface-variant uppercase tracking-widest mb-3">
           Account
         </label>
         <select
@@ -109,7 +109,7 @@ export default function BrandLabPage() {
 
       {/* URL input + generate */}
       <div className="card p-6 mb-6">
-        <label className="block text-sm font-label font-bold text-secondary uppercase tracking-widest mb-3">
+        <label className="block text-sm font-label font-bold text-on-surface-variant uppercase tracking-widest mb-3">
           Website URL
         </label>
         <div className="flex gap-3">
@@ -145,7 +145,7 @@ export default function BrandLabPage() {
           </button>
         </div>
         {error && (
-          <p className="text-xs text-red-500 mt-3">{error}</p>
+          <p className="text-xs text-error mt-3">{error}</p>
         )}
       </div>
 
@@ -171,7 +171,7 @@ export default function BrandLabPage() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               {brandProfile.tone_of_voice && (
                 <div>
-                  <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-1">
+                  <p className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">
                     Tone of Voice
                   </p>
                   <p className="text-sm text-on-surface">{brandProfile.tone_of_voice}</p>
@@ -179,7 +179,7 @@ export default function BrandLabPage() {
               )}
               {brandProfile.target_audience && (
                 <div>
-                  <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-1">
+                  <p className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">
                     Target Audience
                   </p>
                   <p className="text-sm text-on-surface">{brandProfile.target_audience}</p>
@@ -193,7 +193,7 @@ export default function BrandLabPage() {
             {/* Key Terminology */}
             {brandProfile.key_terminology?.length > 0 && (
               <div className="bg-surface-high rounded-xl p-4">
-                <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <p className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[14px]">sell</span>
                   Key Terminology
                 </p>
@@ -211,7 +211,7 @@ export default function BrandLabPage() {
             {/* Unique Selling Points */}
             {brandProfile.usps?.length > 0 && (
               <div className="bg-surface-high rounded-xl p-4">
-                <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <p className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[14px]">star</span>
                   Unique Selling Points
                 </p>
@@ -229,7 +229,7 @@ export default function BrandLabPage() {
             {/* Messaging Pillars — spans full width if alone, otherwise stays in grid */}
             {brandProfile.messaging_pillars?.length > 0 && (
               <div className="bg-surface-high rounded-xl p-4 col-span-2">
-                <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <p className="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[14px]">support_agent</span>
                   Messaging Pillars
                 </p>
@@ -246,8 +246,8 @@ export default function BrandLabPage() {
           </div>
 
           {/* Apply to account confirmation note */}
-          <div className="flex items-center gap-2 text-sm text-secondary border-t border-outline-variant pt-4">
-            <span className="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+          <div className="flex items-center gap-2 text-sm text-on-surface-variant border-t border-outline-variant/20 pt-4">
+            <span className="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
             This profile has been saved to <span className="font-semibold text-on-surface">{accountName}</span>'s settings
           </div>
         </div>

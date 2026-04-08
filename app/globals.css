@@ -160,3 +160,167 @@ body {
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Global Form Elements — Dark Theme
+   Prevents raw white inputs on dark backgrounds
+   ══════════════════════════════════════════════════════════════ */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--on-surface-variant);
+  opacity: 0.6;
+}
+
+select option {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Legacy Component Classes — Bridge to Intelligence Layer
+   Used by pre-Phase 1 pages (agents, research, brand-lab, etc.)
+   ══════════════════════════════════════════════════════════════ */
+
+/* Card container */
+.card {
+  background-color: var(--surface-container);
+  border-radius: 16px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+/* Form field */
+.field-input {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: 12px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus {
+  border-color: var(--primary);
+}
+
+.field-input::placeholder {
+  color: var(--on-surface-variant);
+  opacity: 0.6;
+}
+
+/* Form label */
+.field-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+  margin-bottom: 0.5rem;
+}
+
+/* Primary pill button */
+.pill-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  color: var(--on-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.pill-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.pill-btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* Secondary pill button */
+.pill-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.pill-btn-secondary:hover {
+  background-color: rgba(26, 34, 54, 0.5);
+  color: var(--on-surface);
+}
+
+/* Data table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.data-table td {
+  padding: 0.625rem 1rem;
+  color: var(--on-surface-variant);
+  border-bottom: 1px solid rgba(51, 61, 82, 0.3);
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--surface-container-high);
+}
+
+/* Badge styles for legacy pages */
+.badge-transactional { background-color: rgba(78, 222, 163, 0.15); color: var(--secondary); }
+.badge-commercial { background-color: rgba(173, 198, 255, 0.15); color: var(--primary); }
+.badge-informational { background-color: rgba(189, 194, 255, 0.15); color: var(--tertiary); }
+.badge-navigational { background-color: rgba(137, 148, 168, 0.15); color: var(--on-surface-variant); }
+
+.cpc-low { color: var(--secondary); }
+.cpc-mid { color: var(--primary); }
+.cpc-high { color: var(--error); }

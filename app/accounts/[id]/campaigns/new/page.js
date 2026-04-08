@@ -38,7 +38,7 @@ function CharCounter({ value, max }) {
   const len = value?.length || 0;
   const over = len > max;
   return (
-    <span className={`text-xs ml-auto ${over ? 'text-red-500 font-medium' : 'text-on-surface/40'}`}>
+    <span className={`text-xs ml-auto ${over ? 'text-error font-medium' : 'text-on-surface/40'}`}>
       {len}/{max}
     </span>
   );
@@ -99,7 +99,7 @@ function StepCampaignSettings({ form, onChange }) {
   return (
     <div className="space-y-5">
       <div>
-        <label className="field-label">Campaign Name <span className="text-red-500">*</span></label>
+        <label className="field-label">Campaign Name <span className="text-error">*</span></label>
         <input
           type="text"
           className="field-input mt-1"
@@ -110,7 +110,7 @@ function StepCampaignSettings({ form, onChange }) {
       </div>
 
       <div>
-        <label className="field-label">Daily Budget (USD) <span className="text-red-500">*</span></label>
+        <label className="field-label">Daily Budget (USD) <span className="text-error">*</span></label>
         <div className="relative mt-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface/50 text-sm">$</span>
           <input
@@ -182,7 +182,7 @@ function StepKeywords({ form, onChange }) {
   return (
     <div className="space-y-5">
       <div>
-        <label className="field-label">Ad Group Name <span className="text-red-500">*</span></label>
+        <label className="field-label">Ad Group Name <span className="text-error">*</span></label>
         <input
           type="text"
           className="field-input mt-1"
@@ -206,7 +206,7 @@ function StepKeywords({ form, onChange }) {
       </div>
 
       <div>
-        <label className="field-label">Keywords <span className="text-red-500">*</span></label>
+        <label className="field-label">Keywords <span className="text-error">*</span></label>
         <p className="text-xs text-on-surface/50 mb-1.5">One keyword per line.</p>
         <textarea
           className="field-input mt-1 h-36 resize-none font-mono text-sm"
@@ -234,7 +234,7 @@ function StepKeywords({ form, onChange }) {
         </div>
       )}
 
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2.5">
+      <div className="bg-tertiary/10 border border-tertiary/20 rounded-lg p-3 flex gap-2.5">
         <span className="material-symbols-outlined text-amber-500 text-[18px] shrink-0 mt-0.5">info</span>
         <p className="text-xs text-amber-800">
           Keywords and ad groups will be saved to your account after the campaign is created.
@@ -263,7 +263,7 @@ function StepAdCopy({ form, onChange }) {
   return (
     <div className="space-y-6">
       <div>
-        <label className="field-label">Final URL <span className="text-red-500">*</span></label>
+        <label className="field-label">Final URL <span className="text-error">*</span></label>
         <input
           type="url"
           className="field-input mt-1"
@@ -274,7 +274,7 @@ function StepAdCopy({ form, onChange }) {
       </div>
 
       <div className="space-y-3">
-        <label className="field-label">Headlines (max 30 chars each) <span className="text-red-500">*</span></label>
+        <label className="field-label">Headlines (max 30 chars each) <span className="text-error">*</span></label>
         {form.headlines.map((h, i) => (
           <div key={i}>
             <div className="flex items-center gap-2 mb-1">
@@ -294,7 +294,7 @@ function StepAdCopy({ form, onChange }) {
       </div>
 
       <div className="space-y-3">
-        <label className="field-label">Descriptions (max 90 chars each) <span className="text-red-500">*</span></label>
+        <label className="field-label">Descriptions (max 90 chars each) <span className="text-error">*</span></label>
         {form.descriptions.map((d, i) => (
           <div key={i}>
             <div className="flex items-center gap-2 mb-1">
@@ -407,8 +407,8 @@ function StepReview({ form, onSubmit, onBack, submitting, error }) {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2.5">
-          <span className="material-symbols-outlined text-red-500 text-[18px] shrink-0 mt-0.5">error</span>
+        <div className="bg-error/10 border border-error/20 rounded-lg p-3 flex gap-2.5">
+          <span className="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">error</span>
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
@@ -446,7 +446,7 @@ function SuccessView({ accountId, campaignName }) {
   return (
     <div className="flex flex-col items-center text-center py-12 gap-6">
       <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-        <span className="material-symbols-outlined text-emerald-600 text-[32px]">check_circle</span>
+        <span className="material-symbols-outlined text-secondary text-[32px]">check_circle</span>
       </div>
       <div>
         <h2 className="text-xl font-display font-semibold text-on-surface mb-2">
@@ -600,8 +600,8 @@ export default function NewCampaignPage({ params }) {
 
           {/* Step error (steps 1–3) */}
           {stepError && step < 4 && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
-              <span className="material-symbols-outlined text-red-500 text-[18px] shrink-0">error</span>
+            <div className="mt-4 bg-error/10 border border-error/20 rounded-lg p-3 flex gap-2">
+              <span className="material-symbols-outlined text-error text-[18px] shrink-0">error</span>
               <p className="text-sm text-red-700">{stepError}</p>
             </div>
           )}

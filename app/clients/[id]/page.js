@@ -8,7 +8,7 @@ import { getNegativeKeywords, buildNegativeKeywordCSV } from '@/lib/negative-key
 
 const intentBadge = (i) => ({ transactional: 'badge-transactional', commercial: 'badge-commercial', informational: 'badge-informational' }[i] || 'badge-navigational');
 const cpcClass = (c) => c < 10 ? 'cpc-low' : c < 30 ? 'cpc-mid' : 'cpc-high';
-const compColor = (c) => c === 'low' ? 'bg-emerald-100 text-emerald-700' : c === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+const compColor = (c) => c === 'low' ? 'bg-secondary/15 text-secondary' : c === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
 
 export default function ClientDetailPage() {
   const { id } = useParams();
@@ -293,7 +293,7 @@ export default function ClientDetailPage() {
             <span>{client.industry}</span>
             <span>·</span>
             <span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${
-              client.status === 'complete' ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-high text-secondary'
+              client.status === 'complete' ? 'bg-secondary/15 text-secondary' : 'bg-surface-high text-secondary'
             }`}>
               {(client.status || 'draft').toUpperCase()}
             </span>
@@ -318,7 +318,7 @@ export default function ClientDetailPage() {
           <button onClick={() => window.open(`/pitch/${id}`, '_blank')} className="pill-btn-primary text-xs">
             <span className="material-symbols-outlined text-[15px]">slideshow</span>Client Pitch
           </button>
-          <button onClick={handleDelete} className="pill-btn text-xs bg-red-50 text-error hover:bg-red-100">
+          <button onClick={handleDelete} className="pill-btn text-xs bg-error/10 text-error hover:bg-red-100">
             <span className="material-symbols-outlined text-[15px]">delete</span>Delete
           </button>
         </div>
@@ -328,9 +328,9 @@ export default function ClientDetailPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
           { icon: 'key_visualizer', label: 'Total Keywords', value: allKw.length, color: 'text-primary' },
-          { icon: 'target_arrow',   label: 'Transactional',  value: allKw.filter(k => k.intent === 'transactional').length, color: 'text-amber-600' },
+          { icon: 'target_arrow',   label: 'Transactional',  value: allKw.filter(k => k.intent === 'transactional').length, color: 'text-tertiary' },
           { icon: 'star',           label: 'Opportunities',  value: opps.length, color: 'text-tertiary' },
-          { icon: 'location_on',    label: 'Service Areas',  value: (client.service_areas||[]).length, color: 'text-emerald-700' },
+          { icon: 'location_on',    label: 'Service Areas',  value: (client.service_areas||[]).length, color: 'text-secondary' },
         ].map(s => (
           <div key={s.label} className="card p-5">
             <span className={`material-symbols-outlined text-[20px] mb-2 ${s.color}`}>{s.icon}</span>
@@ -424,7 +424,7 @@ export default function ClientDetailPage() {
                 )}
               </div>
               {enrichError && (
-                <div className="mx-6 mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                <div className="mx-6 mt-3 p-3 bg-error/10 border border-error/20 rounded-lg text-sm text-red-700">
                   <span className="font-label font-bold">Enrichment failed:</span> {enrichError}
                 </div>
               )}
@@ -498,7 +498,7 @@ export default function ClientDetailPage() {
                         <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-2">Universal ({neg.universal.length})</p>
                         <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
                           {neg.universal.map(kw => (
-                            <span key={kw} className="text-[10px] px-2 py-0.5 bg-red-50 text-red-700 rounded-full font-label">{kw}</span>
+                            <span key={kw} className="text-[10px] px-2 py-0.5 bg-error/10 text-red-700 rounded-full font-label">{kw}</span>
                           ))}
                         </div>
                       </div>
@@ -506,7 +506,7 @@ export default function ClientDetailPage() {
                         <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-2">{client.industry || 'Industry'} ({neg.industry.length})</p>
                         <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
                           {neg.industry.map(kw => (
-                            <span key={kw} className="text-[10px] px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-label">{kw}</span>
+                            <span key={kw} className="text-[10px] px-2 py-0.5 bg-tertiary/10 text-amber-700 rounded-full font-label">{kw}</span>
                           ))}
                         </div>
                       </div>
@@ -579,8 +579,8 @@ export default function ClientDetailPage() {
                         </thead>
                         <tbody>
                           {predictions.map((p, i) => {
-                            const qsColor = p.predictedQS >= 7 ? 'text-emerald-700 font-bold' : p.predictedQS >= 5 ? 'text-amber-700 font-bold' : 'text-red-700 font-bold';
-                            const riskBadge = p.risk === 'low' ? 'bg-emerald-100 text-emerald-700' : p.risk === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+                            const qsColor = p.predictedQS >= 7 ? 'text-secondary font-bold' : p.predictedQS >= 5 ? 'text-amber-700 font-bold' : 'text-red-700 font-bold';
+                            const riskBadge = p.risk === 'low' ? 'bg-secondary/15 text-secondary' : p.risk === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
                             return (
                               <tr key={i} className={i < predictions.length - 1 ? 'border-b border-outline-variant/10' : ''}>
                                 <td className="px-4 py-3 font-label font-semibold text-on-surface text-sm">{p.theme}</td>
@@ -598,12 +598,12 @@ export default function ClientDetailPage() {
                     </div>
 
                     {flagged.length > 0 && (
-                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                      <div className="p-4 bg-tertiary/10 border border-tertiary/20 rounded-xl">
                         <p className="text-[10px] font-label font-bold text-amber-800 uppercase tracking-widest mb-2">Recommendations</p>
                         <ul className="space-y-1.5">
                           {flagged.map((f, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm text-amber-900">
-                              <span className="material-symbols-outlined text-[14px] text-amber-600 mt-0.5 shrink-0">warning</span>
+                              <span className="material-symbols-outlined text-[14px] text-tertiary mt-0.5 shrink-0">warning</span>
                               <span><strong>{f.theme}</strong>: {f.kwCount > 20 ? 'Split into smaller, tighter ad groups (target ≤15 keywords each). ' : ''}{f.intentFactor < 5 ? 'Consider separating informational keywords into their own campaign. ' : ''}{f.compFactor < 5 ? 'High competition — ensure ad copy closely matches keyword themes.' : ''}</span>
                             </li>
                           ))}
@@ -724,7 +724,7 @@ export default function ClientDetailPage() {
             {client.budget_projection && !projecting && (() => {
               const bp = client.budget_projection;
               const activeTier = bp.budget_tiers?.find(t => t.level === selectedTier) || bp.budget_tiers?.[0];
-              const feasibilityColor = f => f === 'achievable' ? 'bg-emerald-100 text-emerald-700' : f === 'challenging' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+              const feasibilityColor = f => f === 'achievable' ? 'bg-secondary/15 text-secondary' : f === 'challenging' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
               const priorityColor = p => p === 'must_have' ? 'bg-primary/10 text-primary' : p === 'should_have' ? 'bg-amber-100 text-amber-700' : 'bg-surface-high text-secondary';
 
               return (
@@ -840,7 +840,7 @@ export default function ClientDetailPage() {
                                 const jobs = Math.round(leads * (closeRate / 100));
                                 const revenue = jobs * avgJobValue;
                                 const roiVal = spend > 0 ? revenue / spend : 0;
-                                const roiColor = roiVal >= 3 ? 'text-emerald-700 font-bold' : roiVal >= 1 ? 'text-amber-700 font-bold' : 'text-red-600 font-bold';
+                                const roiColor = roiVal >= 3 ? 'text-secondary font-bold' : roiVal >= 1 ? 'text-amber-700 font-bold' : 'text-error font-bold';
                                 const isActive = tier.level === selectedTier;
                                 return (
                                   <tr key={tier.level}
@@ -870,8 +870,8 @@ export default function ClientDetailPage() {
                           const breakEven = avgJobValue > 0 ? Math.ceil(spend / avgJobValue) : 0;
                           if (!spend || !breakEven) return null;
                           return (
-                            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex gap-3 items-start">
-                              <span className="material-symbols-outlined text-emerald-600 text-[18px] shrink-0 mt-0.5">trending_up</span>
+                            <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-xl flex gap-3 items-start">
+                              <span className="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">trending_up</span>
                               <p className="text-sm text-emerald-800">
                                 At the <strong className="capitalize">{tier.level}</strong> tier (${spend.toLocaleString()}/mo), you only need{' '}
                                 <strong>{breakEven} {breakEven === 1 ? 'job' : 'jobs'}/month</strong> to break even on ad spend — everything after that is profit.
@@ -1060,7 +1060,7 @@ export default function ClientDetailPage() {
                                 <td className="px-4 py-3 hidden sm:table-cell text-right">
                                   <span className={`text-[10px] font-label font-bold px-2 py-0.5 rounded-full ${priorityColor(a.priority)}`}>{(a.priority||'').replace(/_/g,' ')}</span>
                                 </td>
-                                <td className="px-4 py-3 font-mono text-sm font-bold text-emerald-700 text-right">~{a.expected_leads||0}</td>
+                                <td className="px-4 py-3 font-mono text-sm font-bold text-secondary text-right">~{a.expected_leads||0}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1230,13 +1230,13 @@ export default function ClientDetailPage() {
                 if (!p) return 'bg-surface-high text-secondary';
                 if (p === 'H1' || p === 'D1') return 'bg-primary/10 text-primary';
                 if (p === 'H2' || p === 'D2') return 'bg-amber-100 text-amber-700';
-                return 'bg-emerald-100 text-emerald-700';
+                return 'bg-secondary/15 text-secondary';
               };
               const typeIcon = t => ({
                 service: 'home_repair_service', location: 'location_on', cta: 'call',
                 usp: 'verified', offer: 'local_offer', trust: 'shield',
               }[t] || 'text_fields');
-              const charCountColor = (len, max) => len <= max ? 'text-secondary' : 'text-red-600 font-bold';
+              const charCountColor = (len, max) => len <= max ? 'text-secondary' : 'text-error font-bold';
 
               return (
                 <>
@@ -1384,11 +1384,11 @@ export default function ClientDetailPage() {
             {/* Audit results */}
             {client.landing_page_audit && !auditingPages && (() => {
               const audit = client.landing_page_audit;
-              const gradeColor = g => ({ A: 'bg-emerald-100 text-emerald-700', B: 'bg-emerald-50 text-emerald-600', C: 'bg-amber-100 text-amber-700', D: 'bg-orange-100 text-orange-700', F: 'bg-red-100 text-red-700' }[g] || 'bg-surface-high text-secondary');
+              const gradeColor = g => ({ A: 'bg-secondary/15 text-secondary', B: 'bg-secondary/15 text-secondary', C: 'bg-amber-100 text-amber-700', D: 'bg-orange-100 text-orange-700', F: 'bg-red-100 text-red-700' }[g] || 'bg-surface-high text-secondary');
               const impactColor = i => i === 'high' ? 'bg-red-100 text-red-700' : i === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-surface-high text-secondary';
               const statusIcon = s => s === 'pass' ? 'check_circle' : s === 'fail' ? 'cancel' : 'warning';
-              const statusColor = s => s === 'pass' ? 'text-emerald-600' : s === 'fail' ? 'text-red-600' : 'text-amber-600';
-              const scoreBarColor = s => s >= 7 ? 'bg-emerald-500' : s >= 4 ? 'bg-amber-500' : 'bg-red-500';
+              const statusColor = s => s === 'pass' ? 'text-secondary' : s === 'fail' ? 'text-error' : 'text-tertiary';
+              const scoreBarColor = s => s >= 7 ? 'bg-secondary/100' : s >= 4 ? 'bg-tertiary/100' : 'bg-error/100';
 
               return (
                 <>
@@ -1559,7 +1559,7 @@ export default function ClientDetailPage() {
                     <ul className="space-y-2">
                       {client.website_data.unique_selling_points.map((usp, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-on-variant">
-                          <span className="material-symbols-outlined text-emerald-700 text-[14px] shrink-0 mt-0.5">check</span>
+                          <span className="material-symbols-outlined text-secondary text-[14px] shrink-0 mt-0.5">check</span>
                           {usp}
                         </li>
                       ))}

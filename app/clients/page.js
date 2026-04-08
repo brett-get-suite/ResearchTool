@@ -166,7 +166,7 @@ export default function ClientsPage() {
                     <td className="font-mono text-sm font-semibold text-on-surface">{opps || '—'}</td>
                     <td>
                       <span className={`text-[10px] font-label font-bold px-2.5 py-1 rounded-full capitalize ${
-                        (client.status_pipeline || 'prospect') === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                        (client.status_pipeline || 'prospect') === 'active' ? 'bg-secondary/15 text-secondary' :
                         (client.status_pipeline || 'prospect') === 'proposal_sent' ? 'bg-amber-100 text-amber-700' :
                         (client.status_pipeline || 'prospect') === 'paused' ? 'bg-orange-100 text-orange-700' :
                         (client.status_pipeline || 'prospect') === 'churned' ? 'bg-red-100 text-red-700' :
@@ -187,7 +187,7 @@ export default function ClientsPage() {
                         <Link href={`/reports?client=${client.id}`} className="p-1.5 hover:bg-surface-high rounded-lg transition-colors" title="Export">
                           <span className="material-symbols-outlined text-[18px] text-secondary">download</span>
                         </Link>
-                        <button onClick={() => handleDelete(client.id, client.name)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                        <button onClick={() => handleDelete(client.id, client.name)} className="p-1.5 hover:bg-error/10 rounded-lg transition-colors" title="Delete">
                           <span className="material-symbols-outlined text-[18px] text-error">delete</span>
                         </button>
                       </div>
