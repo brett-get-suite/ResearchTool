@@ -2,108 +2,138 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap');
+/* ══════════════════════════════════════════════════════════════
+   PPC Recon — "The Intelligence Layer" Design Tokens
+   Dark mode only. No light theme.
+   ══════════════════════════════════════════════════════════════ */
 
-/* Light mode (default) */
 :root {
-  --sidebar-width: 256px;
-  --bg: #f4f6fa;
-  --sidebar: #1e2a3a;
-  --card: #ffffff;
-  --primary: #2d5be3;
-  --primary-rgb: 45 91 227;
-  --accent: #f5a623;
-  --border: #e2e8f0;
-  --border-rgb: 226 232 240;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
+  /* ── Layout ── */
+  --sidebar-width: 264px;
+
+  /* ── Background ── */
+  --background: #0b1326;
+
+  /* ── Primary (Action Blue) ── */
+  --primary: #adc6ff;
+  --primary-container: #4d8efe;
+  --on-primary: #ffffff;
+
+  /* ── Secondary (Success/Growth Emerald) ── */
+  --secondary: #4edea3;
+  --secondary-container: #1a3d2e;
+  --on-secondary-container: #4edea3;
+
+  /* ── Tertiary (AI/Intelligence Violet) ── */
+  --tertiary: #bdc2ff;
+  --tertiary-container: #2a2d4a;
+  --on-tertiary-container: #bdc2ff;
+
+  /* ── Error ── */
+  --error: #ffb4ab;
+  --error-container: #3d1f1a;
+  --on-error-container: #ffb4ab;
+
+  /* ── Surface Tiers (Tonal Layering) ── */
+  --surface-container-lowest: #060e20;
+  --surface-container-low: #131b2e;
+  --surface-container: #171f33;
+  --surface-container-high: #222a3d;
+  --surface-container-highest: #2d3548;
+
+  /* ── Surface Variant (Glass backgrounds) ── */
+  --surface-variant: #1e2638;
+  --surface-bright: #2a3348;
+
+  /* ── Text ── */
+  --on-surface: #e0e0e0;
+  --on-surface-variant: #8a919e;
+
+  /* ── Outline ── */
+  --outline: #5a6272;
+  --outline-variant: #3a4255;
 }
 
-/* Dark mode */
-[data-theme="dark"] {
-  --bg: #0d1117;
-  --sidebar: #131820;
-  --card: #1a2230;
-  --primary: #2d5be3;
-  --primary-rgb: 45 91 227;
-  --accent: #f5a623;
-  --border: #2a3348;
-  --border-rgb: 42 51 72;
-  --text-primary: #ffffff;
-  --text-secondary: #8b9ab3;
+/* ── Global Resets ── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-* { box-sizing: border-box; }
+html {
+  background-color: var(--background);
+  color: var(--on-surface);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--background);
 }
 
-h1, h2, h3, h4, h5 {
-  font-family: 'Noto Serif', Georgia, serif;
-}
-
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #c3c6d5; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--outline); }
 
+/* ── Glass Effect ── */
+.glass {
+  background: rgba(30, 38, 56, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── Gradient Button ── */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+}
+
+/* ── Animations ── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.fade-up { animation: fadeUp 0.35s ease-out forwards; }
-
-/* Intent badges */
-.badge-transactional { @apply px-2 py-0.5 text-[10px] font-label font-bold rounded-full bg-amber-100 text-amber-700; }
-.badge-commercial    { @apply px-2 py-0.5 text-[10px] font-label font-bold rounded-full bg-blue-100 text-blue-700; }
-.badge-informational { @apply px-2 py-0.5 text-[10px] font-label font-bold rounded-full bg-emerald-100 text-emerald-700; }
-.badge-navigational  { @apply px-2 py-0.5 text-[10px] font-label font-bold rounded-full bg-purple-100 text-purple-700; }
-
-/* Card base */
-.card { @apply bg-surface-lowest rounded-xl shadow-card border border-outline-variant/15; }
-.card-inner { @apply bg-surface-low rounded-xl border border-outline-variant/15; }
-
-/* Ghost border */
-.ghost-border { @apply border border-outline-variant/15; }
-
-/* Field */
-.field-label { @apply block text-xs font-label font-semibold text-on-variant uppercase tracking-widest mb-1.5; }
-.field-input  {
-  @apply w-full bg-surface-lowest border border-outline-variant/40 rounded-lg px-4 py-2.5 text-sm text-on-surface
-         placeholder:text-outline focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all;
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Table */
-.data-table { @apply w-full text-sm text-left; }
-.data-table thead tr { @apply border-b border-outline-variant/15; }
-.data-table th { @apply px-5 py-3.5 text-[10px] font-label font-bold text-secondary uppercase tracking-widest; }
-.data-table td { @apply px-5 py-3.5 border-b border-outline-variant/10; }
-.data-table tbody tr { @apply hover:bg-surface-low transition-colors; }
-
-/* Pill btn */
-.pill-btn {
-  @apply inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-label font-semibold transition-all;
-}
-.pill-btn-primary {
-  @apply pill-btn bg-gradient-to-r from-primary to-primary-container text-white shadow-sm hover:opacity-90;
-}
-.pill-btn-secondary {
-  @apply pill-btn bg-surface-high text-primary hover:bg-surface-dim;
-}
-.pill-btn-ghost {
-  @apply pill-btn bg-transparent text-secondary hover:bg-surface-high;
+.fade-up {
+  animation: fadeUp 0.3s ease-out forwards;
 }
 
-/* CPC colours */
-.cpc-low  { @apply text-emerald-700 font-medium; }
-.cpc-mid  { @apply text-amber-700 font-medium; }
-.cpc-high { @apply text-red-700 font-medium; }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 
-@media print {
-  .no-print { display: none !important; }
-  body { background: white; }
-  .card { box-shadow: none; border: 1px solid #e0e0e0; }
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ── Typography Utilities ── */
+.text-display-lg {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-headline-sm {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.text-body-md {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-label-sm {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
 }
