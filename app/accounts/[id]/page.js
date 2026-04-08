@@ -11,6 +11,7 @@ import AdCopyPanel from '@/components/dashboard/AdCopyPanel';
 import ChangeLogTab from '@/components/dashboard/ChangeLogTab';
 import AuditTab from '@/components/dashboard/AuditTab';
 import AccountSettings from '@/components/dashboard/AccountSettings';
+import ReportUpload from '@/components/upload/ReportUpload';
 import { StatCardSkeleton, TableSkeleton } from '@/components/Skeleton';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -51,6 +52,7 @@ const TABS = [
   { id: 'campaigns',  label: 'Campaigns',  icon: 'campaign' },
   { id: 'keywords',   label: 'Keywords',   icon: 'key_visualizer' },
   { id: 'adcopy',     label: 'Ad Copy',    icon: 'edit_note' },
+  { id: 'uploads',    label: 'Uploads',    icon: 'upload_file' },
   { id: 'changelog',  label: 'Change Log', icon: 'history' },
   { id: 'audit',      label: 'Audit',      icon: 'speed' },
   { id: 'settings',   label: 'Settings',   icon: 'settings' },
@@ -66,6 +68,10 @@ export default function AccountPage({ params }) {
   const [keywords, setKeywords]   = useState([]);
   const [ads, setAds]             = useState([]);
   const [actions, setActions]     = useState([]);
+  const [uploads, setUploads]     = useState([]);
+  const [analyses,       setAnalyses]       = useState([]);
+  const [selectedUploads, setSelectedUploads] = useState(new Set());
+  const [analyzing,      setAnalyzing]      = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading]     = useState(true);
   const [syncing, setSyncing]     = useState(false);
@@ -138,6 +144,15 @@ export default function AccountPage({ params }) {
         .then(r => r.json())
         .then(d => setActions(Array.isArray(d) ? d : []))
         .catch(() => {});
+    }
+    if (tab === 'uploads') {
+      Promise.all([
+        fetch(`/api/reports/${id}`).then(r => r.json()).catch(() => []),
+        fetch(`/api/reports/${id}/analyses`).then(r => r.json()).catch(() => []),
+      ]).then(([u, a]) => {
+        setUploads(Array.isArray(u) ? u : []);
+        setAnalyses(Array.isArray(a) ? a : []);
+      });
     }
   }, [id]);
 
@@ -418,6 +433,139 @@ export default function AccountPage({ params }) {
           <AuditTab auditData={account?.audit_data ?? account?.lastAudit} accountId={id} onRerun={() => {
             fetch(`/api/accounts/${id}`).then(r => r.json()).then(setAccount);
           }} />
+        )}
+
+        {/* ════ Uploads ════ */}
+        {activeTab === 'uploads' && (
+          <div className="space-y-8">
+            <div>
+              <p className="font-headline font-bold text-on-surface text-lg mb-1">Report Uploads</p>
+              <p className="text-sm text-secondary font-label">
+                Upload Google Ads CSV exports to enable data-driven analysis. Select one or more uploads and run an audit to combine them.
+              </p>
+            </div>
+
+            <ReportUpload
+              accountId={id}
+              onUploadComplete={() => {
+                Promise.all([
+                  fetch(`/api/reports/${id}`).then(r => r.json()).catch(() => []),
+                  fetch(`/api/reports/${id}/analyses`).then(r => r.json()).catch(() => []),
+                ]).then(([u, a]) => {
+                  setUploads(Array.isArray(u) ? u : []);
+                  setAnalyses(Array.isArray(a) ? a : []);
+                });
+              }}
+            />
+
+            {/* Upload history with multi-select */}
+            {uploads.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-label font-semibold text-on-surface text-sm">
+                    Upload History
+                    {selectedUploads.size > 0 && (
+                      <span className="ml-2 text-secondary font-normal">({selectedUploads.size} selected)</span>
+                    )}
+                  </p>
+                  {selectedUploads.size > 0 && (
+                    <button
+                      disabled={analyzing}
+                      onClick={async () => {
+                        setAnalyzing(true);
+                        try {
+                          const res = await fetch(`/api/reports/${id}/analyze`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ uploadIds: Array.from(selectedUploads) }),
+                          });
+                          const data = await res.json();
+                          if (res.ok && data.analysisId) {
+                            window.location.href = `/accounts/${id}/analysis/${data.analysisId}`;
+                          }
+                        } finally {
+                          setAnalyzing(false);
+                        }
+                      }}
+                      className="pill-btn-primary text-sm disabled:opacity-60"
+                    >
+                      {analyzing
+                        ? <><span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Analyzing…</>
+                        : <><span className="material-symbols-outlined text-[16px]">query_stats</span> Run Analysis ({selectedUploads.size})</>
+                      }
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {uploads.map(upload => (
+                    <div key={upload.id}
+                      className={`card p-3 flex items-center gap-3 cursor-pointer transition-all ${
+                        selectedUploads.has(upload.id) ? 'border-[var(--primary)] bg-[var(--primary)]/5' : ''
+                      }`}
+                      onClick={() => setSelectedUploads(prev => {
+                        const next = new Set(prev);
+                        next.has(upload.id) ? next.delete(upload.id) : next.add(upload.id);
+                        return next;
+                      })}
+                    >
+                      <input type="checkbox" readOnly checked={selectedUploads.has(upload.id)}
+                        className="accent-[var(--primary)] w-4 h-4 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-label font-semibold text-on-surface capitalize">
+                          {upload.report_type.replace('_', ' ')} Report
+                        </p>
+                        <p className="text-xs text-secondary font-label mt-0.5 truncate">
+                          {upload.row_count.toLocaleString()} rows
+                          {upload.file_name ? ` · ${upload.file_name}` : ''}
+                          {' · '}
+                          {new Date(upload.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await fetch(`/api/reports/${id}?uploadId=${upload.id}`, { method: 'DELETE' });
+                          setUploads(prev => prev.filter(u => u.id !== upload.id));
+                          setSelectedUploads(prev => { const n = new Set(prev); n.delete(upload.id); return n; });
+                        }}
+                        className="text-xs text-secondary hover:text-red-500 font-label transition-colors shrink-0"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {uploads.length === 0 && loadedTabs.has('uploads') && (
+              <p className="text-sm text-secondary font-label">No uploads yet. Upload a Google Ads CSV to get started.</p>
+            )}
+
+            {/* Past analyses */}
+            {analyses.length > 0 && (
+              <div>
+                <p className="font-label font-semibold text-on-surface text-sm mb-3">Past Analyses</p>
+                <div className="space-y-2">
+                  {analyses.map(a => (
+                    <a key={a.id} href={`/accounts/${id}/analysis/${a.id}`}
+                      className="card p-3 flex items-center justify-between hover:border-[var(--primary)]/30 transition-colors block">
+                      <div>
+                        <p className="text-sm font-label font-semibold text-on-surface capitalize">
+                          {a.mode?.replace('_', ' ')} Audit · {(a.upload_ids || []).length} upload{(a.upload_ids || []).length !== 1 ? 's' : ''}
+                        </p>
+                        <p className="text-xs text-secondary font-label mt-0.5">
+                          {new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      <span className="material-symbols-outlined text-secondary text-[20px]">arrow_forward</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* ════ Settings ════ */}
