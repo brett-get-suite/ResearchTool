@@ -93,11 +93,21 @@ export async function GET(request) {
       }
     }
 
+    // Get the current user's tenant from session
+    const sessionToken = request.cookies.get('session')?.value;
+    let tenantId = null;
+    if (sessionToken) {
+      const { getSessionByToken } = await import('@/lib/supabase');
+      const session = await getSessionByToken(sessionToken);
+      tenantId = session?.users?.tenant_id || null;
+    }
+
     const account = await createAccount({
       name: accountName,
       google_customer_id: customerId,
       google_refresh_token: refreshToken,
       status: 'active',
+      tenant_id: tenantId,
     });
 
     const successRedirect = NextResponse.redirect(

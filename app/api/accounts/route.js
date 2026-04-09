@@ -1,32 +1,30 @@
 import { NextResponse } from 'next/server';
-import { getAccounts, createAccount } from '@/lib/supabase';
-import { MOCK_MODE } from '@/lib/google-ads-mock';
+import { getAccountsByTenant, getAllAccounts, createAccount } from '@/lib/supabase';
+import { MOCK_MODE, MOCK_ACCOUNT } from '@/lib/google-ads-mock';
+import { getAuthUser } from '@/lib/auth-context';
 
-const MOCK_ACCOUNT = {
-  id: '00000000-0000-0000-0000-000000000001',
-  name: 'Demo HVAC Account',
-  google_customer_id: '1234567890',
-  status: 'active',
-  last_synced_at: new Date().toISOString(),
-  created_at: new Date().toISOString(),
-};
-
-export async function GET() {
+export async function GET(request) {
   if (MOCK_MODE) return NextResponse.json([MOCK_ACCOUNT]);
   try {
-    const accounts = await getAccounts();
+    const user = getAuthUser(request);
+    const accounts = user?.role === 'superadmin'
+      ? await getAllAccounts()
+      : await getAccountsByTenant(user?.tenantId);
     return NextResponse.json(accounts);
   } catch (err) {
+    console.error('Accounts GET error:', err);
     return NextResponse.json({ error: 'Failed to process accounts request' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
+    const user = getAuthUser(request);
     const body = await request.json();
-    const account = await createAccount(body);
+    const account = await createAccount({ ...body, tenant_id: user?.tenantId || null });
     return NextResponse.json(account, { status: 201 });
   } catch (err) {
+    console.error('Accounts POST error:', err);
     return NextResponse.json({ error: 'Failed to process accounts request' }, { status: 500 });
   }
 }
