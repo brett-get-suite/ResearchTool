@@ -12,6 +12,12 @@ export default function ReportsPage() {
   );
 }
 
+const REPORT_TEMPLATES = [
+  { key: 'client_monthly', label: 'Client-Facing Monthly', icon: 'person', desc: 'Simplified — focuses on leads, cost/lead, and spend' },
+  { key: 'internal_audit', label: 'Internal Audit', icon: 'fact_check', desc: 'Detailed — includes agent activity and keyword-level data' },
+  { key: 'budget_recon', label: 'Budget Reconciliation', icon: 'account_balance', desc: 'Spend vs budget by client, with pacing analysis' },
+];
+
 function ReportsContent() {
   const searchParams = useSearchParams();
   const preselect = searchParams.get('client');
@@ -20,6 +26,10 @@ function ReportsContent() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [exporting, setExporting] = useState('');
+  const [activeTab, setActiveTab] = useState('export');
+  const [scheduleFreq, setScheduleFreq] = useState('monthly');
+  const [scheduleEmail, setScheduleEmail] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('client_monthly');
 
   useEffect(() => {
     if (!isSupabaseConfigured()) { setLoading(false); return; }
@@ -123,14 +133,87 @@ function ReportsContent() {
 
   return (
     <div className="px-8 py-10">
-      <div className="mb-8 flex items-end justify-between">
+      <div className="mb-6 flex items-end justify-between">
         <div>
-          <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">Reports &amp; Exports</h2>
-          <p className="text-secondary text-sm">Download research reports as CSV, ZIP bundle, or print to PDF.</p>
+          <h2 className="text-2xl font-bold text-on-surface mb-1">Reports &amp; Exports</h2>
+          <p className="text-on-surface-variant text-sm">Generate, schedule, and export reports</p>
         </div>
       </div>
 
-      {!isSupabaseConfigured() ? (
+      {/* Tabs */}
+      <div className="flex gap-1 bg-surface-container rounded-xl p-1 w-fit mb-6">
+        {[
+          { key: 'export', label: 'Export Reports', icon: 'download' },
+          { key: 'templates', label: 'Templates', icon: 'description' },
+          { key: 'scheduled', label: 'Scheduled', icon: 'schedule' },
+        ].map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === tab.key ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:text-on-surface'
+            }`}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Report Templates Tab */}
+      {activeTab === 'templates' && (
+        <div className="space-y-4 mb-6">
+          <p className="text-sm text-on-surface-variant">Choose a template to generate a pre-formatted report</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {REPORT_TEMPLATES.map(t => (
+              <button key={t.key} onClick={() => { setSelectedTemplate(t.key); setActiveTab('export'); }}
+                className={`bg-surface-container rounded-xl p-6 text-left hover:border-primary/30 border border-transparent transition-all ${
+                  selectedTemplate === t.key ? 'border-primary/30 bg-primary/5' : ''
+                }`}>
+                <span className="material-symbols-outlined text-primary text-2xl mb-3 block">{t.icon}</span>
+                <h3 className="text-sm font-semibold text-on-surface mb-1">{t.label}</h3>
+                <p className="text-xs text-on-surface-variant">{t.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Scheduled Reports Tab */}
+      {activeTab === 'scheduled' && (
+        <div className="bg-surface-container rounded-xl p-6 max-w-lg mb-6">
+          <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg">schedule_send</span>
+            Schedule Recurring Reports
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-label-sm text-on-surface-variant block mb-2">Frequency</label>
+              <select value={scheduleFreq} onChange={e => setScheduleFreq(e.target.value)}
+                className="w-full text-sm py-2.5 px-3 rounded-xl bg-surface-container-high border border-outline-variant/20">
+                <option value="weekly">Weekly (every Monday)</option>
+                <option value="biweekly">Biweekly</option>
+                <option value="monthly">Monthly (1st of month)</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-label-sm text-on-surface-variant block mb-2">Report Template</label>
+              <select value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)}
+                className="w-full text-sm py-2.5 px-3 rounded-xl bg-surface-container-high border border-outline-variant/20">
+                {REPORT_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-label-sm text-on-surface-variant block mb-2">Email Recipients</label>
+              <input type="email" value={scheduleEmail} onChange={e => setScheduleEmail(e.target.value)}
+                placeholder="manager@agency.com" className="w-full text-sm py-2.5 px-3 rounded-xl bg-surface-container-high border border-outline-variant/20" />
+            </div>
+            <button className="w-full pill-btn-primary justify-center py-3">
+              <span className="material-symbols-outlined text-lg">schedule_send</span>
+              Save Schedule
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'export' && !isSupabaseConfigured() ? (
         <div className="card p-12 text-center">
           <span className="material-symbols-outlined text-[48px] text-outline-variant mb-4">cloud_off</span>
           <p className="font-headline font-bold text-on-surface mb-1">Supabase not configured</p>

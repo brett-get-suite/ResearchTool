@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient_db, updateClient, isSupabaseConfigured } from '@/lib/supabase';
+import { createClient_db, updateClient, getClients, getAccounts, isSupabaseConfigured } from '@/lib/supabase';
 import ServiceAreaInput from '@/components/ServiceAreaInput';
 import Skeleton from '@/components/ui/Skeleton';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -69,6 +69,11 @@ function ResearchPageInner() {
   const [calibration, setCalibration] = useState({ spend: '', leads: '' });
   const [showCalibration, setShowCalibration] = useState(false);
 
+  // New: past research & account association
+  const [pastResearch, setPastResearch] = useState([]);
+  const [adAccounts, setAdAccounts] = useState([]);
+  const [linkedAccountId, setLinkedAccountId] = useState('');
+
   // UI state
   const [loading, setLoading] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState('');
@@ -77,6 +82,11 @@ function ResearchPageInner() {
 
   useEffect(() => {
     fetch('/api/config').then(r => r.json()).then(d => setHasServerKey(!!d.hasApiKey));
+    // Load past research and ad accounts
+    if (isSupabaseConfigured()) {
+      getClients().then(data => setPastResearch((data || []).filter(c => c.status === 'complete'))).catch(() => {});
+      getAccounts().then(data => setAdAccounts(data || [])).catch(() => {});
+    }
   }, []);
 
   // Pre-fill from query params (quick-add / re-run from dashboard)
@@ -341,6 +351,36 @@ function ResearchPageInner() {
         </p>
       </div>
 
+      {/* Past Research */}
+      {pastResearch.length > 0 && currentStep === 0 && (
+        <div className="card overflow-hidden mb-8">
+          <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between">
+            <p className="font-label font-bold text-on-surface text-sm flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">history</span>
+              Past Research ({pastResearch.length})
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead><tr><th>Client</th><th>Industry</th><th>Service Areas</th><th>Date</th><th></th></tr></thead>
+              <tbody>
+                {pastResearch.slice(0, 10).map(r => (
+                  <tr key={r.id}>
+                    <td className="font-label font-semibold text-on-surface">{r.name}</td>
+                    <td className="text-sm text-on-surface-variant">{r.industry}</td>
+                    <td className="text-sm text-on-surface-variant">{(r.service_areas || []).slice(0, 2).join(', ')}{(r.service_areas || []).length > 2 ? '...' : ''}</td>
+                    <td className="text-sm text-on-surface-variant">{r.researched_at ? new Date(r.researched_at).toLocaleDateString() : '—'}</td>
+                    <td>
+                      <a href={`/clients/${r.id}`} className="text-xs text-primary hover:underline font-label font-semibold">View Results</a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Step progress */}
       <div className="flex items-center gap-2 mb-8">
         {['Setup', 'Services', 'Running', 'Results'].map((label, i) => (
@@ -432,6 +472,18 @@ function ResearchPageInner() {
                 ))}
               </div>
             </div>
+
+            {/* Link to Ad Account */}
+            {adAccounts.length > 0 && (
+              <div>
+                <label className="field-label">Link to Ad Account (optional)</label>
+                <select value={linkedAccountId} onChange={e => setLinkedAccountId(e.target.value)} className="field-input w-full">
+                  <option value="">No account — standalone research</option>
+                  {adAccounts.map(a => <option key={a.id} value={a.id}>{a.name} ({a.google_customer_id || 'not linked'})</option>)}
+                </select>
+                <p className="text-xs text-on-surface-variant mt-1">Research results will feed directly into this account's campaign setup</p>
+              </div>
+            )}
 
             {/* Service areas */}
             <div>
@@ -673,6 +725,15 @@ function ResearchPageInner() {
                 <span className="material-symbols-outlined text-[15px]">print</span>
                 PDF
               </button>
+              {linkedAccountId && (
+                <button
+                  onClick={() => router.push(`/accounts/${linkedAccountId}/campaigns/new?fromResearch=${clientId}`)}
+                  className="pill-btn-primary text-xs"
+                >
+                  <span className="material-symbols-outlined text-[15px]">campaign</span>
+                  Create Campaign Plan
+                </button>
+              )}
             </div>
           </div>
 
