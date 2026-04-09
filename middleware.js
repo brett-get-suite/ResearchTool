@@ -1,39 +1,38 @@
 import { NextResponse } from 'next/server';
 
-// Paths that don't require authentication
-const PUBLIC_PATHS = ['/login', '/api/auth/login'];
-
-async function computeSessionToken(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + 'ads-recon-v1');
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
+const PUBLIC_PATHS = ['/login', '/setup', '/invite', '/api/auth/login', '/api/auth/setup', '/api/auth/register'];
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // Always allow public paths
+  // Always allow public paths and static assets
   if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  // Dynamic import to avoid edge runtime issues
+  const { supabase, getUserCount, getSessionByToken } = await import('./lib/supabase.js');
 
-  // Fail closed — if ADMIN_PASSWORD is not configured, deny access
-  if (!adminPassword) {
+  // If Supabase is not configured, deny access
+  if (!supabase) {
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
+      return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     }
-    return NextResponse.redirect(new URL('/login', request.url));
+    return new NextResponse('Database not configured', { status: 503 });
   }
 
-  const sessionCookie = request.cookies.get('session')?.value;
-  const expectedToken = await computeSessionToken(adminPassword);
+  // Check if any users exist — if not, redirect to setup
+  const userCount = await getUserCount();
+  if (userCount === 0) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Setup required' }, { status: 503 });
+    }
+    return NextResponse.redirect(new URL('/setup', request.url));
+  }
 
-  if (sessionCookie !== expectedToken) {
+  // Validate session cookie
+  const sessionToken = request.cookies.get('session')?.value;
+  if (!sessionToken) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -42,7 +41,35 @@ export async function middleware(request) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  const session = await getSessionByToken(sessionToken);
+  if (!session || !session.users) {
+    const response = pathname.startsWith('/api/')
+      ? NextResponse.json({ error: 'Session expired' }, { status: 401 })
+      : NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('session');
+    return response;
+  }
+
+  const user = session.users;
+
+  // Admin routes require superadmin role
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    if (user.role !== 'superadmin') {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  // Inject user context into request headers for API routes
+  const response = NextResponse.next();
+  response.headers.set('x-user-id', user.id);
+  response.headers.set('x-user-email', user.email);
+  response.headers.set('x-user-name', user.name || '');
+  response.headers.set('x-user-role', user.role);
+  response.headers.set('x-user-tenant-id', user.tenant_id || '');
+  return response;
 }
 
 export const config = {
