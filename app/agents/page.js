@@ -56,7 +56,7 @@ export default function AgentControlsPage() {
       schedule,
     ] = await Promise.all([
       fetch(`/api/accounts/${accountId}/metrics`).then((r) => r.ok ? r.json() : {}),
-      fetch(`/api/accounts/${accountId}/campaigns`).then((r) => r.ok ? r.json() : { campaigns: [] }),
+      fetch(`/api/accounts/${accountId}/impression-share`).then((r) => r.ok ? r.json() : { campaigns: [] }),
       fetch(`/api/accounts/${accountId}/actions?limit=10`).then((r) => r.ok ? r.json() : { actions: [] }),
       fetch(`/api/agents/runs?accountId=${accountId}`).then((r) => r.ok ? r.json() : { runs: [] }),
       getAuditScoreHistory(accountId),
