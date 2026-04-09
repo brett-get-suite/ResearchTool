@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAccountClient } from '@/lib/google-ads-auth';
-import { fetchCampaigns, fetchAdGroups, fetchKeywords, fetchCampaignMetrics, fetchCampaignMetricsWithIS, fetchHourlyPerformance } from '@/lib/google-ads-query';
-import { saveSnapshot, updateAccount } from '@/lib/supabase';
+import { syncAccount } from '@/lib/google-ads-sync';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { MOCK_MODE } from '@/lib/google-ads-mock';
 
@@ -12,33 +10,17 @@ export async function POST(request, { params }) {
   }
 
   if (MOCK_MODE) {
-    return NextResponse.json({ campaigns: 3, adGroups: 5, keywords: 5 });
+    return NextResponse.json({ success: true, counts: { campaigns: 3, adGroups: 5, keywords: 5, ads: 2, searchTerms: 5, hourlyRows: 168, changeEvents: 3 } });
   }
 
   try {
-    const client = await getAccountClient(params.id);
+    const result = await syncAccount(params.id);
 
-    const [campaigns, adGroups, keywords, metrics, metricsWithIS, hourly] = await Promise.all([
-      fetchCampaigns(client),
-      fetchAdGroups(client),
-      fetchKeywords(client),
-      fetchCampaignMetrics(client),
-      fetchCampaignMetricsWithIS(client).catch(() => []),
-      fetchHourlyPerformance(client).catch(() => []),
-    ]);
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 500 });
+    }
 
-    const snapshotData = { campaigns, adGroups, keywords };
-    const metricsData = { campaigns: metrics, campaignsWithIS: metricsWithIS, hourly };
-
-    await saveSnapshot(params.id, snapshotData, metricsData);
-    await updateAccount(params.id, { last_synced_at: new Date().toISOString() });
-
-    return NextResponse.json({
-      campaigns: campaigns.length,
-      adGroups: adGroups.length,
-      keywords: keywords.length,
-      hourlyRows: hourly.length,
-    });
+    return NextResponse.json(result);
   } catch (err) {
     console.error('Sync error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
