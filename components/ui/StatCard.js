@@ -1,11 +1,12 @@
-export default function StatCard({ label, value, delta, deltaLabel, icon, className = '' }) {
+export default function StatCard({ label, value, delta, deltaLabel, icon, variant, className = '' }) {
   const numericDelta = delta ? parseFloat(delta) : 0;
   const isPositive = numericDelta > 0;
   const isNegative = numericDelta < 0;
   const deltaColor = isPositive ? 'text-secondary' : isNegative ? 'text-error' : 'text-on-surface-variant';
+  const variantRing = variant === 'warning' ? 'ring-1 ring-error/20' : '';
 
   return (
-    <div className={`bg-surface-container rounded-xl p-6 ${className}`}>
+    <div className={`bg-surface-container rounded-xl p-6 ${variantRing} ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <span className="text-label-sm text-on-surface-variant">{label}</span>
         {icon && (

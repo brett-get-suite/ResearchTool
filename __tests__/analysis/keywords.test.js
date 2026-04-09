@@ -59,7 +59,8 @@ describe('analyzeKeywords', () => {
   it('flags high-cost zero-conv terms as negative gaps', () => {
     const terms = [
       makeTerm({ searchTerm: 'normal term', cost: 10, conversions: 1 }),
-      makeTerm({ searchTerm: 'diy repair', cost: 100, conversions: 0 }), // 10x avg → gap
+      makeTerm({ searchTerm: 'ok term', cost: 15, conversions: 1 }),
+      makeTerm({ searchTerm: 'diy repair', cost: 120, conversions: 0 }), // well above 2x avg ($48) → gap
     ];
     const { negativeGaps } = analyzeKeywords([], terms);
     expect(negativeGaps.some(g => g.term === 'diy repair')).toBe(true);

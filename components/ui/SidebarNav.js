@@ -7,7 +7,7 @@ const MAIN_NAV = [
   { href: '/', label: 'Dashboard', icon: 'space_dashboard' },
   { href: '/accounts', label: 'Ad Accounts', icon: 'account_tree' },
   { href: '/keywords', label: 'Keyword Engine', icon: 'analytics' },
-  { href: '/agents', label: 'AI Agents', icon: 'smart_toy' },
+  { href: '/agents', label: 'Agent Controls', icon: 'smart_toy', badge: 'agents' },
   { href: '/research', label: 'Research', icon: 'query_stats' },
 ];
 
@@ -74,6 +74,11 @@ export default function SidebarNav() {
               )}
               <span className="material-symbols-outlined text-xl">{item.icon}</span>
               {item.label}
+              {item.badge === 'agents' && (
+                <span className="ml-auto text-label-sm text-secondary bg-secondary/15 px-1.5 py-0.5 rounded-full">
+                  AI
+                </span>
+              )}
             </Link>
           );
         })}

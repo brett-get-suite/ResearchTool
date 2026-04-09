@@ -38,19 +38,19 @@ describe('applyWeatherBoosts', () => {
 describe('classifyDataSources', () => {
   test('identifies keyword planner data', () => {
     const kw = { keyword: 'ac repair', data_source: 'google' };
-    const sources = classifyDataSources(kw, true, true);
+    const sources = classifyDataSources(kw);
     expect(sources).toContain('keyword_planner');
   });
 
   test('identifies weather data', () => {
     const kw = { keyword: 'ac repair', weather_boost: { boost: 1.4 } };
-    const sources = classifyDataSources(kw, false, false);
+    const sources = classifyDataSources(kw);
     expect(sources).toContain('weather');
   });
 
   test('returns empty for no sources', () => {
     const kw = { keyword: 'ac repair' };
-    const sources = classifyDataSources(kw, false, false);
+    const sources = classifyDataSources(kw);
     expect(sources).toEqual([]);
   });
 });

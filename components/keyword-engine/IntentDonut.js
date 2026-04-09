@@ -55,7 +55,7 @@ export default function IntentDonut({ keywords }) {
                 stroke={INTENT_COLORS[seg.intent]}
                 strokeWidth={strokeWidth}
                 strokeDasharray={`${seg.length} ${circumference - seg.length}`}
-                strokeDashoffset={-seg.offset}
+                strokeDashoffset={circumference - seg.offset}
               />
             ))}
           </svg>

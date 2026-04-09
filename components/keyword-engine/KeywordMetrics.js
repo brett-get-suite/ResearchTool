@@ -26,7 +26,8 @@ export default function KeywordMetrics({ keywords, weatherAlerts, industryBenchm
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="bg-surface-container rounded-xl p-5 border-l-4 border-primary">
+      <div className="bg-surface-container rounded-xl p-5 relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
         <div className="text-label-sm text-on-surface-variant mb-1">Avg. CPC</div>
         <div className="text-3xl font-extrabold text-on-surface">${avgCpc.toFixed(2)}</div>
         {cpcDelta !== null && (
@@ -39,7 +40,8 @@ export default function KeywordMetrics({ keywords, weatherAlerts, industryBenchm
         )}
       </div>
 
-      <div className="bg-surface-container rounded-xl p-5 border-l-4 border-secondary">
+      <div className="bg-surface-container rounded-xl p-5 relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary" />
         <div className="text-label-sm text-on-surface-variant mb-1">Efficiency Score</div>
         <div className="text-3xl font-extrabold text-on-surface">{efficiencyScore}/100</div>
         <div className="flex items-center gap-1 text-xs text-tertiary mt-1">
@@ -48,8 +50,9 @@ export default function KeywordMetrics({ keywords, weatherAlerts, industryBenchm
         </div>
       </div>
 
-      <div className="bg-surface-container rounded-xl p-5 border-l-4 border-tertiary">
-        <div className="text-label-sm text-on-surface-variant mb-1">Est. Conversions</div>
+      <div className="bg-surface-container rounded-xl p-5 relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-tertiary" />
+        <div className="text-label-sm text-on-surface-variant mb-1">Total Search Volume</div>
         <div className="text-3xl font-extrabold text-on-surface">
           {totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume}
         </div>

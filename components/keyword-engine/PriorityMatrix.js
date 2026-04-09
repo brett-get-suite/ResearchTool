@@ -250,19 +250,41 @@ export default function PriorityMatrix({ keywords, onAction }) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="px-6 py-3 flex items-center justify-center gap-1">
-          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i)}
-              className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
-                page === i
-                  ? 'bg-primary text-on-primary'
-                  : 'text-on-surface-variant hover:bg-surface-container-high'
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
+          <button
+            onClick={() => setPage(Math.max(0, page - 1))}
+            disabled={page === 0}
+            className="w-8 h-8 rounded-lg text-xs font-medium transition-colors text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30"
+          >
+            <span className="material-symbols-outlined text-sm">chevron_left</span>
+          </button>
+          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+            // Show pages around current page for large page counts
+            let pageIdx = i;
+            if (totalPages > 10) {
+              const start = Math.min(Math.max(page - 4, 0), totalPages - 10);
+              pageIdx = start + i;
+            }
+            return (
+              <button
+                key={pageIdx}
+                onClick={() => setPage(pageIdx)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                  page === pageIdx
+                    ? 'bg-primary text-on-primary'
+                    : 'text-on-surface-variant hover:bg-surface-container-high'
+                }`}
+              >
+                {pageIdx + 1}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+            disabled={page === totalPages - 1}
+            className="w-8 h-8 rounded-lg text-xs font-medium transition-colors text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30"
+          >
+            <span className="material-symbols-outlined text-sm">chevron_right</span>
+          </button>
         </div>
       )}
     </div>
