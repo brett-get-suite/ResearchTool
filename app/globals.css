@@ -252,9 +252,9 @@ body {
    Prevents raw white inputs on dark backgrounds
    ══════════════════════════════════════════════════════════════ */
 
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 select,
-textarea {
+textarea) {
   background-color: var(--surface-container-high);
   color: var(--on-surface);
   border: 1px solid var(--outline-variant);
@@ -265,19 +265,19 @@ textarea {
   transition: border-color 0.15s;
 }
 
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
 select:focus,
-textarea:focus {
+textarea:focus) {
   border-color: var(--primary);
 }
 
-input::placeholder,
-textarea::placeholder {
+:where(input::placeholder,
+textarea::placeholder) {
   color: var(--on-surface-variant);
   opacity: 0.6;
 }
 
-select option {
+:where(select option) {
   background-color: var(--surface-container-high);
   color: var(--on-surface);
 }
