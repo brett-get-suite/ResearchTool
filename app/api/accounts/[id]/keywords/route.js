@@ -25,7 +25,7 @@ export async function GET(request, { params }) {
     return NextResponse.json(merged);
   } catch (err) {
     console.error('Keywords GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process keywords request' }, { status: 500 });
   }
 }
 
@@ -44,6 +44,6 @@ export async function POST(request, { params }) {
     return NextResponse.json({ resourceNames });
   } catch (err) {
     console.error('Keywords POST error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process keywords request' }, { status: 500 });
   }
 }

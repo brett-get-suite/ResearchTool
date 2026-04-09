@@ -29,7 +29,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Landing page audit error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to audit landing pages' },
+      { error: 'Failed to audit landing pages' },
       { status: 500 }
     );
   }

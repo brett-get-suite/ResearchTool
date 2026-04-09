@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
     return NextResponse.json(merged);
   } catch (err) {
     console.error('Campaigns GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process campaigns request' }, { status: 500 });
   }
 }
 
@@ -55,7 +55,7 @@ export async function POST(request, { params }) {
     return handleSimpleCreate(params.id, body);
   } catch (err) {
     console.error('Campaigns POST error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process campaigns request' }, { status: 500 });
   }
 }
 

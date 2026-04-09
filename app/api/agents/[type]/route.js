@@ -24,6 +24,6 @@ export async function POST(request, { params }) {
     return NextResponse.json({ type, accountId, ...result });
   } catch (err) {
     console.error(`Agent [${params.type}] error:`, err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Agent execution failed' }, { status: 500 });
   }
 }

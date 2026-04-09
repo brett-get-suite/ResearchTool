@@ -43,6 +43,6 @@ export async function POST(request, { params }) {
     return NextResponse.json({ swot, actionItems });
   } catch (err) {
     console.error('[reports/swot] Error:', err);
-    return NextResponse.json({ error: err.message || 'SWOT generation failed' }, { status: 500 });
+    return NextResponse.json({ error: 'SWOT generation failed' }, { status: 500 });
   }
 }

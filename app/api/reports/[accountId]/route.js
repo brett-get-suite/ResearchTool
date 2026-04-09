@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
     return NextResponse.json(uploads);
   } catch (err) {
     console.error('[reports/accountId] GET Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process report' }, { status: 500 });
   }
 }
 
@@ -25,6 +25,6 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[reports/accountId] DELETE Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process report' }, { status: 500 });
   }
 }

@@ -22,9 +22,12 @@ export async function middleware(request) {
 
   const adminPassword = process.env.ADMIN_PASSWORD;
 
-  // If ADMIN_PASSWORD is not set, skip auth (local dev without password configured)
+  // Fail closed — if ADMIN_PASSWORD is not configured, deny access
   if (!adminPassword) {
-    return NextResponse.next();
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
+    }
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   const sessionCookie = request.cookies.get('session')?.value;

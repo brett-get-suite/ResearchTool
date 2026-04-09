@@ -52,6 +52,7 @@ export async function GET(request, { params }) {
 
     // Get previous period from stored snapshots
     // history[0] is the one we just saved, history[1] is previous
+    const history = await getMetricsHistory(params.id);
     const previousSnapshot = history.length >= 2 ? history[1] : null;
     const previous = previousSnapshot?.metrics_data || {};
 
@@ -70,6 +71,6 @@ export async function GET(request, { params }) {
     });
   } catch (err) {
     console.error('Metrics GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch metrics' }, { status: 500 });
   }
 }

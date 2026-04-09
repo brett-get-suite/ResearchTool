@@ -31,7 +31,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Ad copy generation error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to generate ad copy' },
+      { error: 'Failed to generate ad copy' },
       { status: 500 }
     );
   }

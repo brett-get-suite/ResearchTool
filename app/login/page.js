@@ -9,8 +9,14 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const rawRedirect = searchParams.get('redirect') || '/';
-  const redirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/';
+  const redirect = (() => {
+    const raw = searchParams.get('redirect') || '/';
+    try {
+      const url = new URL(raw, window.location.origin);
+      if (url.origin !== window.location.origin) return '/';
+      return url.pathname + url.search + url.hash;
+    } catch { return '/'; }
+  })();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

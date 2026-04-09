@@ -66,7 +66,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Export error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to export CSV' },
+      { error: 'Failed to export CSV' },
       { status: 500 }
     );
   }

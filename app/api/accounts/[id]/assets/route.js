@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { getAccountClient } from '@/lib/google-ads-auth';
 import { fetchAssetPerformance } from '@/lib/google-ads-query';
 
-// In-memory cache: { [accountId]: { data, timestamp } }
+// In-memory cache with size cap (best-effort on serverless — won't survive cold starts)
 const cache = new Map();
 const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+const MAX_CACHE_SIZE = 50;
 
 export async function GET(request, { params }) {
   try {
@@ -32,13 +33,17 @@ export async function GET(request, { params }) {
 
     const deduped = Array.from(seen.values());
 
-    // Cache the result
+    // Cache the result (evict oldest if at capacity)
+    if (cache.size >= MAX_CACHE_SIZE) {
+      const oldest = cache.keys().next().value;
+      cache.delete(oldest);
+    }
     cache.set(accountId, { data: deduped, timestamp: Date.now() });
 
     return NextResponse.json(deduped);
   } catch (err) {
     console.error('Assets GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch assets' }, { status: 500 });
   }
 }
 

@@ -26,7 +26,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Budget projection error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to generate budget projection' },
+      { error: 'Failed to generate budget projection' },
       { status: 500 }
     );
   }

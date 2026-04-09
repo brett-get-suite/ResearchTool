@@ -99,6 +99,6 @@ export async function GET(request, { params }) {
     return NextResponse.json(pacing);
   } catch (err) {
     console.error('Pacing GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch pacing data' }, { status: 500 });
   }
 }

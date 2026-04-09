@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
     return NextResponse.json(ads);
   } catch (err) {
     console.error('Ads GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process ads request' }, { status: 500 });
   }
 }
 
@@ -36,6 +36,6 @@ export async function POST(request, { params }) {
     return NextResponse.json({ resourceName });
   } catch (err) {
     console.error('Ads POST error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process ads request' }, { status: 500 });
   }
 }

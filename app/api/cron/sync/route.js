@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { syncAllAccounts } from '@/lib/google-ads-sync';
+import { MOCK_MODE } from '@/lib/google-ads-mock';
 
 /**
  * Vercel Cron handler — syncs all connected Google Ads accounts.
@@ -16,6 +17,11 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Skip sync entirely in mock mode
+  if (MOCK_MODE) {
+    return NextResponse.json({ synced: 0, results: [], mock: true });
+  }
+
   try {
     const result = await syncAllAccounts();
 
@@ -26,6 +32,6 @@ export async function GET(request) {
     return NextResponse.json(result);
   } catch (err) {
     console.error('[Cron Sync] Fatal error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Sync failed' }, { status: 500 });
   }
 }

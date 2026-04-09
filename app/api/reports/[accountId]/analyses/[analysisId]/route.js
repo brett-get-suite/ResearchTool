@@ -11,6 +11,6 @@ export async function GET(request, { params }) {
     }
     return NextResponse.json(analysis);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch analysis' }, { status: 500 });
   }
 }

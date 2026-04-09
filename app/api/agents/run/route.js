@@ -40,6 +40,6 @@ export async function POST(request) {
     }
   } catch (err) {
     console.error('Agent run error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Agent run failed' }, { status: 500 });
   }
 }

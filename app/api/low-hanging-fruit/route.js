@@ -26,7 +26,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Low-hanging fruit analysis error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to analyze opportunities' },
+      { error: 'Failed to analyze opportunities' },
       { status: 500 }
     );
   }

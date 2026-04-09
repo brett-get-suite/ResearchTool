@@ -45,6 +45,6 @@ export async function POST(request, { params }) {
     });
   } catch (err) {
     console.error('[reports/analyze] Error:', err);
-    return NextResponse.json({ error: err.message || 'Analysis failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });
   }
 }

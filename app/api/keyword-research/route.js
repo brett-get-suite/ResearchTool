@@ -12,11 +12,11 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Too many requests — please wait a moment' }, { status: 429 });
   }
   try {
-    const { apiKey, services, serviceAreas, industry } = await req.json();
+    const { services, serviceAreas, industry } = await req.json();
 
-    const geminiKey = apiKey || process.env.GEMINI_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
     if (!geminiKey) {
-      return NextResponse.json({ error: 'Gemini API key is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Gemini API key is not configured on the server' }, { status: 500 });
     }
 
     // Step 1: Gemini generates keyword groups with intent + structure
@@ -42,7 +42,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Keyword research error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to run keyword research' },
+      { error: 'Failed to run keyword research' },
       { status: 500 }
     );
   }

@@ -8,6 +8,6 @@ export async function GET(request, { params }) {
     const analyses = await listReportAnalyses(accountId);
     return NextResponse.json(analyses);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch analyses' }, { status: 500 });
   }
 }

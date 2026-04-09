@@ -19,6 +19,6 @@ export async function GET(request, { params }) {
     return NextResponse.json({ campaigns });
   } catch (err) {
     console.error('Impression share GET error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch impression share data' }, { status: 500 });
   }
 }

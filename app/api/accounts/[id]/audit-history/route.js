@@ -14,6 +14,6 @@ export async function GET(request, { params }) {
     const history = await getAuditScoreHistory(id, limit);
     return NextResponse.json({ history });
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch audit history' }, { status: 500 });
   }
 }

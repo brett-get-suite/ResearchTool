@@ -145,7 +145,7 @@ function ResearchPageInner() {
       const res = await fetchWithTimeout('/api/analyze-website', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, websiteUrl, industry }),
+        body: JSON.stringify({ websiteUrl, industry }),
       }, 55000);
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
@@ -195,7 +195,7 @@ function ResearchPageInner() {
         fetchWithTimeout('/api/keyword-research', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey, services: selectedServices, serviceAreas, industry }),
+          body: JSON.stringify({ services: selectedServices, serviceAreas, industry }),
         }, 55000),
         fetchWithTimeout('/api/competitor-audit', {
           method: 'POST',

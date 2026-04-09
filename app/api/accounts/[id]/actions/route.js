@@ -11,6 +11,6 @@ export async function GET(request, { params }) {
     const actions = await getAgentActions(params.id, { limit, offset, agentType });
     return NextResponse.json(actions);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch actions' }, { status: 500 });
   }
 }

@@ -30,6 +30,6 @@ export async function POST(request, { params }) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('Undo error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to undo action' }, { status: 500 });
   }
 }

@@ -69,8 +69,8 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
     { key: 'cost_per_conv', label: 'Cost/Conv', w: 'w-28' },
     { key: 'ctr', label: 'CTR', w: 'w-20' },
     { key: 'search_impression_share', label: 'Search IS', w: 'w-24' },
-    { key: 'top_impression_rate', label: 'Top IS', w: 'w-20' },
-    { key: 'absolute_top_impression_rate', label: 'Abs Top IS', w: 'w-24' },
+    { key: 'search_top_impression_share', label: 'Top IS', w: 'w-20' },
+    { key: 'search_abs_top_impression_share', label: 'Abs Top IS', w: 'w-24' },
   ];
 
   // Summary counts
@@ -223,13 +223,13 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
                           : <span className="text-on-surface-variant">&mdash;</span>}
                       </td>
                       <td className="px-4 py-3 text-sm text-on-surface tabular-nums">
-                        {c.top_impression_rate != null
-                          ? formatPercent(c.top_impression_rate * 100)
+                        {c.search_top_impression_share != null
+                          ? formatPercent(c.search_top_impression_share * 100)
                           : <span className="text-on-surface-variant">&mdash;</span>}
                       </td>
                       <td className="px-4 py-3 text-sm text-on-surface tabular-nums">
-                        {c.absolute_top_impression_rate != null
-                          ? formatPercent(c.absolute_top_impression_rate * 100)
+                        {c.search_abs_top_impression_share != null
+                          ? formatPercent(c.search_abs_top_impression_share * 100)
                           : <span className="text-on-surface-variant">&mdash;</span>}
                       </td>
                     </tr>

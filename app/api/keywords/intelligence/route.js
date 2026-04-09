@@ -16,6 +16,6 @@ export async function POST(request) {
     return NextResponse.json(result);
   } catch (err) {
     console.error('Keywords intelligence error:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch keyword intelligence' }, { status: 500 });
   }
 }

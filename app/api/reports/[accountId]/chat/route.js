@@ -64,6 +64,6 @@ export async function POST(request, { params }) {
     return NextResponse.json({ response: parsed.response || raw });
   } catch (err) {
     console.error('[reports/chat] Error:', err);
-    return NextResponse.json({ error: err.message || 'Chat failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Chat failed' }, { status: 500 });
   }
 }

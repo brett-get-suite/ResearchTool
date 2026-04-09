@@ -41,7 +41,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Keyword Planner enrichment error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to enrich keyword data' },
+      { error: 'Failed to enrich keyword data' },
       { status: 500 }
     );
   }

@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
     if (!account) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(account);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process account request' }, { status: 500 });
   }
 }
 
@@ -29,7 +29,7 @@ export async function PUT(request, { params }) {
     const account = await updateAccount(params.id, { name, settings, google_login_customer_id, status });
     return NextResponse.json(account);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process account request' }, { status: 500 });
   }
 }
 
@@ -41,7 +41,7 @@ export async function PATCH(request, { params }) {
     const account = await updateAccount(params.id, update);
     return NextResponse.json(account);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process account request' }, { status: 500 });
   }
 }
 
@@ -50,6 +50,6 @@ export async function DELETE(request, { params }) {
     await deleteAccount(params.id);
     return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process account request' }, { status: 500 });
   }
 }

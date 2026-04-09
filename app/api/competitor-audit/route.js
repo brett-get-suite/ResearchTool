@@ -26,7 +26,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Competitor audit error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to run competitor audit' },
+      { error: 'Failed to run competitor audit' },
       { status: 500 }
     );
   }

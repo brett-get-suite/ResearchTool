@@ -44,7 +44,7 @@ export default function CompetitorsPage() {
     try {
       const siteRes = await fetch('/api/analyze-website', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, websiteUrl: competitorUrl, industry }),
+        body: JSON.stringify({ websiteUrl: competitorUrl, industry }),
       });
       const siteResult = await siteRes.json();
       if (!siteRes.ok) throw new Error(siteResult.error);
@@ -52,7 +52,7 @@ export default function CompetitorsPage() {
       const services = (siteResult.data.services || []).map(s => s.name);
       const compRes = await fetch('/api/competitor-audit', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, businessName: siteResult.data.business_name, services, serviceAreas: serviceAreas.filter(Boolean), industry }),
+        body: JSON.stringify({ businessName: siteResult.data.business_name, services, serviceAreas: serviceAreas.filter(Boolean), industry }),
       });
       const compResult = await compRes.json();
       if (!compRes.ok) throw new Error(compResult.error);

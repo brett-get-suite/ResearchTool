@@ -17,7 +17,7 @@ export async function GET() {
     const accounts = await getAccounts();
     return NextResponse.json(accounts);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process accounts request' }, { status: 500 });
   }
 }
 
@@ -27,6 +27,6 @@ export async function POST(request) {
     const account = await createAccount(body);
     return NextResponse.json(account, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process accounts request' }, { status: 500 });
   }
 }
