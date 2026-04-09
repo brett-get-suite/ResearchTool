@@ -49,7 +49,8 @@ export default function AlertsPanel({ alerts = [], onDismiss, onApproveAiFix }) 
       {alerts.length === 0 ? (
         <div className="text-center py-10">
           <span className="material-symbols-outlined text-4xl text-secondary/30 block mb-2">check_circle</span>
-          <p className="text-sm text-on-surface-variant">All clear — no issues detected</p>
+          <p className="text-sm text-on-surface font-medium mb-1">All clear — no issues detected</p>
+          <p className="text-xs text-on-surface-variant">Alerts will appear here when campaigns need attention — budget issues, low quality scores, or wasted spend.</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-[420px] overflow-y-auto">

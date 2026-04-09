@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback, Fragment } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -40,6 +40,10 @@ function relativeTime(iso) {
 }
 
 const AGENT_TYPES = ['audit', 'bid', 'ad_copy', 'budget', 'keyword', 'negative_kw', 'brand'];
+const AGENT_LABELS = {
+  audit: 'Audit Agent', bid: 'Bid Agent', ad_copy: 'Ad Copy Agent',
+  budget: 'Budget Agent', keyword: 'Keyword Agent', negative_kw: 'Negative KW Agent', brand: 'Brand Agent',
+};
 
 /* ── Delta Arrow chip ── */
 function DeltaArrow({ current, previous, invert = false }) {
@@ -177,8 +181,59 @@ function SummaryCard({ label, value, prevValue, icon, format = 'number', invert 
   );
 }
 
+/* ── Agent Status Popover ── */
+function AgentPopover({ enabled, onPause }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const activeCount = enabled ? AGENT_TYPES.length : 0;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface transition-colors"
+      >
+        <span className="material-symbols-outlined text-tertiary" style={{ fontSize: 14 }}>smart_toy</span>
+        <span className="text-xs">{activeCount}/{AGENT_TYPES.length} agents active</span>
+      </button>
+      {open && (
+        <div className="absolute left-0 bottom-full mb-2 w-52 bg-surface-container-highest border border-outline-variant/30 rounded-xl p-3 shadow-2xl z-30">
+          <div className="space-y-1.5 mb-3">
+            {AGENT_TYPES.map(type => (
+              <div key={type} className="flex items-center gap-2 text-xs">
+                <span className={`w-1.5 h-1.5 rounded-full ${enabled ? 'bg-secondary' : 'bg-on-surface-variant/30'}`} />
+                <span className="text-on-surface">{AGENT_LABELS[type]}</span>
+                <span className={`ml-auto text-[10px] ${enabled ? 'text-secondary' : 'text-on-surface-variant'}`}>
+                  {enabled ? 'Active' : 'Off'}
+                </span>
+              </div>
+            ))}
+          </div>
+          {enabled && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onPause?.(); setOpen(false); }}
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[11px] font-medium bg-amber-400/10 text-amber-400 hover:bg-amber-400/20 transition-colors"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 12 }}>pause_circle</span>
+              Pause All Agents
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Account Card (Grid View) ── */
-function AccountCard({ account, metrics: m, campaigns, alertCount, syncing, onSync, onAudit }) {
+function AccountCard({ account, metrics: m, campaigns, alertCount, syncing, onSync, onAudit, onPauseAgents }) {
   const cur = m?.current || {};
   const prev = m?.previous || {};
   const agentsEnabled = account.settings?.agents_enabled;
@@ -264,15 +319,16 @@ function AccountCard({ account, metrics: m, campaigns, alertCount, syncing, onSy
 
       {/* Agent + Alert row */}
       <div className="flex items-center justify-between text-xs">
-        <span className="flex items-center gap-1.5 text-on-surface-variant">
-          <span className="material-symbols-outlined text-tertiary" style={{ fontSize: 14 }}>smart_toy</span>
-          {agentsEnabled ? `${AGENT_TYPES.length}/${AGENT_TYPES.length} agents` : '0 agents'}
-        </span>
+        <AgentPopover enabled={agentsEnabled} onPause={() => onPauseAgents?.(account.id)} />
         {alertCount > 0 && (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/10 text-error font-medium">
+          <Link
+            href={`/accounts/${account.id}?tab=audit`}
+            onClick={e => e.stopPropagation()}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/10 text-error font-medium hover:bg-error/20 transition-colors"
+          >
             <span className="material-symbols-outlined" style={{ fontSize: 12 }}>warning</span>
             {alertCount} alert{alertCount !== 1 ? 's' : ''}
-          </span>
+          </Link>
         )}
       </div>
 
@@ -289,6 +345,7 @@ function AccountCard({ account, metrics: m, campaigns, alertCount, syncing, onSy
           onClick={() => onSync(account.id)}
           disabled={syncing}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/10 transition-colors disabled:opacity-40"
+          title="Sync data from Google Ads"
         >
           <span className={`material-symbols-outlined ${syncing ? 'animate-spin' : ''}`} style={{ fontSize: 14 }}>
             {syncing ? 'progress_activity' : 'sync'}
@@ -298,10 +355,21 @@ function AccountCard({ account, metrics: m, campaigns, alertCount, syncing, onSy
         <button
           onClick={() => onAudit?.(account.id)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/10 transition-colors"
+          title="Run audit"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>fact_check</span>
           Audit
         </button>
+        {agentsEnabled && (
+          <button
+            onClick={() => onPauseAgents?.(account.id)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-amber-400 bg-amber-400/5 hover:bg-amber-400/10 border border-amber-400/10 transition-colors"
+            title="Pause all AI agents on this account"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>pause_circle</span>
+            Pause
+          </button>
+        )}
       </div>
     </div>
   );
@@ -471,6 +539,13 @@ export default function AccountsPage() {
     load();
     return () => controller.abort();
   }, [dateRange]);
+
+  /* ── Pause agents handler ── */
+  const handlePauseAgents = useCallback((accountId) => {
+    setAccounts(prev => prev.map(a =>
+      a.id === accountId ? { ...a, settings: { ...a.settings, agents_enabled: false } } : a,
+    ));
+  }, []);
 
   /* ── Sync handler ── */
   const handleSync = useCallback(async (accountId) => {
@@ -705,6 +780,7 @@ export default function AccountsPage() {
               syncing={syncing[account.id]}
               onSync={handleSync}
               onAudit={(id) => router.push(`/accounts/${id}?tab=audit`)}
+              onPauseAgents={handlePauseAgents}
             />
           ))}
         </div>

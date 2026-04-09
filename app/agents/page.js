@@ -75,11 +75,11 @@ function AgentCard({ type, config, run, actionCount, scheduleEnabled, onToggle, 
       <div className="flex items-center gap-2 mb-2">
         <span className={`w-2 h-2 rounded-full ${sCfg.dot} ${sCfg.pulse ? 'pulse-dot' : ''}`} />
         <span className={`text-xs font-medium ${sCfg.text}`}>{sCfg.label}</span>
-        {run?.updated_at && (
-          <>
-            <span className="text-on-surface-variant/30 text-xs">&middot;</span>
-            <span className="text-xs text-on-surface-variant">{relativeTime(run.updated_at)}</span>
-          </>
+        <span className="text-on-surface-variant/30 text-xs">&middot;</span>
+        {run?.updated_at ? (
+          <span className="text-xs text-on-surface-variant">Last run: {relativeTime(run.updated_at)}</span>
+        ) : (
+          <span className="text-xs text-on-surface-variant/50">Never run</span>
         )}
       </div>
 
@@ -87,12 +87,15 @@ function AgentCard({ type, config, run, actionCount, scheduleEnabled, onToggle, 
         {run?.summary || config.description}
       </p>
 
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-on-surface-variant">
           <span className="font-semibold text-on-surface">{actionCount}</span> actions this period
         </span>
         <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">{config.defaultFrequency}</span>
       </div>
+      <p className="text-[11px] text-on-surface-variant truncate mt-1 mb-3">
+        {run?.summary ? `Last: ${run.summary}` : 'No actions yet'}
+      </p>
 
       <div className="flex items-center gap-2">
         <button
@@ -123,6 +126,11 @@ function AgentConfigModal({ type, config, accounts, onClose, onSave }) {
   const [enabledAccounts, setEnabledAccounts] = useState(accounts.map(a => a.id));
   const [maxBidChange, setMaxBidChange] = useState(20);
   const [maxBudgetChange, setMaxBudgetChange] = useState(15);
+  const [aggressiveness, setAggressiveness] = useState('balanced');
+  const [targetMetric, setTargetMetric] = useState('cpa');
+  const [minSpendThreshold, setMinSpendThreshold] = useState(10);
+  const [autoApply, setAutoApply] = useState(false);
+  const [matchTypes, setMatchTypes] = useState({ exact: true, phrase: true, broad: false });
 
   if (!type) return null;
   const agentCfg = AGENT_TYPES[type];
@@ -153,19 +161,117 @@ function AgentConfigModal({ type, config, accounts, onClose, onSave }) {
             </select>
           </div>
 
-          {(type === 'bid' || type === 'budget') && (
-            <div>
-              <label className="text-label-sm text-on-surface-variant block mb-2">
-                Max {type === 'bid' ? 'Bid' : 'Budget'} Change (%)
-              </label>
-              <input
-                type="number"
-                value={type === 'bid' ? maxBidChange : maxBudgetChange}
-                onChange={e => type === 'bid' ? setMaxBidChange(+e.target.value) : setMaxBudgetChange(+e.target.value)}
-                className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20"
-                min={1} max={100}
-              />
-            </div>
+          {type === 'bid' && (
+            <>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Strategy Mode</label>
+                <div className="flex gap-2">
+                  {['conservative', 'balanced', 'aggressive'].map(mode => (
+                    <button
+                      key={mode}
+                      onClick={() => setAggressiveness(mode)}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium border transition-colors capitalize ${
+                        aggressiveness === mode
+                          ? 'bg-primary/15 border-primary/30 text-primary'
+                          : 'bg-surface-container border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Target Metric</label>
+                <select value={targetMetric} onChange={e => setTargetMetric(e.target.value)} className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20">
+                  <option value="cpa">CPA (Cost Per Acquisition)</option>
+                  <option value="roas">ROAS (Return On Ad Spend)</option>
+                  <option value="conversions">Conversions</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Max Bid Change (%)</label>
+                <input type="number" value={maxBidChange} onChange={e => setMaxBidChange(+e.target.value)} className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20" min={1} max={100} />
+              </div>
+            </>
+          )}
+
+          {type === 'negative' && (
+            <>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Min Spend Threshold ($)</label>
+                <input type="number" value={minSpendThreshold} onChange={e => setMinSpendThreshold(+e.target.value)} className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20" min={0} step={1} />
+                <p className="text-[11px] text-on-surface-variant mt-1">Only flag keywords with spend above this amount</p>
+              </div>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Match Types</label>
+                <div className="flex gap-3">
+                  {['exact', 'phrase', 'broad'].map(mt => (
+                    <label key={mt} className="flex items-center gap-1.5 text-sm text-on-surface cursor-pointer capitalize">
+                      <input
+                        type="checkbox"
+                        checked={matchTypes[mt]}
+                        onChange={() => setMatchTypes(prev => ({ ...prev, [mt]: !prev[mt] }))}
+                        className="w-3.5 h-3.5 rounded accent-primary"
+                      />
+                      {mt}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Application Mode</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setAutoApply(false)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium border transition-colors ${
+                      !autoApply
+                        ? 'bg-primary/15 border-primary/30 text-primary'
+                        : 'bg-surface-container border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
+                  >
+                    Suggest Only
+                  </button>
+                  <button
+                    onClick={() => setAutoApply(true)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium border transition-colors ${
+                      autoApply
+                        ? 'bg-primary/15 border-primary/30 text-primary'
+                        : 'bg-surface-container border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
+                  >
+                    Auto-Apply
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {type === 'budget' && (
+            <>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Strategy Mode</label>
+                <div className="flex gap-2">
+                  {['conservative', 'balanced', 'aggressive'].map(mode => (
+                    <button
+                      key={mode}
+                      onClick={() => setAggressiveness(mode)}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium border transition-colors capitalize ${
+                        aggressiveness === mode
+                          ? 'bg-primary/15 border-primary/30 text-primary'
+                          : 'bg-surface-container border-outline-variant/20 text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-label-sm text-on-surface-variant block mb-2">Max Budget Change (%)</label>
+                <input type="number" value={maxBudgetChange} onChange={e => setMaxBudgetChange(+e.target.value)} className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20" min={1} max={100} />
+              </div>
+            </>
           )}
 
           <div>
@@ -190,7 +296,7 @@ function AgentConfigModal({ type, config, accounts, onClose, onSave }) {
 
         <div className="flex gap-3 mt-8">
           <GhostButton onClick={onClose} className="flex-1 justify-center">Cancel</GhostButton>
-          <GradientButton onClick={() => { onSave({ type, freq, enabledAccounts, maxBidChange, maxBudgetChange }); onClose(); }} className="flex-1 justify-center">
+          <GradientButton onClick={() => { onSave({ type, freq, enabledAccounts, maxBidChange, maxBudgetChange, aggressiveness, targetMetric, minSpendThreshold, autoApply, matchTypes }); onClose(); }} className="flex-1 justify-center">
             Save Settings
           </GradientButton>
         </div>
@@ -208,6 +314,8 @@ function GuardrailsModal({ open, onClose }) {
   const [maxDailyBudgetChange, setMaxDailyBudgetChange] = useState(15);
   const [minQualityScore, setMinQualityScore] = useState(3);
   const [requireApprovalAbove, setRequireApprovalAbove] = useState('');
+  const [maxBidChangePerAdj, setMaxBidChangePerAdj] = useState(20);
+  const [portfolioSpendCeiling, setPortfolioSpendCeiling] = useState('');
 
   if (!open) return null;
 
@@ -239,6 +347,16 @@ function GuardrailsModal({ open, onClose }) {
           <div>
             <label className="text-label-sm text-on-surface-variant block mb-2">Require Human Approval for Changes Above ($)</label>
             <input type="number" value={requireApprovalAbove} onChange={e => setRequireApprovalAbove(e.target.value)} placeholder="No threshold" className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20" min={0} />
+          </div>
+          <div>
+            <label className="text-label-sm text-on-surface-variant block mb-2">Max Bid Change Per Adjustment (%)</label>
+            <input type="number" value={maxBidChangePerAdj} onChange={e => setMaxBidChangePerAdj(+e.target.value)} className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20" min={1} max={100} />
+            <p className="text-[11px] text-on-surface-variant mt-1">Limits how much a single bid adjustment can change a keyword bid</p>
+          </div>
+          <div>
+            <label className="text-label-sm text-on-surface-variant block mb-2">Portfolio-wide Spend Ceiling ($)</label>
+            <input type="number" value={portfolioSpendCeiling} onChange={e => setPortfolioSpendCeiling(e.target.value)} placeholder="No limit" className="w-full text-sm py-2 px-3 rounded-lg bg-surface-container border-outline-variant/20" min={0} step={1} />
+            <p className="text-[11px] text-on-surface-variant mt-1">Total daily spend limit across all managed accounts</p>
           </div>
         </div>
 
@@ -305,11 +423,14 @@ function ActivityLog({ actions, accounts, filterAgent, onFilterAgent }) {
               <th className="text-left px-4 py-3 text-label-sm text-on-surface-variant w-28">Client</th>
               <th className="text-left px-4 py-3 text-label-sm text-on-surface-variant">Action Taken</th>
               <th className="text-left px-4 py-3 text-label-sm text-on-surface-variant w-24">Keyword</th>
+              <th className="text-left px-4 py-3 text-label-sm text-on-surface-variant w-24">Before</th>
+              <th className="text-left px-4 py-3 text-label-sm text-on-surface-variant w-24">After</th>
+              <th className="text-left px-4 py-3 text-label-sm text-on-surface-variant w-20"></th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={5} className="px-4 py-12 text-center text-on-surface-variant text-sm">No activity recorded</td></tr>
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-on-surface-variant text-sm">No activity recorded</td></tr>
             ) : (
               filtered.slice(0, 100).map((action, i) => {
                 const agentCfg = AGENT_TYPES[action.agent_type] || AGENT_TYPES.audit;
@@ -325,6 +446,15 @@ function ActivityLog({ actions, accounts, filterAgent, onFilterAgent }) {
                     <td className="px-4 py-3 text-xs text-on-surface-variant truncate max-w-[100px]">{accountMap[action.account_id] || '—'}</td>
                     <td className="px-4 py-3 text-sm text-on-surface">{action.description || 'Action taken'}</td>
                     <td className="px-4 py-3 text-xs text-on-surface-variant truncate max-w-[100px]">{action.keyword || '—'}</td>
+                    <td className="px-4 py-3 text-xs text-on-surface-variant tabular-nums">{action.before_value || '—'}</td>
+                    <td className="px-4 py-3 text-xs text-on-surface tabular-nums font-medium">{action.after_value || '—'}</td>
+                    <td className="px-4 py-3">
+                      {action.before_value && (
+                        <button className="text-[10px] px-2 py-1 rounded-md bg-surface-container-high hover:bg-amber-400/10 text-on-surface-variant hover:text-amber-400 border border-outline-variant/10 transition-colors font-medium">
+                          Undo
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 );
               })
@@ -375,13 +505,16 @@ function AgentSchedule({ schedule }) {
                 {days.map((_, di) => (
                   <div key={di} className="flex items-center justify-center">
                     {enabled && activeDays.includes(di) ? (
-                      <div className={`w-full h-6 rounded ${agentCfg.color}/20 border border-current/10 flex items-center justify-center`}>
+                      <div
+                        className={`w-full h-6 rounded ${agentCfg.color}/20 border border-current/10 flex items-center justify-center`}
+                        title={`${agentCfg.label}: Runs ${freq} ${freq === 'hourly' ? '(24x/day)' : freq === 'daily' ? '(1x/day)' : `(${freq})`}`}
+                      >
                         <span className={`text-[10px] font-bold ${agentCfg.textColor}`}>
                           {freq === 'hourly' ? '24x' : freq === 'daily' ? '1x' : ''}
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-6 rounded bg-surface-container-highest/30" />
+                      <div className="w-full h-6 rounded bg-surface-container-highest/30" title="Not scheduled" />
                     )}
                   </div>
                 ))}
@@ -477,12 +610,14 @@ export default function AgentControlsPage() {
 
   /* ── Performance stats ── */
   const perfStats = useMemo(() => {
+    const bidActions = allActions.filter(a => a.agent_type === 'bid').length;
     return {
       totalActions: allActions.length,
       activeAgents: AGENT_TYPE_KEYS.filter(k => schedule[k]?.enabled !== false).length,
       totalAgents: AGENT_TYPE_KEYS.length,
-      bidActions: allActions.filter(a => a.agent_type === 'bid').length,
+      bidActions,
       negActions: allActions.filter(a => a.agent_type === 'negative').length,
+      estimatedSavings: bidActions * 5 * 0.15,
     };
   }, [allActions, schedule]);
 
@@ -578,26 +713,43 @@ export default function AgentControlsPage() {
       </div>
 
       {/* ─── Performance Metrics ─── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-surface-container rounded-xl p-5">
           <div className="text-label-sm text-on-surface-variant mb-2">Total Actions</div>
           <div className="text-2xl font-bold text-on-surface">{formatNumber(perfStats.totalActions)}</div>
-          <div className="text-xs text-on-surface-variant mt-1">{accounts.length} accounts managed</div>
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-xs text-on-surface-variant">{accounts.length} accounts managed</span>
+            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
+          </div>
         </div>
         <div className="bg-surface-container rounded-xl p-5">
           <div className="text-label-sm text-on-surface-variant mb-2">Bid Adjustments</div>
           <div className="text-2xl font-bold text-on-surface">{formatNumber(perfStats.bidActions)}</div>
-          <div className="text-xs text-on-surface-variant mt-1">By Bid Agent this period</div>
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-xs text-on-surface-variant">By Bid Agent this period</span>
+            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
+          </div>
         </div>
         <div className="bg-surface-container rounded-xl p-5">
           <div className="text-label-sm text-on-surface-variant mb-2">Negatives Added</div>
           <div className="text-2xl font-bold text-on-surface">{formatNumber(perfStats.negActions)}</div>
-          <div className="text-xs text-on-surface-variant mt-1">By Negative KW Agent</div>
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-xs text-on-surface-variant">By Negative KW Agent</span>
+            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
+          </div>
         </div>
         <div className="bg-surface-container rounded-xl p-5">
           <div className="text-label-sm text-on-surface-variant mb-2">Active Agents</div>
           <div className="text-2xl font-bold text-secondary">{perfStats.activeAgents}/{perfStats.totalAgents}</div>
-          <div className="text-xs text-on-surface-variant mt-1">Across all accounts</div>
+          <div className="flex items-center gap-1 mt-1">
+            <span className="text-xs text-on-surface-variant">Across all accounts</span>
+            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
+          </div>
+        </div>
+        <div className="bg-surface-container rounded-xl p-5">
+          <div className="text-label-sm text-on-surface-variant mb-2">Est. Savings</div>
+          <div className="text-2xl font-bold text-secondary">{formatCurrency(perfStats.estimatedSavings, true)}</div>
+          <div className="text-xs text-on-surface-variant mt-1">Wasted spend avoided this period</div>
         </div>
       </div>
 

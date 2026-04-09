@@ -34,7 +34,11 @@ export default function SpendPacing({ accounts = [], metricsMap = {} }) {
       </div>
 
       {pacingData.length === 0 ? (
-        <p className="text-sm text-on-surface-variant text-center py-10">No budget data available</p>
+        <div className="text-center py-10">
+          <span className="material-symbols-outlined text-3xl text-on-surface-variant/20 block mb-2">speed</span>
+          <p className="text-sm text-on-surface-variant mb-1">No budget data available</p>
+          <p className="text-xs text-on-surface-variant/60">Set daily budgets on your campaigns to track spend pacing</p>
+        </div>
       ) : (
         <div className="space-y-4 max-h-[380px] overflow-y-auto">
           {pacingData.map(item => (
@@ -62,8 +66,8 @@ export default function SpendPacing({ accounts = [], metricsMap = {} }) {
                 />
               </div>
               <div className="flex justify-between text-[10px] text-on-surface-variant/60">
-                <span>{STATUS_LABEL[item.status]}</span>
-                <span>{item.daysRemaining}d left</span>
+                <span className={`font-medium ${STATUS_TEXT[item.status]}`}>{STATUS_LABEL[item.status]}</span>
+                <span>{formatCurrency(item.spent, true)} of {formatCurrency(item.budget, true)} spent &middot; {item.daysRemaining}d remaining</span>
               </div>
             </div>
           ))}

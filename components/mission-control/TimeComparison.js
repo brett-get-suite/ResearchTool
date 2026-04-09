@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { DATE_PRESETS } from '@/lib/dashboard-utils';
 
-const ICONS = { week: 'calendar_view_week', month: 'calendar_month', quarter: 'calendar_today' };
+const ICONS = { week: 'calendar_view_week', month: 'calendar_month', this_month: 'calendar_month', quarter: 'calendar_today', this_quarter: 'calendar_today' };
 
 export default function TimeComparison({ selected = 'month', onChange }) {
   const [open, setOpen] = useState(false);

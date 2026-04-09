@@ -157,8 +157,10 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={cols.length} className="px-4 py-12 text-center text-on-surface-variant text-sm">
-                  No campaigns found
+                <td colSpan={cols.length} className="px-4 py-12 text-center">
+                  <span className="material-symbols-outlined text-3xl text-on-surface-variant/20 block mb-2">campaign</span>
+                  <p className="text-sm text-on-surface-variant">No campaigns found</p>
+                  <p className="text-xs text-on-surface-variant/60 mt-1">Connect a Google Ads account to see campaign data here</p>
                 </td>
               </tr>
             ) : (

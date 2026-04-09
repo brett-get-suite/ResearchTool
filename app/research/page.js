@@ -73,6 +73,7 @@ function ResearchPageInner() {
   const [pastResearch, setPastResearch] = useState([]);
   const [adAccounts, setAdAccounts] = useState([]);
   const [linkedAccountId, setLinkedAccountId] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -87,6 +88,26 @@ function ResearchPageInner() {
       getClients().then(data => setPastResearch((data || []).filter(c => c.status === 'complete'))).catch(() => {});
       getAccounts().then(data => setAdAccounts(data || [])).catch(() => {});
     }
+  }, []);
+
+  // Re-run research with existing setup
+  const handleRerun = useCallback((research) => {
+    setWebsiteUrl(research.website || '');
+    setIndustry(research.industry || 'Plumbing');
+    setServiceAreas(research.service_areas || []);
+    setLinkedAccountId('');
+    setCurrentStep(0);
+  }, []);
+
+  // Delete research entry
+  const handleDelete = useCallback(async (id) => {
+    if (isSupabaseConfigured()) {
+      try {
+        await updateClient(id, { status: 'deleted' });
+        setPastResearch(prev => prev.filter(r => r.id !== id));
+      } catch (_) {}
+    }
+    setDeleteConfirmId(null);
   }, []);
 
   // Pre-fill from query params (quick-add / re-run from dashboard)
@@ -371,7 +392,29 @@ function ResearchPageInner() {
                     <td className="text-sm text-on-surface-variant">{(r.service_areas || []).slice(0, 2).join(', ')}{(r.service_areas || []).length > 2 ? '...' : ''}</td>
                     <td className="text-sm text-on-surface-variant">{r.researched_at ? new Date(r.researched_at).toLocaleDateString() : '—'}</td>
                     <td>
-                      <a href={`/clients/${r.id}`} className="text-xs text-primary hover:underline font-label font-semibold">View Results</a>
+                      <div className="flex items-center gap-3">
+                        <a href={`/clients/${r.id}`} className="text-xs text-primary hover:underline font-label font-semibold">View Results</a>
+                        <button
+                          onClick={() => handleRerun(r)}
+                          className="text-xs text-tertiary hover:underline font-label font-semibold"
+                        >
+                          Re-run
+                        </button>
+                        {deleteConfirmId === r.id ? (
+                          <span className="flex items-center gap-2">
+                            <span className="text-xs text-error">Delete?</span>
+                            <button onClick={() => handleDelete(r.id)} className="text-xs text-error font-bold hover:underline">Yes</button>
+                            <button onClick={() => setDeleteConfirmId(null)} className="text-xs text-on-surface-variant hover:underline">No</button>
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirmId(r.id)}
+                            className="text-xs text-on-surface-variant hover:text-error font-label transition-colors"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -725,15 +768,20 @@ function ResearchPageInner() {
                 <span className="material-symbols-outlined text-[15px]">print</span>
                 PDF
               </button>
-              {linkedAccountId && (
-                <button
-                  onClick={() => router.push(`/accounts/${linkedAccountId}/campaigns/new?fromResearch=${clientId}`)}
-                  className="pill-btn-primary text-xs"
-                >
-                  <span className="material-symbols-outlined text-[15px]">campaign</span>
-                  Create Campaign Plan
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  if (linkedAccountId) {
+                    router.push(`/accounts/${linkedAccountId}/campaigns/new?fromResearch=${clientId}`);
+                  } else {
+                    router.push('/accounts');
+                  }
+                }}
+                className="pill-btn-primary text-xs"
+                title={linkedAccountId ? 'Create a campaign plan from this research' : 'Link an ad account first to create a campaign plan'}
+              >
+                <span className="material-symbols-outlined text-[15px]">campaign</span>
+                Create Campaign Plan from Results
+              </button>
             </div>
           </div>
 

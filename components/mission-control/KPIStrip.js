@@ -3,7 +3,7 @@
 import MiniSparkline from './MiniSparkline';
 import { formatCurrency, formatPercent, formatNumber, calcDelta, generateSparklineData } from '@/lib/dashboard-utils';
 
-function KPICard({ label, value, prevValue, format, icon, invertDelta, sparkData }) {
+function KPICard({ label, value, prevValue, format, icon, invertDelta, sparkData, spendAlert }) {
   const delta = calcDelta(
     typeof value === 'number' ? value : 0,
     typeof prevValue === 'number' ? prevValue : 0,
@@ -11,8 +11,16 @@ function KPICard({ label, value, prevValue, format, icon, invertDelta, sparkData
 
   const isPositive = invertDelta ? delta < 0 : delta > 0;
   const isNegative = invertDelta ? delta > 0 : delta < 0;
-  const arrowColor = isPositive ? 'text-secondary' : isNegative ? 'text-error' : 'text-on-surface-variant';
-  const sparkColor = isPositive ? '#4edea3' : isNegative ? '#ef4444' : '#8994a8';
+
+  // Spend-specific: lower spend = yellow (underspending alert), not green
+  let arrowColor, sparkColor;
+  if (spendAlert && delta < 0) {
+    arrowColor = 'text-amber-400';
+    sparkColor = '#fbbf24';
+  } else {
+    arrowColor = isPositive ? 'text-secondary' : isNegative ? 'text-error' : 'text-on-surface-variant';
+    sparkColor = isPositive ? '#4edea3' : isNegative ? '#ef4444' : '#8994a8';
+  }
 
   const fmt = (v) => {
     if (v == null || isNaN(v)) return '—';
@@ -58,7 +66,7 @@ function KPICard({ label, value, prevValue, format, icon, invertDelta, sparkData
 
 export default function KPIStrip({ current = {}, previous = {}, sparklines = {} }) {
   const kpis = [
-    { label: 'Total Spend',              key: 'total_spend',             format: 'currency', icon: 'payments',        invertDelta: false },
+    { label: 'Total Spend',              key: 'total_spend',             format: 'currency', icon: 'payments',        invertDelta: false, spendAlert: true },
     { label: 'Total Conversions',        key: 'conversions',             format: 'number',   icon: 'conversion_path', invertDelta: false },
     { label: 'Avg. Cost/Conversion',     key: 'cost_per_lead',           format: 'currency', icon: 'target',          invertDelta: true },
     { label: 'Avg. CTR',                 key: 'ctr',                     format: 'percent',  icon: 'ads_click',       invertDelta: false },
@@ -78,6 +86,7 @@ export default function KPIStrip({ current = {}, previous = {}, sparklines = {} 
           icon={kpi.icon}
           invertDelta={kpi.invertDelta}
           sparkData={sparklines[kpi.label]}
+          spendAlert={kpi.spendAlert}
         />
       ))}
     </div>

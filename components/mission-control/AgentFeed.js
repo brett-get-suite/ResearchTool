@@ -40,7 +40,11 @@ export default function AgentFeed({ actions = [], accounts = [] }) {
 
       <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0 -mx-2 px-2" style={{ maxHeight: 480 }}>
         {actions.length === 0 ? (
-          <p className="text-sm text-on-surface-variant text-center py-10">No agent activity yet</p>
+          <div className="text-center py-10">
+            <span className="material-symbols-outlined text-3xl text-on-surface-variant/20 block mb-2">smart_toy</span>
+            <p className="text-sm text-on-surface-variant mb-1">No agent activity yet</p>
+            <p className="text-xs text-on-surface-variant/60">Enable agents in Agent Controls to automate bid and keyword management</p>
+          </div>
         ) : (
           actions.slice(0, 50).map((action, i) => {
             const config = AGENT_CONFIG[action.agent_type] || AGENT_CONFIG.audit;

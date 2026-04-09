@@ -10,6 +10,7 @@ import {
   formatCurrency,
   formatPercent,
   formatNumber,
+  calcDelta,
   DATE_PRESETS,
 } from '@/lib/dashboard-utils';
 
@@ -172,27 +173,52 @@ function NegativeKeywordsPanel({ open, onToggle, accounts, allKeywords }) {
         Suggested Negatives ({filtered.length}) — High spend, zero conversions
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-1 min-h-0" style={{ maxHeight: 400 }}>
-        {filtered.map((kw, i) => (
-          <div
-            key={`${kw.client_id}-${kw.criterionId}-${i}`}
-            className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-surface-container-high text-xs transition-colors"
-          >
-            <div className="min-w-0 flex-1">
-              <div className="text-on-surface font-medium truncate">{kw.keyword}</div>
-              <div className="text-on-surface-variant truncate">{kw.client_name} &middot; {kw.campaignName}</div>
-            </div>
-            <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-              <span className="text-error tabular-nums">{formatCurrency(kw.cost)}</span>
-              <button className="p-1 rounded hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors" title="Add as negative">
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add_circle</span>
-              </button>
-            </div>
-          </div>
-        ))}
-        {filtered.length === 0 && (
-          <p className="text-sm text-on-surface-variant text-center py-8">No candidates found</p>
-        )}
+      <div className="flex-1 overflow-auto min-h-0" style={{ maxHeight: 400 }}>
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-outline-variant/10">
+              <th className="text-left px-2 py-2 text-label-sm text-on-surface-variant whitespace-nowrap">Keyword</th>
+              <th className="text-left px-2 py-2 text-label-sm text-on-surface-variant whitespace-nowrap">Match Type</th>
+              <th className="text-left px-2 py-2 text-label-sm text-on-surface-variant whitespace-nowrap">Level</th>
+              <th className="text-left px-2 py-2 text-label-sm text-on-surface-variant whitespace-nowrap">Campaign</th>
+              <th className="text-left px-2 py-2 text-label-sm text-on-surface-variant whitespace-nowrap">Added By</th>
+              <th className="text-left px-2 py-2 text-label-sm text-on-surface-variant whitespace-nowrap">Date Added</th>
+              <th className="px-2 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((kw, i) => (
+              <tr
+                key={`${kw.client_id}-${kw.criterionId}-${i}`}
+                className="border-b border-outline-variant/5 hover:bg-surface-container-high transition-colors"
+              >
+                <td className="px-2 py-2 text-on-surface font-medium truncate max-w-[120px]">{kw.keyword}</td>
+                <td className="px-2 py-2">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-secondary/10 text-secondary">Exact</span>
+                </td>
+                <td className="px-2 py-2 text-on-surface-variant">Campaign</td>
+                <td className="px-2 py-2 text-on-surface-variant truncate max-w-[100px]">{kw.campaignName}</td>
+                <td className="px-2 py-2">
+                  <span className="inline-flex items-center gap-1 text-on-surface-variant">
+                    <span className="material-symbols-outlined" style={{ fontSize: 12 }}>smart_toy</span>
+                    AI Agent
+                  </span>
+                </td>
+                <td className="px-2 py-2 text-on-surface-variant tabular-nums">{new Date().toLocaleDateString()}</td>
+                <td className="px-2 py-2">
+                  <button className="p-1 rounded hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors" title="Add as negative">
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add_circle</span>
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-sm text-on-surface-variant text-center py-8">No candidates found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -278,6 +304,7 @@ export default function KeywordEnginePage() {
   const [matchFilter, setMatchFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [flyoutKeyword, setFlyoutKeyword] = useState(null);
 
   /* ── Data Fetching ── */
   useEffect(() => {
@@ -372,10 +399,10 @@ export default function KeywordEnginePage() {
       result = result.filter(kw => (kw.status || '').toUpperCase() === statusFilter);
     }
 
-    // Smart filters (OR within active filters)
+    // Smart filters (AND within active filters)
     if (activeFilters.size > 0) {
       const activeArr = SMART_FILTERS.filter(f => activeFilters.has(f.key));
-      result = result.filter(kw => activeArr.some(f => f.test(kw, filterCtx)));
+      result = result.filter(kw => activeArr.every(f => f.test(kw, filterCtx)));
     }
 
     // Sort
@@ -477,7 +504,7 @@ export default function KeywordEnginePage() {
 
     if (activeFilters.size > 0) {
       const activeArr = SMART_FILTERS.filter(f => activeFilters.has(f.key));
-      result = result.filter(kw => activeArr.some(f => f.test(kw, filterCtx)));
+      result = result.filter(kw => activeArr.every(f => f.test(kw, filterCtx)));
     }
 
     result.sort((a, b) => {
@@ -639,36 +666,45 @@ export default function KeywordEnginePage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-outline-variant/10">
-                    {COLUMNS.map(col => (
-                      <th
-                        key={col.key}
-                        onClick={() => {
-                          if (col.key === '_check') { toggleAllVisible(); return; }
-                          if (!col.nosort) handleSort(col.key);
-                        }}
-                        className={`text-left px-3 py-3 text-label-sm text-on-surface-variant whitespace-nowrap ${col.w || ''} ${
-                          !col.nosort || col.key === '_check' ? 'cursor-pointer hover:text-on-surface select-none' : ''
-                        }`}
-                      >
-                        {col.key === '_check' ? (
-                          <input
-                            type="checkbox"
-                            checked={allPageSelected}
-                            onChange={toggleAllVisible}
-                            className="w-3.5 h-3.5 rounded accent-primary cursor-pointer"
-                          />
-                        ) : (
-                          <div className="flex items-center gap-1">
-                            {col.label}
-                            {sortCol === col.key && (
-                              <span className="material-symbols-outlined" style={{ fontSize: 12 }}>
-                                {sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward'}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </th>
-                    ))}
+                    {COLUMNS.map((col, colIdx) => {
+                      const stickyClass = colIdx === 0
+                        ? 'sticky left-0 z-10 bg-surface-container'
+                        : colIdx === 1
+                          ? 'sticky left-[40px] z-10 bg-surface-container'
+                          : colIdx === 2
+                            ? 'sticky left-[140px] z-10 bg-surface-container'
+                            : '';
+                      return (
+                        <th
+                          key={col.key}
+                          onClick={() => {
+                            if (col.key === '_check') { toggleAllVisible(); return; }
+                            if (!col.nosort) handleSort(col.key);
+                          }}
+                          className={`text-left px-3 py-3 text-label-sm text-on-surface-variant whitespace-nowrap ${col.w || ''} ${
+                            !col.nosort || col.key === '_check' ? 'cursor-pointer hover:text-on-surface select-none' : ''
+                          } ${stickyClass}`}
+                        >
+                          {col.key === '_check' ? (
+                            <input
+                              type="checkbox"
+                              checked={allPageSelected}
+                              onChange={toggleAllVisible}
+                              className="w-3.5 h-3.5 rounded accent-primary cursor-pointer"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              {col.label}
+                              {sortCol === col.key && (
+                                <span className="material-symbols-outlined" style={{ fontSize: 12 }}>
+                                  {sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>
@@ -682,6 +718,9 @@ export default function KeywordEnginePage() {
                     pageData.map(kw => {
                       const isSelected = selectedRows.has(kw._uid);
                       const costPerConv = kw.conversions > 0 ? kw.cost / kw.conversions : null;
+                      const prevCostPerConv = kw.prev_conversions > 0 ? kw.prev_cost / kw.prev_conversions : null;
+                      const rowBg = isSelected ? 'bg-primary/5' : '';
+                      const stickyBg = isSelected ? 'bg-primary/5' : 'bg-surface-container';
 
                       const statusBadge = (() => {
                         const s = (kw.status || '').toUpperCase();
@@ -693,11 +732,13 @@ export default function KeywordEnginePage() {
                       return (
                         <tr
                           key={kw._uid}
-                          className={`border-b border-outline-variant/5 transition-colors hover:bg-surface-container-high ${
-                            isSelected ? 'bg-primary/5' : ''
-                          }`}
+                          onClick={(e) => {
+                            if (e.target.closest('input[type="checkbox"]')) return;
+                            setFlyoutKeyword(kw);
+                          }}
+                          className={`border-b border-outline-variant/5 transition-colors hover:bg-surface-container-high cursor-pointer group ${rowBg}`}
                         >
-                          <td className="px-3 py-2.5">
+                          <td className={`px-3 py-2.5 sticky left-0 z-10 ${stickyBg} group-hover:bg-surface-container-high`}>
                             <input
                               type="checkbox"
                               checked={isSelected}
@@ -705,8 +746,8 @@ export default function KeywordEnginePage() {
                               className="w-3.5 h-3.5 rounded accent-primary cursor-pointer"
                             />
                           </td>
-                          <td className="px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[100px]">{kw.client_name}</td>
-                          <td className="px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[140px]">{kw.campaignName}</td>
+                          <td className={`px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[100px] sticky left-[40px] z-10 ${stickyBg} group-hover:bg-surface-container-high`}>{kw.client_name}</td>
+                          <td className={`px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[140px] sticky left-[140px] z-10 ${stickyBg} group-hover:bg-surface-container-high`}>{kw.campaignName}</td>
                           <td className="px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[120px]">{kw.adGroupName}</td>
                           <td className="px-3 py-2.5">
                             <span className="text-sm text-on-surface font-medium">{kw.keyword}</span>
@@ -721,18 +762,68 @@ export default function KeywordEnginePage() {
                               {(kw.status || 'unknown').toLowerCase()}
                             </span>
                           </td>
-                          <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">{formatNumber(kw.impressions)}</td>
-                          <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">{formatNumber(kw.clicks)}</td>
+                          <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">
+                            {formatNumber(kw.impressions)}
+                            {kw.prev_impressions != null && (
+                              <div className={`text-[10px] font-medium ${kw.impressions > kw.prev_impressions ? 'text-secondary' : kw.impressions < kw.prev_impressions ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {kw.impressions > kw.prev_impressions ? '\u2191' : kw.impressions < kw.prev_impressions ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(kw.impressions, kw.prev_impressions)).toFixed(1)}%
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">
+                            {formatNumber(kw.clicks)}
+                            {kw.prev_clicks != null && (
+                              <div className={`text-[10px] font-medium ${kw.clicks > kw.prev_clicks ? 'text-secondary' : kw.clicks < kw.prev_clicks ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {kw.clicks > kw.prev_clicks ? '\u2191' : kw.clicks < kw.prev_clicks ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(kw.clicks, kw.prev_clicks)).toFixed(1)}%
+                              </div>
+                            )}
+                          </td>
                           <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">
                             {kw.ctr != null ? formatPercent(kw.ctr * 100) : '\u2014'}
+                            {kw.prev_ctr != null && (
+                              <div className={`text-[10px] font-medium ${kw.ctr > kw.prev_ctr ? 'text-secondary' : kw.ctr < kw.prev_ctr ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {kw.ctr > kw.prev_ctr ? '\u2191' : kw.ctr < kw.prev_ctr ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(kw.ctr, kw.prev_ctr)).toFixed(1)}%
+                              </div>
+                            )}
                           </td>
                           <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">
                             {kw.avgCpc != null ? formatCurrency(kw.avgCpc) : '\u2014'}
+                            {kw.prev_avgCpc != null && (
+                              <div className={`text-[10px] font-medium ${kw.avgCpc < kw.prev_avgCpc ? 'text-secondary' : kw.avgCpc > kw.prev_avgCpc ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {kw.avgCpc < kw.prev_avgCpc ? '\u2191' : kw.avgCpc > kw.prev_avgCpc ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(kw.avgCpc, kw.prev_avgCpc)).toFixed(1)}%
+                              </div>
+                            )}
                           </td>
-                          <td className="px-3 py-2.5 text-xs text-on-surface font-medium tabular-nums">{formatCurrency(kw.cost)}</td>
-                          <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">{formatNumber(kw.conversions)}</td>
+                          <td className="px-3 py-2.5 text-xs text-on-surface font-medium tabular-nums">
+                            {formatCurrency(kw.cost)}
+                            {kw.prev_cost != null && (
+                              <div className={`text-[10px] font-medium ${kw.cost < kw.prev_cost ? 'text-secondary' : kw.cost > kw.prev_cost ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {kw.cost < kw.prev_cost ? '\u2191' : kw.cost > kw.prev_cost ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(kw.cost, kw.prev_cost)).toFixed(1)}%
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">
+                            {formatNumber(kw.conversions)}
+                            {kw.prev_conversions != null && (
+                              <div className={`text-[10px] font-medium ${kw.conversions > kw.prev_conversions ? 'text-secondary' : kw.conversions < kw.prev_conversions ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {kw.conversions > kw.prev_conversions ? '\u2191' : kw.conversions < kw.prev_conversions ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(kw.conversions, kw.prev_conversions)).toFixed(1)}%
+                              </div>
+                            )}
+                          </td>
                           <td className="px-3 py-2.5 text-xs text-on-surface tabular-nums">
                             {costPerConv != null ? formatCurrency(costPerConv) : <span className="text-on-surface-variant">&mdash;</span>}
+                            {costPerConv != null && prevCostPerConv != null && (
+                              <div className={`text-[10px] font-medium ${costPerConv < prevCostPerConv ? 'text-secondary' : costPerConv > prevCostPerConv ? 'text-error' : 'text-on-surface-variant'}`}>
+                                {costPerConv < prevCostPerConv ? '\u2191' : costPerConv > prevCostPerConv ? '\u2193' : '\u2014'}
+                                {Math.abs(calcDelta(costPerConv, prevCostPerConv)).toFixed(1)}%
+                              </div>
+                            )}
                           </td>
                           <td className="px-3 py-2.5">
                             <span className={`text-xs font-bold tabular-nums ${qsColor(kw.qualityScore)}`}>
@@ -806,7 +897,127 @@ export default function KeywordEnginePage() {
 
       {/* Bulk Actions Bar */}
       <BulkActionsBar count={selectedRows.size} onAction={handleBulkAction} />
+
+      {/* Keyword Detail Flyout */}
+      {flyoutKeyword && (
+        <KeywordDetailFlyout keyword={flyoutKeyword} onClose={() => setFlyoutKeyword(null)} />
+      )}
     </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Keyword Detail Flyout
+   ═══════════════════════════════════════════════════════════════ */
+
+function KeywordDetailFlyout({ keyword, onClose }) {
+  // Close on Escape
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  if (!keyword) return null;
+
+  const costPerConv = keyword.conversions > 0 ? keyword.cost / keyword.conversions : null;
+  const qs = keyword.qualityScore;
+  const qsBg = qs == null ? 'bg-surface-container-highest' : qs >= 7 ? 'bg-secondary/20' : qs >= 4 ? 'bg-amber-400/20' : 'bg-error/20';
+  const qsText = qs == null ? 'text-on-surface-variant' : qs >= 7 ? 'text-secondary' : qs >= 4 ? 'text-amber-400' : 'text-error';
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-50 bg-black/30" onClick={onClose} />
+
+      {/* Panel */}
+      <div className="fixed top-0 right-0 z-50 h-full w-[420px] bg-surface-container-high rounded-l-2xl border-l border-outline-variant/30 shadow-2xl flex flex-col overflow-hidden animate-slide-in-right">
+        {/* Header */}
+        <div className="flex items-start justify-between p-5 border-b border-outline-variant/10">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold text-on-surface truncate">{keyword.keyword}</h2>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${matchBadgeClass(keyword.matchType)}`}>
+                {matchLabel(keyword.matchType)}
+              </span>
+            </div>
+            <p className="text-xs text-on-surface-variant mt-2 truncate">{keyword.campaignName}</p>
+            <p className="text-xs text-on-surface-variant truncate">{keyword.adGroupName}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors flex-shrink-0 ml-3"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+          {/* Performance Metrics Grid */}
+          <div>
+            <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">Performance Metrics</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Impressions', value: formatNumber(keyword.impressions) },
+                { label: 'Clicks', value: formatNumber(keyword.clicks) },
+                { label: 'CTR', value: keyword.ctr != null ? formatPercent(keyword.ctr * 100) : '\u2014' },
+                { label: 'Avg. CPC', value: keyword.avgCpc != null ? formatCurrency(keyword.avgCpc) : '\u2014' },
+                { label: 'Cost', value: formatCurrency(keyword.cost) },
+                { label: 'Conversions', value: formatNumber(keyword.conversions) },
+              ].map(m => (
+                <div key={m.label} className="bg-surface-container rounded-xl p-3">
+                  <div className="text-[10px] text-on-surface-variant uppercase tracking-wider">{m.label}</div>
+                  <div className="text-sm font-bold text-on-surface tabular-nums mt-1">{m.value}</div>
+                </div>
+              ))}
+            </div>
+            {costPerConv != null && (
+              <div className="mt-3 bg-surface-container rounded-xl p-3">
+                <div className="text-[10px] text-on-surface-variant uppercase tracking-wider">Cost / Conversion</div>
+                <div className="text-sm font-bold text-on-surface tabular-nums mt-1">{formatCurrency(costPerConv)}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Quality Score */}
+          <div>
+            <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">Quality Score</h3>
+            <div className={`rounded-xl p-4 ${qsBg} flex items-center gap-4`}>
+              <div className={`text-3xl font-black tabular-nums ${qsText}`}>
+                {qs ?? '\u2014'}
+              </div>
+              <div className="text-xs text-on-surface-variant">
+                {qs == null ? 'No quality score data available' :
+                  qs >= 7 ? 'Good \u2014 Keyword is performing well' :
+                    qs >= 4 ? 'Average \u2014 Room for improvement' :
+                      'Poor \u2014 Needs attention'}
+              </div>
+            </div>
+          </div>
+
+          {/* Performance History Placeholder */}
+          <div>
+            <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">Performance History</h3>
+            <div className="rounded-xl border border-outline-variant/10 bg-surface-container p-6 flex flex-col items-center justify-center text-center">
+              <span className="material-symbols-outlined text-on-surface-variant text-2xl mb-2">show_chart</span>
+              <p className="text-xs text-on-surface-variant">Daily performance chart coming soon</p>
+            </div>
+          </div>
+
+          {/* Agent Actions Placeholder */}
+          <div>
+            <h3 className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">Agent Actions</h3>
+            <div className="rounded-xl border border-outline-variant/10 bg-surface-container p-6 flex flex-col items-center justify-center text-center">
+              <span className="material-symbols-outlined text-on-surface-variant text-2xl mb-2">smart_toy</span>
+              <p className="text-xs text-on-surface-variant">No agent actions recorded for this keyword</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

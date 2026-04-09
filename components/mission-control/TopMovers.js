@@ -7,6 +7,7 @@ function MoverItem({ item, isImprover }) {
   const bg = isImprover ? 'bg-secondary/5' : 'bg-error/5';
   const arrow = isImprover ? 'arrow_downward' : 'arrow_upward';
   const delta = Math.abs(item.costConvDelta || 0);
+  const metricLabel = item.changedMetric || 'Cost/Conv';
 
   return (
     <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg ${bg} hover:bg-surface-container-high transition-colors cursor-pointer`}>
@@ -19,7 +20,7 @@ function MoverItem({ item, isImprover }) {
         <div className={`text-sm font-semibold ${color}`}>
           {isImprover ? '\u2212' : '+'}{formatPercent(delta, 0)}
         </div>
-        <div className="text-[10px] text-on-surface-variant">Cost/Conv</div>
+        <div className="text-[10px] text-on-surface-variant">{metricLabel}</div>
       </div>
     </div>
   );
@@ -31,7 +32,7 @@ export default function TopMovers({ improvers = [], decliners = [] }) {
       <div className="bg-surface-container rounded-xl p-5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
           <span className="material-symbols-outlined text-secondary text-lg">trending_up</span>
-          Top Improvers
+          Top Performers
           <span className="text-xs font-normal text-on-surface-variant">Cost/Conv decreased</span>
         </h3>
         {improvers.length > 0 ? (
@@ -39,7 +40,9 @@ export default function TopMovers({ improvers = [], decliners = [] }) {
             {improvers.map((item, i) => <MoverItem key={item.id || i} item={item} isImprover />)}
           </div>
         ) : (
-          <p className="text-sm text-on-surface-variant text-center py-8">No data yet</p>
+          <p className="text-sm text-on-surface-variant text-center py-8">
+            No data yet — connect accounts and select a comparison period
+          </p>
         )}
       </div>
 
@@ -54,7 +57,9 @@ export default function TopMovers({ improvers = [], decliners = [] }) {
             {decliners.map((item, i) => <MoverItem key={item.id || i} item={item} />)}
           </div>
         ) : (
-          <p className="text-sm text-on-surface-variant text-center py-8">No data yet</p>
+          <p className="text-sm text-on-surface-variant text-center py-8">
+            No data yet — connect accounts and select a comparison period
+          </p>
         )}
       </div>
     </div>

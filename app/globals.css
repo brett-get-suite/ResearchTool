@@ -125,6 +125,15 @@ body {
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.25s ease-out forwards;
+}
+
 /* ── Typography Utilities ── */
 .text-display-lg {
   font-size: 3.5rem;
@@ -313,6 +322,17 @@ select option {
 
 .data-table tbody tr:hover {
   background-color: var(--surface-container-high);
+}
+
+.data-table td.numeric,
+.data-table th.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table td.center,
+.data-table th.center {
+  text-align: center;
 }
 
 /* Badge styles for legacy pages */

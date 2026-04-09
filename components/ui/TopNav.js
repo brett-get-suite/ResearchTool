@@ -36,13 +36,63 @@ export default function TopNav() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const helpRef = useRef(null);
+  const searchRef = useRef(null);
 
   useClickOutside(notifRef, () => setNotifOpen(false));
   useClickOutside(profileRef, () => setProfileOpen(false));
   useClickOutside(helpRef, () => setHelpOpen(false));
+  useClickOutside(searchRef, () => { setSearchResults(null); });
+
+  // Global search — fetch accounts, match against campaigns/keywords/reports
+  useEffect(() => {
+    if (!searchQuery || searchQuery.length < 2) { setSearchResults(null); return; }
+    const timer = setTimeout(async () => {
+      setSearchLoading(true);
+      try {
+        const res = await fetch('/api/accounts');
+        const accounts = await res.json();
+        const q = searchQuery.toLowerCase();
+        const results = { accounts: [], campaigns: [], keywords: [] };
+
+        for (const acct of (Array.isArray(accounts) ? accounts : [])) {
+          if ((acct.name || '').toLowerCase().includes(q) || (acct.google_customer_id || '').includes(q)) {
+            results.accounts.push(acct);
+          }
+        }
+
+        // Fetch campaigns for matched accounts (or all if no account match)
+        const targetAccounts = results.accounts.length > 0 ? results.accounts : (Array.isArray(accounts) ? accounts.slice(0, 5) : []);
+        await Promise.all(targetAccounts.map(async (acct) => {
+          try {
+            const cRes = await fetch(`/api/accounts/${acct.id}/campaigns`);
+            if (cRes.ok) {
+              const data = await cRes.json();
+              const camps = Array.isArray(data) ? data : data.campaigns || [];
+              camps.forEach(c => {
+                if ((c.name || '').toLowerCase().includes(q)) {
+                  results.campaigns.push({ ...c, account_name: acct.name, account_id: acct.id });
+                }
+              });
+            }
+          } catch (_) {}
+        }));
+
+        setSearchResults(results);
+      } catch (_) {
+        setSearchResults({ accounts: [], campaigns: [], keywords: [] });
+      }
+      setSearchLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const hasResults = searchResults && (searchResults.accounts.length > 0 || searchResults.campaigns.length > 0);
 
   return (
     <header
@@ -54,15 +104,76 @@ export default function TopNav() {
       }}
     >
       {/* Search */}
-      <div className="relative flex-1 max-w-md">
+      <div ref={searchRef} className="relative flex-1 max-w-md">
         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">
           search
         </span>
         <input
           type="text"
-          placeholder="Search accounts, reports..."
+          placeholder="Search accounts, campaigns, keywords..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-container text-on-surface text-sm placeholder:text-on-surface-variant/60 outline-none focus:ring-1 focus:ring-primary/40 transition-all border border-outline-variant/30 focus:border-primary/40"
         />
+        {searchLoading && (
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary text-base animate-spin">
+            progress_activity
+          </span>
+        )}
+
+        {/* Search Results Dropdown */}
+        {searchResults && searchQuery.length >= 2 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-highest border border-outline-variant/30 rounded-xl shadow-2xl overflow-hidden z-50">
+            {!hasResults ? (
+              <div className="px-4 py-6 text-center text-sm text-on-surface-variant">
+                No results for &ldquo;{searchQuery}&rdquo;
+              </div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto">
+                {searchResults.accounts.length > 0 && (
+                  <div>
+                    <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant bg-surface-container-high">
+                      Accounts
+                    </div>
+                    {searchResults.accounts.slice(0, 5).map(a => (
+                      <button
+                        key={a.id}
+                        onClick={() => { router.push(`/accounts/${a.id}`); setSearchQuery(''); setSearchResults(null); }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 hover:bg-surface-container-high transition-colors text-left"
+                      >
+                        <span className="material-symbols-outlined text-primary text-base">account_circle</span>
+                        <div className="min-w-0">
+                          <div className="text-sm text-on-surface truncate">{a.name}</div>
+                          <div className="text-[11px] text-on-surface-variant">{a.google_customer_id || 'No ID'}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {searchResults.campaigns.length > 0 && (
+                  <div>
+                    <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant bg-surface-container-high">
+                      Campaigns
+                    </div>
+                    {searchResults.campaigns.slice(0, 5).map((c, i) => (
+                      <button
+                        key={`${c.account_id}-${i}`}
+                        onClick={() => { router.push(`/accounts/${c.account_id}`); setSearchQuery(''); setSearchResults(null); }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 hover:bg-surface-container-high transition-colors text-left"
+                      >
+                        <span className="material-symbols-outlined text-secondary text-base">campaign</span>
+                        <div className="min-w-0">
+                          <div className="text-sm text-on-surface truncate">{c.name}</div>
+                          <div className="text-[11px] text-on-surface-variant">{c.account_name}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right Side */}
