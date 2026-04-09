@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
+import { deleteSession } from '@/lib/supabase';
 
-export async function POST() {
+export async function POST(request) {
+  const token = request.cookies.get('session')?.value;
+  if (token) {
+    await deleteSession(token).catch(() => {});
+  }
   const response = NextResponse.json({ ok: true });
-  response.cookies.set('session', '', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 0,
-    path: '/',
-  });
+  response.cookies.delete('session');
   return response;
 }
