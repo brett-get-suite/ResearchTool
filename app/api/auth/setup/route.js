@@ -47,6 +47,6 @@ export async function POST(request) {
     return response;
   } catch (err) {
     console.error('Setup error:', err);
-    return NextResponse.json({ error: 'Setup failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Setup failed', detail: err?.message || String(err) }, { status: 500 });
   }
 }
