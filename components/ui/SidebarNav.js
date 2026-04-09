@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -19,6 +20,14 @@ const TOOLS_NAV = [
 
 export default function SidebarNav() {
   const pathname = usePathname();
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setUserRole(data.role); })
+      .catch(() => {});
+  }, []);
 
   // Extract account ID from current URL if on an account page
   const accountIdMatch = pathname.match(/\/accounts\/([^/]+)/);
@@ -102,6 +111,25 @@ export default function SidebarNav() {
           })}
         </div>
       </nav>
+
+      {userRole === 'superadmin' && (
+        <nav className="mt-4 px-3">
+          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-semibold px-3 mb-2">
+            Admin
+          </div>
+          <a
+            href="/admin"
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors ${
+              isActive('/admin')
+                ? 'bg-primary/10 text-primary font-medium'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high'
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+            Super Admin
+          </a>
+        </nav>
+      )}
 
       {/* Footer */}
       <div className="px-3 pb-4">

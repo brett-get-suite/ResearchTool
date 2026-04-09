@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import SidebarNav from './SidebarNav';
 import TopNav from './TopNav';
 
-const BARE_ROUTES = ['/login', '/print'];
+const BARE_ROUTES = ['/login', '/print', '/setup', '/invite'];
 
 export default function AppShell({ children }) {
   const pathname = usePathname();

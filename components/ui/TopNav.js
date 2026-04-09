@@ -313,7 +313,10 @@ export default function TopNav() {
               </div>
               <div className="border-t border-outline-variant/30 pt-1 mt-1">
                 <button
-                  onClick={() => router.push('/login')}
+                  onClick={async () => {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                  }}
                   className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-error hover:bg-error/5 transition-colors w-full text-left"
                 >
                   <span className="material-symbols-outlined text-lg">logout</span>
