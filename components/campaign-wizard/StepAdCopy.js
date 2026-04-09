@@ -16,9 +16,9 @@ function AdPreview({ headlines, descriptions, finalUrl }) {
   const h = headlines.filter(Boolean);
   const d = descriptions.filter(Boolean);
   return (
-    <div className="bg-white rounded-lg p-4 text-sm">
+    <div className="bg-surface-container-high rounded-lg p-4 text-sm">
       <p className="text-xs text-on-surface-variant mb-1 uppercase tracking-wider font-semibold">Ad Preview</p>
-      <div className="bg-white rounded-md p-3 border border-outline-variant/20">
+      <div className="bg-white rounded-md p-3">
         <p className="text-[#1a0dab] font-medium text-base leading-snug">
           {h.slice(0, 3).join(' | ') || 'Your Headline 1 | Headline 2 | Headline 3'}
         </p>

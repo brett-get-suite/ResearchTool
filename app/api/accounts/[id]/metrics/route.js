@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAccountClient } from '@/lib/google-ads-auth';
-import { fetchAccountMetrics, fetchCampaignMetrics } from '@/lib/google-ads-query';
-import { getMetricsHistory, getLatestSnapshot, saveMetricsSnapshot } from '@/lib/supabase';
+import { fetchAccountMetrics, fetchCampaignMetricsWithIS } from '@/lib/google-ads-query';
+import { getMetricsHistory, saveMetricsSnapshot } from '@/lib/supabase';
 
 /**
  * Aggregate campaign-level metrics into account-level totals.
@@ -16,7 +16,7 @@ function aggregateMetrics(campaignMetrics) {
     totalSpend += c.cost || 0;
     totalConversions += c.conversions || 0;
     totalClicks += c.clicks || 0;
-    totalBudget += (c.budgetAmountMicros ? Number(c.budgetAmountMicros) / 1_000_000 : 0);
+    totalBudget += (c.budget || 0);
   }
 
   const avgCpc = totalClicks > 0 ? totalSpend / totalClicks : 0;
@@ -42,17 +42,16 @@ export async function GET(request, { params }) {
     // Fetch current period metrics
     const [account, campaigns] = await Promise.all([
       fetchAccountMetrics(client),
-      fetchCampaignMetrics(client, dateRange),
+      fetchCampaignMetricsWithIS(client, dateRange),
     ]);
 
     const current = aggregateMetrics(campaigns);
 
-    // Save current snapshot for future comparisons
-    saveMetricsSnapshot(params.id, { ...current, account }).catch(() => {});
+    // Save current snapshot for future comparisons (await to ensure ordering)
+    await saveMetricsSnapshot(params.id, { ...current, account }).catch(() => {});
 
     // Get previous period from stored snapshots
-    const history = await getMetricsHistory(params.id, 2);
-    // history[0] is the one we just saved (or the most recent), history[1] is previous
+    // history[0] is the one we just saved, history[1] is previous
     const previousSnapshot = history.length >= 2 ? history[1] : null;
     const previous = previousSnapshot?.metrics_data || {};
 

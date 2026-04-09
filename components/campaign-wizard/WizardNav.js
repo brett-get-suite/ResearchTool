@@ -108,7 +108,7 @@ export default function WizardNav({ currentStep, onStepClick }) {
                       className={`
                         relative flex items-center justify-center rounded-full transition-all
                         ${isCurrent
-                          ? 'w-7 h-7 bg-primary/15 ring-1 ring-primary text-primary text-[11px] font-bold'
+                          ? 'w-7 h-7 bg-primary/15 ring-1 ring-primary/30 text-primary text-[11px] font-bold'
                           : isDone
                           ? 'w-5 h-5 bg-secondary/20 text-secondary cursor-pointer hover:bg-secondary/30'
                           : 'w-5 h-5 bg-surface-container-high text-on-surface-variant/40'
@@ -156,7 +156,7 @@ export function WizardFooter({
   showCancel = true,
 }) {
   return (
-    <div className="flex items-center justify-between mt-8 pt-5 border-t border-outline-variant/10">
+    <div className="flex items-center justify-between mt-10 pt-6">
       <div>
         {currentStep > 1 ? (
           <button type="button" onClick={onBack} className="pill-btn-secondary flex items-center gap-2">

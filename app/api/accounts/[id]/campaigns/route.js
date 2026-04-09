@@ -8,6 +8,12 @@ import {
   addKeywords,
   addNegativeKeywords,
   createResponsiveSearchAd,
+  setCampaignLocations,
+  setCampaignLanguages,
+  setCampaignAdSchedule,
+  addSitelinkAssets,
+  addCalloutAssets,
+  addStructuredSnippetAssets,
 } from '@/lib/google-ads-write';
 
 export async function GET(request, { params }) {
@@ -82,7 +88,7 @@ async function handleSimpleCreate(accountId, { name, budgetAmountMicros, bidding
 // ─── Wizard create (14-step campaign builder payload) ────────────────────────
 
 async function handleWizardCreate(accountId, payload) {
-  const { campaign, adGroups, negativeKeywords, assets } = payload;
+  const { campaign, adGroups, negativeKeywords, assets, targeting } = payload;
 
   if (!campaign.name || !campaign.budgetAmountMicros) {
     return NextResponse.json(
@@ -103,13 +109,16 @@ async function handleWizardCreate(accountId, payload) {
   if (!budgetResource) throw new Error('Budget creation returned no resource name');
 
   // 2. Create campaign
-  const biddingStrategy = campaign.bidding?.strategy || 'MAXIMIZE_CONVERSIONS';
+  const bidding = campaign.bidding || {};
   const campaignResource = await createCampaign(client, {
     name: campaign.name,
     budgetResourceName: budgetResource,
-    biddingStrategy,
+    biddingStrategy: bidding.strategy || 'MAXIMIZE_CONVERSIONS',
     status: campaign.status || 'PAUSED',
-    targetCpaMicros: campaign.bidding?.targetCpaMicros,
+    advertisingChannelType: campaign.advertisingChannelType || 'SEARCH',
+    targetCpaMicros: bidding.targetCpaMicros,
+    targetRoas: bidding.targetRoas,
+    maxCpcBidMicros: bidding.maxCpcBidMicros,
   });
 
   results.campaign = campaignResource;
@@ -151,6 +160,41 @@ async function handleWizardCreate(accountId, payload) {
       await addNegativeKeywords(client, campaignResource, negativeKeywords);
     } catch (err) {
       results.errors.push({ negativeKeywords: true, error: err.message });
+    }
+  }
+
+  // 5. Set targeting (locations, languages, ad schedule)
+  if (targeting) {
+    try {
+      if (targeting.locations?.length > 0) {
+        await setCampaignLocations(client, campaignResource, targeting.locations);
+      }
+      if (targeting.languages?.length > 0) {
+        await setCampaignLanguages(client, campaignResource, targeting.languages);
+      }
+      const hasSchedule = Object.values(targeting.daypartSchedule || {}).some(h => h?.length > 0);
+      if (hasSchedule) {
+        await setCampaignAdSchedule(client, campaignResource, targeting.daypartSchedule);
+      }
+    } catch (err) {
+      results.errors.push({ targeting: true, error: err.message });
+    }
+  }
+
+  // 6. Add ad assets (sitelinks, callouts, structured snippets)
+  if (assets) {
+    try {
+      if (assets.sitelinks?.length > 0) {
+        await addSitelinkAssets(client, campaignResource, assets.sitelinks);
+      }
+      if (assets.callouts?.length > 0) {
+        await addCalloutAssets(client, campaignResource, assets.callouts);
+      }
+      if (assets.structuredSnippets?.header) {
+        await addStructuredSnippetAssets(client, campaignResource, assets.structuredSnippets);
+      }
+    } catch (err) {
+      results.errors.push({ assets: true, error: err.message });
     }
   }
 

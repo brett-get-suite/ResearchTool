@@ -45,7 +45,7 @@ export default function StepType({ form, onChange }) {
               className={`
                 text-left p-5 rounded-xl transition-all
                 ${selected
-                  ? 'bg-primary/10 ring-1 ring-primary'
+                  ? 'bg-primary/10 ring-1 ring-primary/30'
                   : 'bg-surface-container-high hover:bg-surface-bright'
                 }
               `}

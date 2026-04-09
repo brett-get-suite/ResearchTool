@@ -120,16 +120,18 @@ export default function StepReview({ form, onSubmit, onBack, onExportCSV, submit
 
         {/* Mini ad preview */}
         {filledHeadlines.length > 0 && (
-          <div className="mt-3 bg-white rounded-lg p-3">
-            <p className="text-[#1a0dab] font-medium text-sm">
-              {filledHeadlines.slice(0, 3).join(' | ')}
-            </p>
-            <p className="text-[#006621] text-xs mt-0.5">
-              {form.finalUrl || 'https://yourwebsite.com'}
-            </p>
-            <p className="text-[#545454] text-xs mt-0.5">
-              {filledDescriptions.slice(0, 2).join(' ')}
-            </p>
+          <div className="mt-3 bg-surface-container rounded-lg p-3">
+            <div className="bg-white rounded-md p-2.5">
+              <p className="text-[#1a0dab] font-medium text-sm">
+                {filledHeadlines.slice(0, 3).join(' | ')}
+              </p>
+              <p className="text-[#006621] text-xs mt-0.5">
+                {form.finalUrl || 'https://yourwebsite.com'}
+              </p>
+              <p className="text-[#545454] text-xs mt-0.5">
+                {filledDescriptions.slice(0, 2).join(' ')}
+              </p>
+            </div>
           </div>
         )}
       </SummarySection>
@@ -187,14 +189,14 @@ export default function StepReview({ form, onSubmit, onBack, onExportCSV, submit
 
       {/* Error */}
       {error && (
-        <div className="bg-error/10 border border-error/20 rounded-lg p-3 flex gap-2.5">
+        <div className="bg-error/15 rounded-lg p-3 flex gap-2.5">
           <span className="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">error</span>
           <p className="text-sm text-error">{error}</p>
         </div>
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-5 border-t border-outline-variant/10">
+      <div className="flex items-center justify-between pt-6 mt-2">
         <button type="button" onClick={onBack} className="pill-btn-secondary flex items-center gap-2">
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
           Back

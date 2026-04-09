@@ -267,7 +267,7 @@ export default function NewCampaignPage({ params }) {
 
           {/* Step error */}
           {stepError && step < TOTAL_STEPS && (
-            <div className="mt-4 bg-error/10 border border-error/20 rounded-lg p-3 flex gap-2">
+            <div className="mt-4 bg-error/15 rounded-lg p-3 flex gap-2">
               <span className="material-symbols-outlined text-error text-[18px] shrink-0">error</span>
               <p className="text-sm text-error">{stepError}</p>
             </div>

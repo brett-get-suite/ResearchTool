@@ -99,7 +99,7 @@ export default function StepBudget({ form, onChange }) {
                 className={`
                   w-full text-left px-4 py-3 rounded-xl transition-all flex items-start gap-3
                   ${selected
-                    ? 'bg-primary/10 ring-1 ring-primary'
+                    ? 'bg-primary/10 ring-1 ring-primary/30'
                     : 'bg-surface-container-high hover:bg-surface-bright'
                   }
                 `}
