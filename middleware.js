@@ -63,13 +63,13 @@ export async function middleware(request) {
   }
 
   // Inject user context into request headers for API routes
-  const response = NextResponse.next();
-  response.headers.set('x-user-id', user.id);
-  response.headers.set('x-user-email', user.email);
-  response.headers.set('x-user-name', user.name || '');
-  response.headers.set('x-user-role', user.role);
-  response.headers.set('x-user-tenant-id', user.tenant_id || '');
-  return response;
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-user-id', user.id);
+  requestHeaders.set('x-user-email', user.email);
+  requestHeaders.set('x-user-name', user.name || '');
+  requestHeaders.set('x-user-role', user.role);
+  requestHeaders.set('x-user-tenant-id', user.tenant_id || '');
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
