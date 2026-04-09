@@ -28,43 +28,54 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');
 
   return (
-    <div className="space-y-6 fade-up max-w-3xl">
+    <div className="space-y-8 fade-up max-w-5xl">
       <div>
-        <h1 className="text-2xl font-bold text-on-surface">Settings</h1>
+        <h1 className="ds-page-title">Settings</h1>
         <p className="text-sm text-on-surface-variant mt-1">Manage your AdPilot configuration</p>
       </div>
 
       <TabNav tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === 'general' && (
-        <div className="bg-surface-container rounded-2xl p-6">
+        <div className="bg-surface-card rounded-2xl p-6">
           <SettingRow label="Platform Name" description="Displayed in the sidebar and reports">
             <input
               type="text"
               defaultValue="AdPilot"
-              className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/20 focus:border-primary/40 focus:outline-none w-48"
+              className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/30 focus:border-primary/40 focus:outline-none w-48"
             />
           </SettingRow>
           <SettingRow label="Default Date Range" description="Used as default across all dashboards">
-            <select className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/20 focus:outline-none">
+            <select className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/30 focus:outline-none">
               <option>Last 7 days</option>
               <option>Last 30 days</option>
               <option>Last 90 days</option>
             </select>
           </SettingRow>
           <SettingRow label="Currency" description="Used for cost and budget display">
-            <select className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/20 focus:outline-none">
+            <select className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/30 focus:outline-none">
               <option>USD ($)</option>
               <option>EUR (&euro;)</option>
               <option>GBP (&pound;)</option>
             </select>
           </SettingRow>
-          <SettingRow label="AI Model" description="Primary model for analysis and recommendations">
-            <select className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/20 focus:outline-none">
-              <option>Gemini 2.5 Flash</option>
-              <option>Gemini 2.5 Pro</option>
-            </select>
-          </SettingRow>
+          <div className="py-5 border-b border-outline-variant/10 last:border-0">
+            <div className="bg-primary/5 border border-primary/15 rounded-xl p-4">
+              <div className="flex items-start justify-between gap-8">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-on-surface flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg">smart_toy</span>
+                    AI Model
+                  </p>
+                  <p className="text-xs text-on-surface-variant mt-1">Primary model for analysis and recommendations</p>
+                </div>
+                <select className="px-3 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm border border-outline-variant/30 focus:outline-none">
+                  <option>Gemini 2.5 Flash</option>
+                  <option>Gemini 2.5 Pro</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <div className="pt-4 flex justify-end gap-3">
             <GhostButton>Cancel</GhostButton>
             <GradientButton>Save Changes</GradientButton>
@@ -73,7 +84,7 @@ export default function SettingsPage() {
       )}
 
       {activeTab === 'integrations' && (
-        <div className="bg-surface-container rounded-2xl p-6">
+        <div className="bg-surface-card rounded-2xl p-6">
           <div className="space-y-4">
             {[
               { name: 'Google Ads', icon: 'ads_click', status: 'connected', desc: 'Manage campaigns and sync performance data' },
@@ -100,7 +111,7 @@ export default function SettingsPage() {
       )}
 
       {activeTab === 'api' && (
-        <div className="bg-surface-container rounded-2xl p-6">
+        <div className="bg-surface-card rounded-2xl p-6">
           <SettingRow label="Gemini API Key" description="Required for AI-powered analysis and recommendations">
             <input
               type="password"
@@ -123,7 +134,7 @@ export default function SettingsPage() {
       )}
 
       {activeTab === 'team' && (
-        <div className="bg-surface-container rounded-2xl p-6">
+        <div className="bg-surface-card rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-on-surface-variant">Manage who has access to your AdPilot workspace.</p>
             <GradientButton className="text-xs">

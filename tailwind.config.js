@@ -27,6 +27,16 @@ module.exports = {
         'surface-container-highest': 'var(--surface-container-highest)',
         'surface-variant': 'var(--surface-variant)',
         'surface-bright': 'var(--surface-bright)',
+        // Elevation aliases
+        'surface-base': 'var(--surface-base)',
+        'surface-card': 'var(--surface-card)',
+        'surface-elevated': 'var(--surface-elevated)',
+        // Semantic color system
+        'ds-success': 'var(--color-success)',
+        'ds-warning': 'var(--color-warning)',
+        'ds-error': 'var(--color-error)',
+        'ds-primary': 'var(--color-primary)',
+        'ds-muted': 'var(--color-muted)',
         // Legacy aliases (used by pre-Phase 1 pages)
         'surface': 'var(--surface-container)',
         'surface-high': 'var(--surface-container-high)',

@@ -29,37 +29,39 @@ function MoverItem({ item, isImprover }) {
 export default function TopMovers({ improvers = [], decliners = [] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-surface-container rounded-xl p-5">
-        <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-secondary text-lg">trending_up</span>
+      <div className="bg-surface-card rounded-2xl p-6">
+        <h3 className="ds-section-header mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-ds-success text-lg">trending_up</span>
           Top Performers
-          <span className="text-xs font-normal text-on-surface-variant">Cost/Conv decreased</span>
+          <span className="text-[13px] font-normal text-ds-success">Cost/Conv decreased</span>
         </h3>
         {improvers.length > 0 ? (
           <div className="space-y-2">
             {improvers.map((item, i) => <MoverItem key={item.id || i} item={item} isImprover />)}
           </div>
         ) : (
-          <p className="text-sm text-on-surface-variant text-center py-8">
-            No data yet — connect accounts and select a comparison period
-          </p>
+          <div className="ds-empty-state !py-8">
+            <span className="material-symbols-outlined ds-empty-state__icon !text-[36px]">trending_up</span>
+            <p className="ds-empty-state__desc">No data yet — connect accounts and select a comparison period</p>
+          </div>
         )}
       </div>
 
-      <div className="bg-surface-container rounded-xl p-5">
-        <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-error text-lg">trending_down</span>
+      <div className="bg-surface-card rounded-2xl p-6">
+        <h3 className="ds-section-header mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-ds-error text-lg">trending_down</span>
           Top Decliners
-          <span className="text-xs font-normal text-on-surface-variant">Cost/Conv increased</span>
+          <span className="text-[13px] font-normal text-ds-error">Cost/Conv increased</span>
         </h3>
         {decliners.length > 0 ? (
           <div className="space-y-2">
             {decliners.map((item, i) => <MoverItem key={item.id || i} item={item} />)}
           </div>
         ) : (
-          <p className="text-sm text-on-surface-variant text-center py-8">
-            No data yet — connect accounts and select a comparison period
-          </p>
+          <div className="ds-empty-state !py-8">
+            <span className="material-symbols-outlined ds-empty-state__icon !text-[36px]">trending_down</span>
+            <p className="ds-empty-state__desc">No data yet — connect accounts and select a comparison period</p>
+          </div>
         )}
       </div>
     </div>

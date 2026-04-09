@@ -133,9 +133,9 @@ function ReportsContent() {
 
   return (
     <div className="px-8 py-10">
-      <div className="mb-6 flex items-end justify-between">
+      <div className="mb-8 flex items-end justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-on-surface mb-1">Reports &amp; Exports</h2>
+          <h2 className="ds-page-title mb-1">Reports &amp; Exports</h2>
           <p className="text-on-surface-variant text-sm">Generate, schedule, and export reports</p>
         </div>
       </div>
@@ -248,7 +248,7 @@ function ReportsContent() {
                     <p className="font-label font-semibold text-on-surface text-sm truncate">{client.name}</p>
                     <p className="text-[11px] text-secondary truncate">{client.industry} · {(client.service_areas||[]).length} areas</p>
                   </div>
-                  <span className="text-[10px] font-label font-bold px-2 py-0.5 rounded-full bg-secondary/15 text-secondary shrink-0">DONE</span>
+                  <span className="ds-status-badge ds-status-badge--success shrink-0">DONE</span>
                 </button>
               ))}
             </div>
@@ -276,40 +276,40 @@ function ReportsContent() {
                   <button
                     onClick={() => exportCSV(selected)}
                     disabled={exporting === 'csv'}
-                    className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-outline-variant/30 hover:border-primary/30 hover:bg-primary/[0.03] transition-all group"
+                    className="flex flex-col items-center gap-2 p-5 rounded-xl bg-surface-container-high hover:bg-surface-elevated hover:shadow-card transition-all group"
                   >
-                    <span className="material-symbols-outlined text-[32px] text-secondary group-hover:text-primary transition-colors">
+                    <span className="material-symbols-outlined text-[32px] text-on-surface-variant group-hover:text-primary transition-colors">
                       {exporting === 'csv' ? 'progress_activity' : 'table_view'}
                     </span>
                     <div className="text-center">
-                      <p className="font-label font-bold text-on-surface text-sm">CSV Export</p>
-                      <p className="text-[11px] text-secondary mt-0.5">Single file, all data</p>
+                      <p className="font-semibold text-on-surface text-sm">CSV Export</p>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5">Single file, all data</p>
                     </div>
                   </button>
 
                   <button
                     onClick={() => exportZIP(selected)}
                     disabled={exporting === 'zip'}
-                    className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-primary/30 bg-primary/[0.03] hover:bg-primary/[0.06] transition-all group"
+                    className="flex flex-col items-center gap-2 p-5 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/8 hover:shadow-card transition-all group"
                   >
                     <span className={`material-symbols-outlined text-[32px] text-primary ${exporting === 'zip' ? 'animate-spin' : ''}`}>
                       {exporting === 'zip' ? 'progress_activity' : 'folder_zip'}
                     </span>
                     <div className="text-center">
-                      <p className="font-label font-bold text-on-surface text-sm">ZIP Bundle</p>
-                      <p className="text-[11px] text-secondary mt-0.5">5 separate CSV files</p>
-                      <span className="inline-block mt-1 text-[10px] font-label font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Recommended</span>
+                      <p className="font-semibold text-on-surface text-sm">ZIP Bundle</p>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5">5 separate CSV files</p>
+                      <span className="ds-status-badge ds-status-badge--info mt-1.5">Recommended</span>
                     </div>
                   </button>
 
                   <button
                     onClick={() => window.open(`/print/${selected.id}`, '_blank')}
-                    className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-outline-variant/30 hover:border-tertiary/30 hover:bg-tertiary/[0.03] transition-all group"
+                    className="flex flex-col items-center gap-2 p-5 rounded-xl bg-surface-container-high hover:bg-surface-elevated hover:shadow-card transition-all group"
                   >
-                    <span className="material-symbols-outlined text-[32px] text-secondary group-hover:text-tertiary transition-colors">print</span>
+                    <span className="material-symbols-outlined text-[32px] text-on-surface-variant group-hover:text-tertiary transition-colors">print</span>
                     <div className="text-center">
-                      <p className="font-label font-bold text-on-surface text-sm">PDF Report</p>
-                      <p className="text-[11px] text-secondary mt-0.5">Print or save as PDF</p>
+                      <p className="font-semibold text-on-surface text-sm">PDF Report</p>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5">Print or save as PDF</p>
                     </div>
                   </button>
                 </div>
@@ -338,21 +338,26 @@ function ReportsContent() {
 
                   {/* Executive summary */}
                   {selected.low_hanging_fruit?.executive_summary && (
-                    <div className="p-4 bg-primary/[0.04] border border-primary/15 rounded-xl">
-                      <p className="text-[10px] font-label font-bold text-primary uppercase tracking-widest mb-2">Executive Summary</p>
-                      <p className="text-sm text-on-variant leading-relaxed">{selected.low_hanging_fruit.executive_summary}</p>
+                    <div className="p-5 bg-primary/[0.04] border border-primary/15 rounded-xl">
+                      <p className="ds-section-header text-primary mb-2">Executive Summary</p>
+                      <p className="text-sm text-on-surface-variant leading-relaxed">{selected.low_hanging_fruit.executive_summary}</p>
                     </div>
                   )}
 
                   {/* Budget */}
                   {selected.keyword_data?.estimated_monthly_budget_range && (
                     <div>
-                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Budget Recommendations</p>
+                      <p className="ds-section-header text-ds-success mb-3">Budget Recommendations</p>
                       <div className="grid grid-cols-3 gap-3">
-                        {['conservative','balanced','aggressive'].map(l => (
-                          <div key={l} className={`p-4 rounded-xl border ${l==='balanced'?'bg-primary/[0.04] border-primary/20':'bg-surface-low border-outline-variant/15'}`}>
-                            <p className="text-[10px] font-label font-bold text-secondary capitalize mb-1">{l}</p>
-                            <p className="text-lg font-headline font-bold text-on-surface">${(selected.keyword_data.estimated_monthly_budget_range[l]||0).toLocaleString()}/mo</p>
+                        {[
+                          { key: 'conservative', color: 'bg-ds-muted' },
+                          { key: 'balanced', color: 'bg-ds-primary' },
+                          { key: 'aggressive', color: 'bg-ds-success' },
+                        ].map(({ key, color }) => (
+                          <div key={key} className={`p-4 rounded-xl relative overflow-hidden ${key==='balanced'?'bg-primary/[0.04]':'bg-surface-container-low'}`}>
+                            <div className={`absolute left-0 top-0 bottom-0 w-1 ${color}`} />
+                            <p className="ds-metric-label capitalize mb-1 pl-2">{key}</p>
+                            <p className="text-lg font-bold text-on-surface pl-2">${(selected.keyword_data.estimated_monthly_budget_range[key]||0).toLocaleString()}/mo</p>
                           </div>
                         ))}
                       </div>
@@ -362,14 +367,14 @@ function ReportsContent() {
                   {/* Top 5 keywords */}
                   {allKw.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-label font-bold text-secondary uppercase tracking-widest mb-3">Top Keywords (by search volume)</p>
-                      <div className="space-y-2">
+                      <p className="ds-section-header text-ds-success mb-3">Top Keywords (by search volume)</p>
+                      <div className="space-y-0">
                         {allKw.sort((a,b)=>(b.estimated_monthly_searches||0)-(a.estimated_monthly_searches||0)).slice(0,5).map((kw,i) => (
-                          <div key={i} className="flex items-center justify-between text-sm py-2 border-b border-outline-variant/10">
-                            <span className="font-label font-semibold text-on-surface">{kw.keyword}</span>
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-secondary font-mono">{(kw.estimated_monthly_searches||0).toLocaleString()}/mo</span>
-                              <span className={`text-xs font-mono font-bold ${cpcClass(kw.estimated_cpc||0)}`}>${(kw.estimated_cpc||0).toFixed(2)}</span>
+                          <div key={i} className="flex items-center justify-between text-sm py-3 border-b border-outline-variant/10">
+                            <span className="font-semibold text-on-surface">{kw.keyword}</span>
+                            <div className="flex items-center gap-4 tabular-nums text-right">
+                              <span className="text-xs text-on-surface-variant font-mono w-24 text-right">{(kw.estimated_monthly_searches||0).toLocaleString()}/mo</span>
+                              <span className={`text-xs font-mono font-bold w-16 text-right ${cpcClass(kw.estimated_cpc||0)}`}>${(kw.estimated_cpc||0).toFixed(2)}</span>
                             </div>
                           </div>
                         ))}

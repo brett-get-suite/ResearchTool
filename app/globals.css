@@ -30,9 +30,9 @@
   --on-tertiary-container: #bdc2ff;
 
   /* ── Error ── */
-  --error: #ffb4ab;
+  --error: #f87171;
   --error-container: #3d1f1a;
-  --on-error-container: #ffb4ab;
+  --on-error-container: #f87171;
 
   /* ── Surface Tiers (Tonal Layering) ── */
   --surface-container-lowest: #060d1c;
@@ -52,6 +52,36 @@
   /* ── Outline ── */
   --outline: #5a6478;
   --outline-variant: #333d52;
+
+  /* ══ DESIGN SYSTEM: Elevation Levels ══ */
+  --surface-base: #0a1120;
+  --surface-card: #141c30;
+  --surface-elevated: #1f2942;
+
+  /* ══ DESIGN SYSTEM: Semantic Colors ══ */
+  --color-success: #4edea3;
+  --color-warning: #f59e0b;
+  --color-error: #f87171;
+  --color-primary: #4d8efe;
+  --color-muted: #64748b;
+
+  /* ══ DESIGN SYSTEM: Spacing (8px grid) ══ */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+
+  /* ══ DESIGN SYSTEM: Typography ══ */
+  --text-page-title: 1.5rem;      /* 24px */
+  --text-section-header: 1rem;    /* 16px */
+  --text-primary-metric: 1.875rem; /* 30px */
+  --text-secondary-metric: 1.25rem; /* 20px */
+  --text-label: 0.75rem;          /* 12px */
+  --text-body: 0.875rem;          /* 14px */
+  --text-table-header: 0.75rem;   /* 12px */
 }
 
 /* ── Global Resets ── */
@@ -155,11 +185,58 @@ body {
 }
 
 .text-label-sm {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   line-height: 1.4;
+}
+
+/* ── Design System Typography Scale ── */
+.ds-page-title {
+  font-size: var(--text-page-title);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--on-surface);
+}
+
+.ds-section-header {
+  font-size: var(--text-section-header);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--on-surface);
+}
+
+.ds-primary-metric {
+  font-size: var(--text-primary-metric);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-secondary-metric {
+  font-size: var(--text-secondary-metric);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-metric-label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ds-table-header {
+  font-size: var(--text-table-header);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
 }
 
 /* ── Dropdown / Panel ── */
@@ -212,10 +289,17 @@ select option {
 
 /* Card container */
 .card {
-  background-color: var(--surface-container);
+  background-color: var(--surface-card);
   border-radius: 16px;
-  border: 1px solid transparent;
-  transition: border-color 0.15s;
+  border: none;
+  transition: box-shadow 0.15s, background-color 0.15s;
+}
+
+.card-elevated {
+  background-color: var(--surface-elevated);
+  border-radius: 16px;
+  border: none;
+  transition: box-shadow 0.15s;
 }
 
 /* Form field */
@@ -341,6 +425,182 @@ select option {
 .badge-informational { background-color: rgba(189, 194, 255, 0.15); color: var(--tertiary); }
 .badge-navigational { background-color: rgba(137, 148, 168, 0.15); color: var(--on-surface-variant); }
 
-.cpc-low { color: var(--secondary); }
+.cpc-low { color: var(--color-success); }
 .cpc-mid { color: var(--primary); }
-.cpc-high { color: var(--error); }
+.cpc-high { color: var(--color-error); }
+
+/* ══════════════════════════════════════════════════════════════
+   Design System — Unified Components
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Buttons: Primary ── */
+.ds-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  color: var(--on-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.ds-btn-primary:hover { opacity: 0.9; }
+.ds-btn-primary:active { transform: scale(0.97); }
+.ds-btn-primary:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── Buttons: Secondary (outlined) ── */
+.ds-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--primary-container);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.ds-btn-secondary:hover { background-color: rgba(77, 142, 254, 0.08); }
+.ds-btn-secondary:active { transform: scale(0.97); }
+.ds-btn-secondary:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── Buttons: Ghost/Tertiary ── */
+.ds-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.ds-btn-ghost:hover { background-color: rgba(26, 34, 54, 0.5); color: var(--on-surface); }
+.ds-btn-ghost:active { transform: scale(0.97); }
+.ds-btn-ghost:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── Status Badge: unified sizing ── */
+.ds-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.ds-status-badge--success { background: rgba(78, 222, 163, 0.12); color: var(--color-success); }
+.ds-status-badge--warning { background: rgba(245, 158, 11, 0.12); color: var(--color-warning); }
+.ds-status-badge--error   { background: rgba(248, 113, 113, 0.12); color: var(--color-error); }
+.ds-status-badge--info    { background: rgba(77, 142, 254, 0.12); color: var(--color-primary); }
+.ds-status-badge--muted   { background: rgba(100, 116, 139, 0.12); color: var(--color-muted); }
+
+/* ── Filter Chip ── */
+.ds-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ds-filter-chip:hover { border-color: var(--outline); color: var(--on-surface); }
+.ds-filter-chip--active {
+  background: var(--primary-container);
+  color: var(--on-primary);
+  border-color: var(--primary-container);
+  font-weight: 600;
+}
+
+/* ── Empty State ── */
+.ds-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+.ds-empty-state__icon {
+  font-size: 48px;
+  color: var(--on-surface-variant);
+  opacity: 0.25;
+  margin-bottom: 1rem;
+}
+.ds-empty-state__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin-bottom: 0.25rem;
+}
+.ds-empty-state__desc {
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  max-width: 320px;
+}
+.ds-empty-state__cta {
+  margin-top: 1rem;
+}
+
+/* ── Delta Indicator ── */
+.ds-delta { display: inline-flex; align-items: center; gap: 2px; font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ds-delta--positive { color: var(--color-success); }
+.ds-delta--negative { color: var(--color-error); }
+.ds-delta--neutral  { color: var(--color-muted); }
+.ds-delta--nodata   { color: var(--color-muted); }
+.ds-delta__icon { font-size: 14px; }
+
+/* ── Toggle Switch (larger) ── */
+.ds-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.ds-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ds-toggle__track {
+  width: 44px;
+  height: 24px;
+  background: var(--surface-container-highest);
+  border-radius: 12px;
+  transition: background-color 0.2s;
+}
+.ds-toggle input:checked + .ds-toggle__track { background: rgba(78, 222, 163, 0.35); }
+.ds-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--on-surface-variant);
+  border-radius: 50%;
+  transition: transform 0.2s, background-color 0.2s;
+}
+.ds-toggle input:checked ~ .ds-toggle__thumb {
+  transform: translateX(20px);
+  background: var(--color-success);
+}

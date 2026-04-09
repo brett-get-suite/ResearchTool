@@ -27,15 +27,15 @@ export default function DataTable({ columns, rows, onRowClick, emptyMessage = 'N
     : rows;
 
   return (
-    <div className="bg-surface-container rounded-xl overflow-hidden">
+    <div className="bg-surface-card rounded-2xl overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-outline-variant/10">
+          <tr className="border-b border-outline-variant/15">
             {columns.map((col) => (
               <th
                 key={col.key}
                 onClick={() => col.sortable !== false && handleSort(col.key)}
-                className={`text-left px-6 py-4 text-label-sm text-on-surface-variant ${
+                className={`text-left px-6 py-4 ds-table-header ${
                   col.sortable !== false ? 'cursor-pointer hover:text-on-surface select-none' : ''
                 }`}
               >

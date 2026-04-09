@@ -52,65 +52,62 @@ function AgentCard({ type, config, run, actionCount, scheduleEnabled, onToggle, 
   const sCfg = STATUS_CFG[status];
 
   return (
-    <div className={`bg-surface-container rounded-xl p-5 border border-transparent hover:border-outline-variant/20 transition-all ${
+    <div className={`bg-surface-card rounded-2xl p-6 hover:bg-surface-elevated transition-all ${
       status === 'idle' || status === 'paused' ? 'opacity-80' : ''
     }`}>
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center">
-          <span className={`material-symbols-outlined text-xl ${config.textColor}`}>{config.icon}</span>
+      {/* Top row: name + toggle */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center">
+            <span className={`material-symbols-outlined text-xl ${config.textColor}`}>{config.icon}</span>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-on-surface">{config.label}</h3>
+            <span className={`ds-status-badge ${
+              status === 'active' ? 'ds-status-badge--success' :
+              status === 'running' ? 'ds-status-badge--info' :
+              status === 'paused' ? 'ds-status-badge--warning' :
+              status === 'error' ? 'ds-status-badge--error' :
+              'ds-status-badge--muted'
+            } mt-1`}>
+              {sCfg.pulse && <span className="w-1.5 h-1.5 rounded-full bg-current pulse-dot" />}
+              {sCfg.label}
+            </span>
+          </div>
         </div>
-        <label className="relative inline-flex items-center cursor-pointer">
+        <label className="ds-toggle">
           <input
             type="checkbox"
             checked={scheduleEnabled}
             onChange={() => onToggle(type)}
-            className="sr-only peer"
           />
-          <div className="w-9 h-5 bg-surface-container-highest rounded-full peer peer-checked:bg-secondary/40 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-on-surface-variant after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-secondary" />
+          <div className="ds-toggle__track" />
+          <div className="ds-toggle__thumb" />
         </label>
       </div>
 
-      <h3 className="text-sm font-semibold text-on-surface mb-1">{config.label}</h3>
-
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`w-2 h-2 rounded-full ${sCfg.dot} ${sCfg.pulse ? 'pulse-dot' : ''}`} />
-        <span className={`text-xs font-medium ${sCfg.text}`}>{sCfg.label}</span>
-        <span className="text-on-surface-variant/30 text-xs">&middot;</span>
-        {run?.updated_at ? (
-          <span className="text-xs text-on-surface-variant">Last run: {relativeTime(run.updated_at)}</span>
-        ) : (
-          <span className="text-xs text-on-surface-variant/50">Never run</span>
-        )}
-      </div>
-
-      <p className="text-xs text-on-surface-variant mb-3 line-clamp-1">
+      {/* Description */}
+      <p className="text-xs text-on-surface-variant mb-4 line-clamp-1">
         {run?.summary || config.description}
       </p>
 
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-on-surface-variant">
-          <span className="font-semibold text-on-surface">{actionCount}</span> actions this period
-        </span>
-        <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">{config.defaultFrequency}</span>
-      </div>
-      <p className="text-[11px] text-on-surface-variant truncate mt-1 mb-3">
-        {run?.summary ? `Last: ${run.summary}` : 'No actions yet'}
-      </p>
-
+      {/* Bottom row: Run Now + schedule + settings */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => onRun(type)}
           disabled={status === 'running'}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/10 transition-colors disabled:opacity-40"
+          className="ds-btn-primary !text-xs !py-2.5 flex-1 disabled:opacity-40"
         >
           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>play_arrow</span>
           Run Now
         </button>
+        <span className="text-xs text-on-surface-variant font-medium uppercase tracking-wider">{config.defaultFrequency}</span>
         <button
           onClick={() => onConfigure(type)}
-          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/10 transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-xl bg-surface-container-high hover:bg-surface-container-highest transition-colors"
+          title="Configure agent"
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>tune</span>
+          <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 18 }}>tune</span>
         </button>
       </div>
     </div>
@@ -393,9 +390,9 @@ function ActivityLog({ actions, accounts, filterAgent, onFilterAgent }) {
   }, [actions, filterAgent, search]);
 
   return (
-    <div className="bg-surface-container rounded-xl overflow-hidden">
-      <div className="px-5 py-4 border-b border-outline-variant/10 flex items-center justify-between gap-3 flex-wrap">
-        <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
+    <div className="bg-surface-card rounded-2xl overflow-hidden">
+      <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between gap-3 flex-wrap">
+        <h3 className="ds-section-header flex items-center gap-2">
           <span className="material-symbols-outlined text-lg">history</span>
           Agent Activity Log
           <span className="text-xs font-normal text-on-surface-variant">({filtered.length})</span>
@@ -478,8 +475,8 @@ function AgentSchedule({ schedule }) {
   };
 
   return (
-    <div className="bg-surface-container rounded-xl p-5">
-      <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
+    <div className="bg-surface-card rounded-2xl p-6">
+      <h3 className="ds-section-header mb-4 flex items-center gap-2">
         <span className="material-symbols-outlined text-lg">calendar_month</span>
         Agent Schedule
       </h3>
@@ -663,18 +660,18 @@ export default function AgentControlsPage() {
   }
 
   return (
-    <div className="space-y-6 fade-up">
+    <div className="space-y-8 fade-up">
       {/* ─── Header ─── */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-secondary pulse-dot" />
-            <span className="text-label-sm text-secondary">
+            <span className="w-2 h-2 rounded-full bg-ds-success pulse-dot" />
+            <span className="ds-metric-label !text-ds-success !normal-case">
               {perfStats.activeAgents}/{perfStats.totalAgents} Agents Active
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-on-surface">Agent Controls</h1>
-          <p className="text-sm text-on-surface-variant mt-0.5">
+          <h1 className="ds-page-title">Agent Controls</h1>
+          <p className="text-sm text-on-surface-variant mt-1">
             {perfStats.totalActions} actions across {accounts.length} accounts this period
           </p>
         </div>
@@ -714,40 +711,28 @@ export default function AgentControlsPage() {
 
       {/* ─── Performance Metrics ─── */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-surface-container rounded-xl p-5">
-          <div className="text-label-sm text-on-surface-variant mb-2">Total Actions</div>
-          <div className="text-2xl font-bold text-on-surface">{formatNumber(perfStats.totalActions)}</div>
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-xs text-on-surface-variant">{accounts.length} accounts managed</span>
-            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
-          </div>
+        <div className="bg-surface-card rounded-2xl p-6">
+          <div className="ds-metric-label mb-2">Total Actions</div>
+          <div className="ds-secondary-metric">{formatNumber(perfStats.totalActions)}</div>
+          <div className="text-xs text-on-surface-variant mt-1">{accounts.length} accounts managed</div>
         </div>
-        <div className="bg-surface-container rounded-xl p-5">
-          <div className="text-label-sm text-on-surface-variant mb-2">Bid Adjustments</div>
-          <div className="text-2xl font-bold text-on-surface">{formatNumber(perfStats.bidActions)}</div>
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-xs text-on-surface-variant">By Bid Agent this period</span>
-            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
-          </div>
+        <div className="bg-surface-card rounded-2xl p-6">
+          <div className="ds-metric-label mb-2">Bid Adjustments</div>
+          <div className="ds-secondary-metric">{formatNumber(perfStats.bidActions)}</div>
+          <div className="text-xs text-on-surface-variant mt-1">By Bid Agent this period</div>
         </div>
-        <div className="bg-surface-container rounded-xl p-5">
-          <div className="text-label-sm text-on-surface-variant mb-2">Negatives Added</div>
-          <div className="text-2xl font-bold text-on-surface">{formatNumber(perfStats.negActions)}</div>
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-xs text-on-surface-variant">By Negative KW Agent</span>
-            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
-          </div>
+        <div className="bg-surface-card rounded-2xl p-6">
+          <div className="ds-metric-label mb-2">Negatives Added</div>
+          <div className="ds-secondary-metric">{formatNumber(perfStats.negActions)}</div>
+          <div className="text-xs text-on-surface-variant mt-1">By Negative KW Agent</div>
         </div>
-        <div className="bg-surface-container rounded-xl p-5">
-          <div className="text-label-sm text-on-surface-variant mb-2">Active Agents</div>
-          <div className="text-2xl font-bold text-secondary">{perfStats.activeAgents}/{perfStats.totalAgents}</div>
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-xs text-on-surface-variant">Across all accounts</span>
-            <span className="text-[10px] text-on-surface-variant/40 ml-auto">&mdash;</span>
-          </div>
+        <div className="bg-surface-card rounded-2xl p-6">
+          <div className="ds-metric-label mb-2">Active Agents</div>
+          <div className="ds-secondary-metric text-ds-success">{perfStats.activeAgents}/{perfStats.totalAgents}</div>
+          <div className="text-xs text-on-surface-variant mt-1">Across all accounts</div>
         </div>
-        <div className="bg-surface-container rounded-xl p-5">
-          <div className="text-label-sm text-on-surface-variant mb-2">Est. Savings</div>
+        <div className="bg-surface-card rounded-2xl p-6">
+          <div className="ds-metric-label mb-2">Est. Savings</div>
           <div className="text-2xl font-bold text-secondary">{formatCurrency(perfStats.estimatedSavings, true)}</div>
           <div className="text-xs text-on-surface-variant mt-1">Wasted spend avoided this period</div>
         </div>

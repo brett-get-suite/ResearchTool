@@ -9,7 +9,7 @@ export default function MiniSparkline({ data = [], color = '#4edea3', height = 3
   if (!data.length || !hasRealData) {
     return (
       <div style={{ width, height }} className="relative flex items-center">
-        <svg width={width} height={height} className="opacity-30">
+        <svg width={width} height={height} className="opacity-20">
           <line
             x1={0} y1={height / 2} x2={width} y2={height / 2}
             stroke="#8994a8"
@@ -29,7 +29,8 @@ export default function MiniSparkline({ data = [], color = '#4edea3', height = 3
             type="monotone"
             dataKey="value"
             stroke={color}
-            strokeWidth={1.5}
+            strokeWidth={2}
+            strokeOpacity={0.8}
             dot={false}
             isAnimationActive={false}
           />

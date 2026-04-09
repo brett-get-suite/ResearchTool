@@ -51,37 +51,39 @@ export default function SidebarNav() {
       </div>
 
       {/* Main Nav */}
-      <nav className="flex-1 px-3 mt-1 space-y-0.5">
-        <div className="text-label-sm text-on-surface-variant/60 px-3 pb-1.5 pt-3">Manage</div>
-        {MAIN_NAV.map((item) => {
-          const active = isActive(item.href);
-          const href = resolveHref(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
-                active
-                  ? 'bg-primary/10 text-primary font-semibold'
-                  : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
-              }`}
-            >
-              {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full" />
-              )}
-              <span className="material-symbols-outlined text-xl">{item.icon}</span>
-              {item.label}
-              {item.badge === 'agents' && (
-                <span className="ml-auto text-label-sm text-secondary bg-secondary/15 px-1.5 py-0.5 rounded-full">
-                  AI
-                </span>
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-3 mt-1">
+        <div className="text-label-sm text-on-surface-variant/70 px-3 pb-2 pt-6">Manage</div>
+        <div className="space-y-0.5">
+          {MAIN_NAV.map((item) => {
+            const active = isActive(item.href);
+            const href = resolveHref(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
+                  active
+                    ? 'bg-primary/10 text-primary font-semibold'
+                    : 'text-on-surface-variant/80 hover:bg-surface-variant/50 hover:text-on-surface'
+                }`}
+              >
+                {active && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                )}
+                <span className={`material-symbols-outlined text-xl ${!active ? 'opacity-70' : ''}`}>{item.icon}</span>
+                {item.label}
+                {item.badge === 'agents' && (
+                  <span className="ds-status-badge ds-status-badge--success ml-auto !py-0.5 !px-1.5 !text-[10px]">
+                    AI
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
 
         {/* New Analysis CTA */}
-        <div className="pt-4 pb-2">
+        <div className="pt-5 pb-3">
           <Link
             href="/research"
             className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-on-primary text-sm font-semibold transition-transform active:scale-[0.97] w-full shadow-fab"
@@ -92,8 +94,8 @@ export default function SidebarNav() {
         </div>
 
         {/* Tools Nav */}
+        <div className="text-label-sm text-on-surface-variant/70 px-3 pb-2 pt-6">Tools</div>
         <div className="space-y-0.5">
-          <div className="text-label-sm text-on-surface-variant/60 px-3 pb-1.5 pt-3">Tools</div>
           {TOOLS_NAV.map((item) => {
             const active = isActive(item.href);
             return (
@@ -103,13 +105,13 @@ export default function SidebarNav() {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
                   active
                     ? 'bg-primary/10 text-primary font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
+                    : 'text-on-surface-variant/80 hover:bg-surface-variant/50 hover:text-on-surface'
                 }`}
               >
                 {active && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
                 )}
-                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                <span className={`material-symbols-outlined text-xl ${!active ? 'opacity-70' : ''}`}>{item.icon}</span>
                 {item.label}
               </Link>
             );
@@ -118,16 +120,19 @@ export default function SidebarNav() {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 pb-4 space-y-0.5">
+      <div className="px-3 pb-4">
         <Link
           href="/settings"
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all relative ${
             pathname === '/settings'
               ? 'bg-primary/10 text-primary font-semibold'
-              : 'text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface'
+              : 'text-on-surface-variant/80 hover:bg-surface-variant/50 hover:text-on-surface'
           }`}
         >
-          <span className="material-symbols-outlined text-xl">settings</span>
+          {pathname === '/settings' && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+          )}
+          <span className={`material-symbols-outlined text-xl ${pathname !== '/settings' ? 'opacity-70' : ''}`}>settings</span>
           Settings
         </Link>
       </div>

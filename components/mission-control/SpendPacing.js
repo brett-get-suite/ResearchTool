@@ -20,9 +20,9 @@ export default function SpendPacing({ accounts = [], metricsMap = {} }) {
     .filter(Boolean);
 
   return (
-    <div className="bg-surface-container rounded-xl p-6">
+    <div className="bg-surface-card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
+        <h3 className="ds-section-header flex items-center gap-2">
           <span className="material-symbols-outlined text-lg">speed</span>
           Spend Pacing
         </h3>
@@ -34,10 +34,10 @@ export default function SpendPacing({ accounts = [], metricsMap = {} }) {
       </div>
 
       {pacingData.length === 0 ? (
-        <div className="text-center py-10">
-          <span className="material-symbols-outlined text-3xl text-on-surface-variant/20 block mb-2">speed</span>
-          <p className="text-sm text-on-surface-variant mb-1">No budget data available</p>
-          <p className="text-xs text-on-surface-variant/60">Set daily budgets on your campaigns to track spend pacing</p>
+        <div className="ds-empty-state">
+          <span className="material-symbols-outlined ds-empty-state__icon">speed</span>
+          <p className="ds-empty-state__title">No budget data available</p>
+          <p className="ds-empty-state__desc">Set daily budgets on your campaigns to track spend pacing</p>
         </div>
       ) : (
         <div className="space-y-4 max-h-[380px] overflow-y-auto">

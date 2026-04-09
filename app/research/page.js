@@ -23,19 +23,24 @@ const compColor = (c) => c === 'low' ? 'bg-secondary/15 text-secondary' : c === 
 const threatColor = (t) => t === 'high' ? 'bg-error/15 text-error' : t === 'medium' ? 'bg-tertiary/15 text-tertiary' : 'bg-surface-high text-secondary';
 
 // ─── Sub-components ───────────────────────────────────────────────
-function PhaseRow({ label, done, active }) {
+function PhaseRow({ label, done, active, isLast }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-secondary/15' : active ? 'bg-primary/10' : 'bg-surface-high'}`}>
-        {done ? (
-          <span className="material-symbols-outlined text-[14px] text-secondary">check</span>
-        ) : active ? (
-          <span className="material-symbols-outlined text-[14px] text-primary animate-spin">progress_activity</span>
-        ) : (
-          <div className="w-2 h-2 rounded-full bg-outline-variant" />
+    <div className="flex items-start gap-3">
+      <div className="flex flex-col items-center">
+        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-ds-success/15' : active ? 'bg-primary/15' : 'bg-surface-container-high'}`}>
+          {done ? (
+            <span className="material-symbols-outlined text-[14px] text-ds-success">check</span>
+          ) : active ? (
+            <span className="material-symbols-outlined text-[14px] text-primary animate-spin">progress_activity</span>
+          ) : (
+            <div className="w-2 h-2 rounded-full bg-outline-variant" />
+          )}
+        </div>
+        {!isLast && (
+          <div className={`w-0.5 h-6 mt-1 rounded-full ${done ? 'bg-ds-success/40' : 'bg-outline-variant/30'}`} />
         )}
       </div>
-      <span className={`text-sm font-label ${done ? 'text-secondary' : active ? 'text-primary font-semibold' : 'text-secondary'}`}>
+      <span className={`text-sm mt-1 ${done ? 'text-ds-success font-medium' : active ? 'text-primary font-semibold' : 'text-on-surface-variant'}`}>
         {label}
       </span>
     </div>
@@ -366,8 +371,8 @@ function ResearchPageInner() {
     <div className="px-8 py-10">
       {/* Page header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-headline font-bold text-on-surface tracking-tight mb-1">Client Research</h2>
-        <p className="text-secondary text-sm font-body">
+        <h2 className="ds-page-title tracking-tight mb-1">Client Research</h2>
+        <p className="text-on-surface-variant text-sm">
           Enter a client website and we will analyze their services, generate keyword lists, audit competitors, and find low-hanging fruit.
         </p>
       </div>
@@ -428,11 +433,11 @@ function ResearchPageInner() {
       <div className="flex items-center gap-2 mb-8">
         {['Setup', 'Services', 'Running', 'Results'].map((label, i) => (
           <div key={i} className="flex items-center gap-2">
-            {i > 0 && <div className={`w-8 h-px ${i <= currentStep ? 'bg-primary' : 'bg-outline-variant'}`} />}
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-label font-semibold transition-all ${
+            {i > 0 && <div className={`w-10 h-0.5 rounded-full ${i <= currentStep ? 'bg-primary' : 'bg-outline-variant/30'}`} />}
+            <div className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
               i === currentStep ? 'bg-primary text-white' :
-              i < currentStep ? 'bg-secondary/15 text-secondary' :
-              'bg-surface-high text-secondary'
+              i < currentStep ? 'bg-ds-success/15 text-ds-success' :
+              'bg-surface-container-high text-on-surface-variant'
             }`}>
               {i < currentStep && <span className="material-symbols-outlined text-[12px]">check</span>}
               {label}
@@ -504,11 +509,7 @@ function ResearchPageInner() {
                   <button
                     key={ind}
                     onClick={() => setIndustry(ind)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-label font-medium border transition-all ${
-                      industry === ind
-                        ? 'bg-primary text-white border-primary shadow-sm'
-                        : 'bg-surface-lowest border-outline-variant/30 text-secondary hover:border-outline hover:text-on-surface'
-                    }`}
+                    className={`ds-filter-chip ${industry === ind ? 'ds-filter-chip--active' : ''}`}
                   >
                     {ind}
                   </button>
@@ -544,7 +545,7 @@ function ResearchPageInner() {
                 <span className="material-symbols-outlined text-[14px]">
                   {showCalibration ? 'expand_less' : 'expand_more'}
                 </span>
-                Calibrate with real numbers (optional)
+                Calibrate with real numbers <span className="text-on-surface-variant/50 italic font-normal">(optional)</span>
               </button>
               {showCalibration && (
                 <div className="mt-3 p-4 bg-surface-low rounded-xl border border-outline-variant/20 space-y-3">
@@ -588,10 +589,10 @@ function ResearchPageInner() {
             <button
               onClick={analyzeWebsite}
               disabled={loading || (!apiKey && !hasServerKey) || !websiteUrl}
-              className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-label font-semibold text-sm transition-all ${
+              className={`ds-btn-primary w-full !py-3.5 !text-sm ${
                 loading || (!apiKey && !hasServerKey) || !websiteUrl
-                  ? 'bg-surface-high text-secondary cursor-not-allowed'
-                  : 'bg-gradient-to-r from-primary to-primary-container text-white shadow-sm hover:opacity-90'
+                  ? '!opacity-40 !cursor-not-allowed'
+                  : ''
               }`}
             >
               {loading ? (

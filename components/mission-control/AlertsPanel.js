@@ -33,24 +33,24 @@ export default function AlertsPanel({ alerts = [], onDismiss, onApproveAiFix }) 
   const router = useRouter();
 
   return (
-    <div className="bg-surface-container rounded-xl p-6">
+    <div className="bg-surface-card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
+        <h3 className="ds-section-header flex items-center gap-2">
           <span className="material-symbols-outlined text-lg">notifications_active</span>
           Alerts &amp; Attention Needed
         </h3>
         {alerts.length > 0 && (
-          <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-error/10 text-error">
+          <span className="ds-status-badge ds-status-badge--error">
             {alerts.filter(a => a.severity === 'critical').length} critical
           </span>
         )}
       </div>
 
       {alerts.length === 0 ? (
-        <div className="text-center py-10">
-          <span className="material-symbols-outlined text-4xl text-secondary/30 block mb-2">check_circle</span>
-          <p className="text-sm text-on-surface font-medium mb-1">All clear — no issues detected</p>
-          <p className="text-xs text-on-surface-variant">Alerts will appear here when campaigns need attention — budget issues, low quality scores, or wasted spend.</p>
+        <div className="ds-empty-state">
+          <span className="material-symbols-outlined ds-empty-state__icon">check_circle</span>
+          <p className="ds-empty-state__title">All clear — no issues detected</p>
+          <p className="ds-empty-state__desc">Alerts will appear here when campaigns need attention — budget issues, low quality scores, or wasted spend.</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-[420px] overflow-y-auto">

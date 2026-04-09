@@ -119,10 +119,11 @@ function NegativeKeywordsPanel({ open, onToggle, accounts, allKeywords }) {
     return (
       <button
         onClick={onToggle}
-        className="flex items-center gap-2 px-4 py-3 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant/10 transition-colors text-sm text-on-surface-variant w-full"
+        className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-surface-card hover:bg-surface-elevated transition-colors text-sm text-on-surface-variant w-full"
       >
         <span className="material-symbols-outlined text-lg">block</span>
         <span className="font-medium">Negative Keywords</span>
+        <span className="ds-status-badge ds-status-badge--muted ml-2">0</span>
         <span className="material-symbols-outlined ml-auto text-lg">chevron_right</span>
       </button>
     );
@@ -555,12 +556,12 @@ export default function KeywordEnginePage() {
 
   /* ── Render ── */
   return (
-    <div className="space-y-5 fade-up">
+    <div className="space-y-6 fade-up">
       {/* ─── Header ─── */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-on-surface">Keyword Engine</h1>
-          <p className="text-sm text-on-surface-variant mt-0.5">
+          <h1 className="ds-page-title">Keyword Engine</h1>
+          <p className="text-sm text-on-surface-variant mt-1">
             {allKeywords.length.toLocaleString()} keywords across {accounts.length} account{accounts.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -571,31 +572,36 @@ export default function KeywordEnginePage() {
       </div>
 
       {/* ─── Summary Strip ─── */}
-      <div className="flex items-center gap-6 px-5 py-3 bg-surface-container rounded-xl text-xs flex-wrap">
-        <StatMini label="Keywords" value={formatNumber(stats.count)} />
-        <StatMini label="Total Spend" value={formatCurrency(stats.cost, true)} />
-        <StatMini label="Conversions" value={formatNumber(stats.conversions)} />
-        <StatMini label="Avg. CPC" value={formatCurrency(stats.avgCPC)} />
-        <StatMini label="Avg. Cost/Conv" value={stats.costPerConv > 0 ? formatCurrency(stats.costPerConv) : '\u2014'} />
-        <StatMini label="Avg. CTR" value={formatPercent(stats.ctr)} />
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+        {[
+          { label: 'Keywords', value: formatNumber(stats.count) },
+          { label: 'Total Spend', value: formatCurrency(stats.cost, true) },
+          { label: 'Conversions', value: formatNumber(stats.conversions) },
+          { label: 'Avg. CPC', value: formatCurrency(stats.avgCPC) },
+          { label: 'Avg. Cost/Conv', value: stats.costPerConv > 0 ? formatCurrency(stats.costPerConv) : '\u2014' },
+          { label: 'Avg. CTR', value: formatPercent(stats.ctr) },
+        ].map(s => (
+          <div key={s.label} className="bg-surface-card rounded-2xl px-4 py-3">
+            <div className="ds-metric-label mb-1">{s.label}</div>
+            <div className="ds-secondary-metric !text-base">{s.value}</div>
+          </div>
+        ))}
       </div>
 
       {/* ─── Smart Filters ─── */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-label-sm text-on-surface-variant mr-1">Filters</span>
+        <span className="ds-metric-label mr-1">Filters</span>
         {SMART_FILTERS.map(f => {
           const isActive = activeFilters.has(f.key);
           return (
             <button
               key={f.key}
               onClick={() => toggleFilter(f.key)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                isActive ? `${f.activeBg} ${f.color}` : `${f.bg} ${f.color} hover:brightness-110`
-              }`}
+              className={`ds-filter-chip ${isActive ? 'ds-filter-chip--active' : ''}`}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{f.icon}</span>
               {f.label}
-              <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-black/10' : 'bg-black/5'}`}>
+              <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-white/15' : 'bg-white/5'}`}>
                 {filterCounts[f.key]}
               </span>
             </button>
@@ -615,24 +621,24 @@ export default function KeywordEnginePage() {
       <div className={`grid gap-5 ${negPanelOpen ? 'grid-cols-1 xl:grid-cols-12' : 'grid-cols-1'}`}>
         {/* Keyword Table */}
         <div className={negPanelOpen ? 'xl:col-span-9' : ''}>
-          <div className="bg-surface-container rounded-xl overflow-hidden">
+          <div className="bg-surface-card rounded-2xl overflow-hidden">
             {/* Table toolbar */}
-            <div className="px-5 py-3 border-b border-outline-variant/10 flex items-center justify-between gap-3 flex-wrap">
+            <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-2.5 top-1/2 -translate-y-1/2">search</span>
+                  <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-3 top-1/2 -translate-y-1/2">search</span>
                   <input
                     type="text"
                     placeholder="Search keywords, campaigns, clients..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-surface-container-high border-outline-variant/20 w-64"
+                    className="pl-9 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-64"
                   />
                 </div>
                 <select
                   value={matchFilter}
                   onChange={e => setMatchFilter(e.target.value)}
-                  className="text-xs py-1.5 px-2 rounded-lg bg-surface-container-high border-outline-variant/20"
+                  className="text-sm py-2 px-3 rounded-xl bg-surface-container-high border border-outline-variant/30"
                 >
                   <option value="all">All Match Types</option>
                   <option value="EXACT">Exact</option>
@@ -642,7 +648,7 @@ export default function KeywordEnginePage() {
                 <select
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
-                  className="text-xs py-1.5 px-2 rounded-lg bg-surface-container-high border-outline-variant/20"
+                  className="text-sm py-2 px-3 rounded-xl bg-surface-container-high border border-outline-variant/30"
                 >
                   <option value="all">All Status</option>
                   <option value="ENABLED">Enabled</option>
@@ -665,14 +671,14 @@ export default function KeywordEnginePage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-outline-variant/10">
+                  <tr className="border-b border-outline-variant/15">
                     {COLUMNS.map((col, colIdx) => {
                       const stickyClass = colIdx === 0
-                        ? 'sticky left-0 z-10 bg-surface-container'
+                        ? 'sticky left-0 z-10 bg-surface-card'
                         : colIdx === 1
-                          ? 'sticky left-[40px] z-10 bg-surface-container'
+                          ? 'sticky left-[40px] z-10 bg-surface-card'
                           : colIdx === 2
-                            ? 'sticky left-[140px] z-10 bg-surface-container'
+                            ? 'sticky left-[140px] z-10 bg-surface-card'
                             : '';
                       return (
                         <th
@@ -681,7 +687,7 @@ export default function KeywordEnginePage() {
                             if (col.key === '_check') { toggleAllVisible(); return; }
                             if (!col.nosort) handleSort(col.key);
                           }}
-                          className={`text-left px-3 py-3 text-label-sm text-on-surface-variant whitespace-nowrap ${col.w || ''} ${
+                          className={`text-left px-3 py-3 ds-table-header whitespace-nowrap ${col.w || ''} ${
                             !col.nosort || col.key === '_check' ? 'cursor-pointer hover:text-on-surface select-none' : ''
                           } ${stickyClass}`}
                         >
@@ -710,8 +716,12 @@ export default function KeywordEnginePage() {
                 <tbody>
                   {pageData.length === 0 ? (
                     <tr>
-                      <td colSpan={COLUMNS.length} className="px-4 py-16 text-center text-on-surface-variant text-sm">
-                        {allKeywords.length === 0 ? 'No keywords found — connect accounts to see keyword data' : 'No keywords match your filters'}
+                      <td colSpan={COLUMNS.length} className="px-4 py-0">
+                        <div className="ds-empty-state">
+                          <span className="material-symbols-outlined ds-empty-state__icon">analytics</span>
+                          <p className="ds-empty-state__title">{allKeywords.length === 0 ? 'No keywords found' : 'No keywords match your filters'}</p>
+                          <p className="ds-empty-state__desc">{allKeywords.length === 0 ? 'Connect accounts to see keyword data' : 'Try adjusting your filter criteria'}</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -720,7 +730,7 @@ export default function KeywordEnginePage() {
                       const costPerConv = kw.conversions > 0 ? kw.cost / kw.conversions : null;
                       const prevCostPerConv = kw.prev_conversions > 0 ? kw.prev_cost / kw.prev_conversions : null;
                       const rowBg = isSelected ? 'bg-primary/5' : '';
-                      const stickyBg = isSelected ? 'bg-primary/5' : 'bg-surface-container';
+                      const stickyBg = isSelected ? 'bg-primary/5' : 'bg-surface-card';
 
                       const statusBadge = (() => {
                         const s = (kw.status || '').toUpperCase();
@@ -750,7 +760,7 @@ export default function KeywordEnginePage() {
                           <td className={`px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[140px] sticky left-[140px] z-10 ${stickyBg} group-hover:bg-surface-container-high`}>{kw.campaignName}</td>
                           <td className="px-3 py-2.5 text-xs text-on-surface-variant truncate max-w-[120px]">{kw.adGroupName}</td>
                           <td className="px-3 py-2.5">
-                            <span className="text-sm text-on-surface font-medium">{kw.keyword}</span>
+                            <span className="text-sm text-on-surface font-semibold">{kw.keyword}</span>
                           </td>
                           <td className="px-3 py-2.5">
                             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${matchBadgeClass(kw.matchType)}`}>

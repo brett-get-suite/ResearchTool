@@ -32,23 +32,23 @@ function KPICard({ label, value, prevValue, format, icon, invertDelta, sparkData
   };
 
   return (
-    <div className="bg-surface-container rounded-xl p-5 flex flex-col justify-between gap-3 min-h-[120px]">
+    <div className="bg-surface-card rounded-2xl p-5 flex flex-col justify-between gap-3 min-h-[130px]">
       <div className="flex items-center justify-between">
-        <span className="text-label-sm text-on-surface-variant">{label}</span>
-        <span className="material-symbols-outlined text-on-surface-variant/30 text-xl">{icon}</span>
+        <span className="ds-metric-label">{label}</span>
+        <span className="material-symbols-outlined text-on-surface-variant/25 text-xl">{icon}</span>
       </div>
 
       <div className="flex items-end justify-between gap-2">
         <div className="min-w-0">
-          <div className="text-2xl font-bold text-on-surface leading-tight">{fmt(value)}</div>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="ds-primary-metric leading-tight">{fmt(value)}</div>
+          <div className="flex items-center gap-2 mt-2">
             {prevValue != null && (
               <>
-                <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${arrowColor}`}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+                <span className={`ds-delta ${isPositive ? 'ds-delta--positive' : isNegative ? 'ds-delta--negative' : 'ds-delta--neutral'}`}>
+                  <span className="material-symbols-outlined ds-delta__icon">
                     {isPositive ? 'arrow_upward' : isNegative ? 'arrow_downward' : 'remove'}
                   </span>
-                  {Math.abs(delta).toFixed(1)}%
+                  {isPositive ? '+' : isNegative ? '' : ''}{Math.abs(delta).toFixed(1)}%
                 </span>
                 <span className="text-[11px] text-on-surface-variant">vs {fmt(prevValue)}</span>
               </>
@@ -57,7 +57,7 @@ function KPICard({ label, value, prevValue, format, icon, invertDelta, sparkData
         </div>
 
         {sparkData && sparkData.length > 0 && (
-          <MiniSparkline data={sparkData} color={sparkColor} height={28} width={72} />
+          <MiniSparkline data={sparkData} color={sparkColor} height={32} width={80} />
         )}
       </div>
     </div>
@@ -75,7 +75,7 @@ export default function KPIStrip({ current = {}, previous = {}, sparklines = {} 
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4" style={{ gap: '16px' }}>
       {kpis.map(kpi => (
         <KPICard
           key={kpi.label}

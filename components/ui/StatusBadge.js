@@ -1,13 +1,21 @@
 const VARIANTS = {
-  active: 'bg-secondary/15 text-secondary',
-  idle: 'bg-surface-variant text-on-surface-variant',
-  running: 'bg-primary/15 text-primary',
-  alert: 'bg-error/15 text-error',
-  complete: 'bg-secondary/15 text-secondary',
-  pitching: 'bg-tertiary/15 text-tertiary',
-  management: 'bg-secondary/15 text-secondary',
-  analysis: 'bg-primary/15 text-primary',
-  default: 'bg-surface-variant text-on-surface-variant',
+  active:     'ds-status-badge--success',
+  healthy:    'ds-status-badge--success',
+  complete:   'ds-status-badge--success',
+  done:       'ds-status-badge--success',
+  connected:  'ds-status-badge--success',
+  management: 'ds-status-badge--success',
+  running:    'ds-status-badge--info',
+  analysis:   'ds-status-badge--info',
+  pitching:   'ds-status-badge--info',
+  warning:    'ds-status-badge--warning',
+  paused:     'ds-status-badge--warning',
+  alert:      'ds-status-badge--error',
+  error:      'ds-status-badge--error',
+  critical:   'ds-status-badge--error',
+  idle:       'ds-status-badge--muted',
+  inactive:   'ds-status-badge--muted',
+  default:    'ds-status-badge--muted',
 };
 
 export default function StatusBadge({ status, label, pulse = false, className = '' }) {
@@ -16,7 +24,7 @@ export default function StatusBadge({ status, label, pulse = false, className = 
   const displayLabel = label || status;
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-widest ${variant} ${className}`}>
+    <span className={`ds-status-badge ${variant} ${className}`}>
       {pulse && (
         <span className="w-1.5 h-1.5 rounded-full bg-current pulse-dot" />
       )}

@@ -113,7 +113,7 @@ export default function TopNav() {
           placeholder="Search accounts, campaigns, keywords..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-container text-on-surface text-sm placeholder:text-on-surface-variant/60 outline-none focus:ring-1 focus:ring-primary/40 transition-all border border-outline-variant/30 focus:border-primary/40"
+          className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-container-high text-on-surface text-sm placeholder:text-on-surface-variant/60 outline-none transition-all border border-outline-variant/30 focus:border-primary/40"
         />
         {searchLoading && (
           <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary text-base animate-spin">
@@ -187,8 +187,8 @@ export default function TopNav() {
               onClick={() => router.push(link.href)}
               className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
                 active
-                  ? 'text-primary font-medium'
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'text-primary font-medium bg-primary/8'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30'
               }`}
             >
               {link.label}

@@ -27,23 +27,23 @@ export default function AgentFeed({ actions = [], accounts = [] }) {
   for (const a of accounts) accountMap[a.id] = a.name;
 
   return (
-    <div className="bg-surface-container rounded-xl p-5 flex flex-col" style={{ minHeight: 400 }}>
+    <div className="bg-surface-card rounded-2xl p-6 flex flex-col" style={{ minHeight: 400 }}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
+        <h3 className="ds-section-header flex items-center gap-2">
           <span className="material-symbols-outlined text-tertiary text-lg">smart_toy</span>
           AI Agent Activity
         </h3>
-        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary">
+        <span className="ds-status-badge ds-status-badge--info">
           {actions.length} actions
         </span>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0 -mx-2 px-2" style={{ maxHeight: 480 }}>
         {actions.length === 0 ? (
-          <div className="text-center py-10">
-            <span className="material-symbols-outlined text-3xl text-on-surface-variant/20 block mb-2">smart_toy</span>
-            <p className="text-sm text-on-surface-variant mb-1">No agent activity yet</p>
-            <p className="text-xs text-on-surface-variant/60">Enable agents in Agent Controls to automate bid and keyword management</p>
+          <div className="ds-empty-state">
+            <span className="material-symbols-outlined ds-empty-state__icon">smart_toy</span>
+            <p className="ds-empty-state__title">No agent activity yet</p>
+            <p className="ds-empty-state__desc">Enable agents in Agent Controls to automate bid and keyword management</p>
           </div>
         ) : (
           actions.slice(0, 50).map((action, i) => {

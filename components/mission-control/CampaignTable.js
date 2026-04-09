@@ -81,24 +81,24 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
   }, [filtered]);
 
   return (
-    <div className="bg-surface-container rounded-xl overflow-hidden">
+    <div className="bg-surface-card rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-outline-variant/10 flex items-center justify-between gap-4 flex-wrap">
+      <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
+          <h3 className="ds-section-header flex items-center gap-2">
             <span className="material-symbols-outlined text-lg">campaign</span>
             Campaign Performance
           </h3>
           <span className="text-xs text-on-surface-variant">({filtered.length})</span>
-          <div className="flex items-center gap-2 ml-2">
-            <span className="flex items-center gap-1 text-[10px] text-on-surface-variant">
-              <span className="w-2 h-2 rounded-full bg-secondary" />{healthCounts.healthy}
+          <div className="flex items-center gap-3 ml-2 text-[11px]">
+            <span className="flex items-center gap-1.5 text-on-surface-variant">
+              <span className="w-2 h-2 rounded-full bg-ds-success" />Healthy {healthCounts.healthy}
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-on-surface-variant">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />{healthCounts.warning}
+            <span className="flex items-center gap-1.5 text-on-surface-variant">
+              <span className="w-2 h-2 rounded-full bg-ds-warning" />Warning {healthCounts.warning}
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-on-surface-variant">
-              <span className="w-2 h-2 rounded-full bg-error" />{healthCounts.critical}
+            <span className="flex items-center gap-1.5 text-on-surface-variant">
+              <span className="w-2 h-2 rounded-full bg-ds-error" />Critical {healthCounts.critical}
             </span>
           </div>
         </div>
@@ -113,7 +113,7 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
               placeholder="Search..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-surface-container-high border-outline-variant/20 w-44"
+              className="pl-8 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-44"
             />
           </div>
           <select
@@ -133,12 +133,12 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-outline-variant/10">
+            <tr className="border-b border-outline-variant/15">
               {cols.map(col => (
                 <th
                   key={col.key}
                   onClick={() => !col.nosort && handleSort(col.key)}
-                  className={`text-left px-4 py-3 text-label-sm text-on-surface-variant whitespace-nowrap ${col.w || ''} ${
+                  className={`text-left px-4 py-3 ds-table-header whitespace-nowrap ${col.w || ''} ${
                     !col.nosort ? 'cursor-pointer hover:text-on-surface select-none' : ''
                   }`}
                 >
@@ -157,10 +157,12 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={cols.length} className="px-4 py-12 text-center">
-                  <span className="material-symbols-outlined text-3xl text-on-surface-variant/20 block mb-2">campaign</span>
-                  <p className="text-sm text-on-surface-variant">No campaigns found</p>
-                  <p className="text-xs text-on-surface-variant/60 mt-1">Connect a Google Ads account to see campaign data here</p>
+                <td colSpan={cols.length} className="px-4 py-0">
+                  <div className="ds-empty-state">
+                    <span className="material-symbols-outlined ds-empty-state__icon">campaign</span>
+                    <p className="ds-empty-state__title">No campaigns found</p>
+                    <p className="ds-empty-state__desc">Connect a Google Ads account to see campaign data here</p>
+                  </div>
                 </td>
               </tr>
             ) : (

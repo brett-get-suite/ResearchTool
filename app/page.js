@@ -248,13 +248,13 @@ export default function MissionControl() {
 
   /* ── Render ── */
   return (
-    <div className="space-y-6 fade-up">
+    <div className="space-y-8 fade-up">
       {/* ─── Header ─── */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-on-surface">Mission Control</h1>
-          <p className="text-sm text-on-surface-variant mt-0.5 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-secondary pulse-dot" />
+          <h1 className="ds-page-title">Mission Control</h1>
+          <p className="text-sm text-on-surface-variant mt-1 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-ds-success pulse-dot" />
             {accounts.length} account{accounts.length !== 1 ? 's' : ''} &middot; {activeAgents} AI agent{activeAgents !== 1 ? 's' : ''} active &middot; {allActions.length} actions this period
           </p>
         </div>
@@ -275,7 +275,7 @@ export default function MissionControl() {
       <QuickActions onAction={handleQuickAction} />
 
       {/* ─── Campaign Table + Agent Feed ─── */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-8">
           <CampaignTable campaigns={allCampaigns} selectedAccount={selectedAccount} />
         </div>
@@ -285,7 +285,7 @@ export default function MissionControl() {
       </div>
 
       {/* ─── Alerts + Spend Pacing ─── */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-7">
           <AlertsPanel alerts={alerts} onDismiss={handleDismissAlert} />
         </div>
