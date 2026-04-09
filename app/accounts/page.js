@@ -664,13 +664,13 @@ export default function AccountsPage() {
         <div className="flex flex-wrap items-center gap-4 bg-surface-card rounded-2xl px-6 py-4">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-3 top-1/2 -translate-y-1/2">search</span>
+            <span className="material-symbols-outlined text-on-surface-variant text-base absolute left-3 top-1/2 -translate-y-1/2">search</span>
             <input
               type="text"
               placeholder="Search accounts..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none"
+              className="w-full pl-10 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none"
             />
           </div>
 

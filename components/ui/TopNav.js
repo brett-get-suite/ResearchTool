@@ -105,7 +105,7 @@ export default function TopNav() {
     >
       {/* Search */}
       <div ref={searchRef} className="relative flex-1 max-w-md">
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">
+        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">
           search
         </span>
         <input

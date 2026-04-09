@@ -399,9 +399,9 @@ function ActivityLog({ actions, accounts, filterAgent, onFilterAgent }) {
         </h3>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-2.5 top-1/2 -translate-y-1/2">search</span>
+            <span className="material-symbols-outlined text-on-surface-variant text-base absolute left-3 top-1/2 -translate-y-1/2">search</span>
             <input type="text" placeholder="Search actions..." value={search} onChange={e => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-surface-container-high border-outline-variant/20 w-48" />
+              className="pl-10 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-48" />
           </div>
           <select value={filterAgent} onChange={e => onFilterAgent(e.target.value)}
             className="text-xs py-1.5 px-2 rounded-lg bg-surface-container-high border-outline-variant/20">

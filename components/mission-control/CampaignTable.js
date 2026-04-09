@@ -105,7 +105,7 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
 
         <div className="flex items-center gap-3">
           <div className="relative">
-            <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-2.5 top-1/2 -translate-y-1/2">
+            <span className="material-symbols-outlined text-on-surface-variant text-base absolute left-3 top-1/2 -translate-y-1/2">
               search
             </span>
             <input
@@ -113,7 +113,7 @@ export default function CampaignTable({ campaigns = [], selectedAccount }) {
               placeholder="Search..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-44"
+              className="pl-10 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-44"
             />
           </div>
           <select

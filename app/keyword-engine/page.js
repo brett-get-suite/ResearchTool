@@ -160,13 +160,13 @@ function NegativeKeywordsPanel({ open, onToggle, accounts, allKeywords }) {
 
       {/* Search */}
       <div className="relative mb-3">
-        <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-2.5 top-1/2 -translate-y-1/2">search</span>
+        <span className="material-symbols-outlined text-on-surface-variant text-base absolute left-3 top-1/2 -translate-y-1/2">search</span>
         <input
           type="text"
           placeholder="Search candidates..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg bg-surface-container-high border-outline-variant/20"
+          className="w-full pl-10 pr-3 py-1.5 text-xs rounded-lg bg-surface-container-high border border-outline-variant/30"
         />
       </div>
 
@@ -626,13 +626,13 @@ export default function KeywordEnginePage() {
             <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <span className="material-symbols-outlined text-on-surface-variant text-sm absolute left-3 top-1/2 -translate-y-1/2">search</span>
+                  <span className="material-symbols-outlined text-on-surface-variant text-base absolute left-3 top-1/2 -translate-y-1/2">search</span>
                   <input
                     type="text"
                     placeholder="Search keywords, campaigns, clients..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-64"
+                    className="pl-10 pr-3 py-2 text-sm rounded-xl bg-surface-container-high border border-outline-variant/30 focus:border-primary/40 outline-none w-64"
                   />
                 </div>
                 <select

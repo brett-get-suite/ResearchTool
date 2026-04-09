@@ -71,9 +71,9 @@ export default function ClientsPage() {
       {/* Search + filter bar */}
       <div className="flex gap-3 mb-6">
         <div className="relative flex-1 max-w-sm">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">search</span>
           <input
-            className="field-input pl-10"
+            className="field-input pl-11"
             placeholder="Search clients or websites..."
             value={search}
             onChange={e => setSearch(e.target.value)}
