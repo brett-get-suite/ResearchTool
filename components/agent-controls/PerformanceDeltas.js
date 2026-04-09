@@ -1,4 +1,4 @@
-export default function PerformanceDeltas({ currentPeriod, previousPeriod }) {
+export default function PerformanceDeltas({ currentPeriod, previousPeriod, pacingData }) {
   const curr = currentPeriod || {};
   const prev = previousPeriod || {};
 
@@ -24,10 +24,19 @@ export default function PerformanceDeltas({ currentPeriod, previousPeriod }) {
   const convDelta = delta(curr.conversions, prev.conversions);
   const cpcDelta = delta(curr.avg_cpc, prev.avg_cpc);
 
-  // Budget pacing: spend / budget
-  const budgetUsed = curr.budget > 0 ? (curr.total_spend / curr.budget) * 100 : 0;
-  const pacingLabel = budgetUsed > 110 ? 'Overspending' : budgetUsed < 80 ? 'Underspending' : 'On Track';
-  const pacingColor = budgetUsed > 110 ? 'text-error' : budgetUsed < 80 ? 'text-tertiary' : 'text-secondary';
+  // Budget pacing: prefer real pacing API data, fallback to simple spend/budget ratio
+  const budgetUsed = pacingData
+    ? pacingData.pacingPct
+    : (curr.budget > 0 ? (curr.total_spend / curr.budget) * 100 : 0);
+  const pacingStatus = pacingData?.status;
+  const pacingLabel = pacingStatus === 'overspending' ? 'Overspending'
+    : pacingStatus === 'underspending' ? 'Underspending'
+    : budgetUsed > 110 ? 'Overspending'
+    : budgetUsed < 80 ? 'Underspending'
+    : 'On Track';
+  const pacingColor = pacingLabel === 'Overspending' ? 'text-error'
+    : pacingLabel === 'Underspending' ? 'text-tertiary'
+    : 'text-secondary';
 
   const metrics = [
     {
@@ -56,7 +65,9 @@ export default function PerformanceDeltas({ currentPeriod, previousPeriod }) {
       value: `${budgetUsed.toFixed(0)}%`,
       customDelta: pacingLabel,
       pacingColor,
-      subtitle: 'of budget used',
+      subtitle: pacingData?.daysRemaining != null
+        ? `${pacingData.daysRemaining}d remaining`
+        : 'of budget used',
       showBar: true,
       barPct: Math.min(budgetUsed, 100),
     },

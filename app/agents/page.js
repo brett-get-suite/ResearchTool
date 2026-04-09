@@ -25,6 +25,7 @@ export default function AgentControlsPage() {
   const [runs, setRuns] = useState([]);
   const [auditHistory, setAuditHistory] = useState([]);
   const [daypartingData, setDaypartingData] = useState(null);
+  const [pacingData, setPacingData] = useState(null);
   const [scheduleConfig, setScheduleConfig] = useState(null);
   const [showSchedule, setShowSchedule] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -53,6 +54,7 @@ export default function AgentControlsPage() {
       runsRes,
       history,
       dayparting,
+      pacing,
       schedule,
     ] = await Promise.all([
       fetch(`/api/accounts/${accountId}/metrics`).then((r) => r.ok ? r.json() : {}),
@@ -61,6 +63,7 @@ export default function AgentControlsPage() {
       fetch(`/api/agents/runs?accountId=${accountId}`).then((r) => r.ok ? r.json() : { runs: [] }),
       getAuditScoreHistory(accountId),
       fetch(`/api/accounts/${accountId}/dayparting`).then((r) => r.ok ? r.json() : null),
+      fetch(`/api/accounts/${accountId}/pacing`).then((r) => r.ok ? r.json() : null),
       getAccountSchedule(accountId),
     ]);
     setMetrics(metricsRes);
@@ -69,6 +72,7 @@ export default function AgentControlsPage() {
     setRuns(runsRes.runs || []);
     setAuditHistory(history);
     setDaypartingData(dayparting);
+    setPacingData(pacing);
     setScheduleConfig(schedule);
   }
 
@@ -165,6 +169,7 @@ export default function AgentControlsPage() {
       <PerformanceDeltas
         currentPeriod={metrics?.current || {}}
         previousPeriod={metrics?.previous || {}}
+        pacingData={pacingData?.overall || null}
       />
 
       {/* Main content grid: 8 cols + 4 cols sidebar */}
