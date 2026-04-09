@@ -18,6 +18,7 @@ import AlertsPanel from '@/components/mission-control/AlertsPanel';
 import SpendPacing from '@/components/mission-control/SpendPacing';
 import TopMovers from '@/components/mission-control/TopMovers';
 import QuickActions from '@/components/mission-control/QuickActions';
+import TopPerformingAssets from '@/components/mission-control/TopPerformingAssets';
 import Skeleton from '@/components/ui/Skeleton';
 
 export default function MissionControl() {
@@ -26,6 +27,7 @@ export default function MissionControl() {
   const [metricsMap, setMetricsMap] = useState({});
   const [campaignsMap, setCampaignsMap] = useState({});
   const [allActions, setAllActions] = useState([]);
+  const [allAssets, setAllAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [dateRange, setDateRange] = useState('month');
@@ -51,6 +53,7 @@ export default function MissionControl() {
         const mMap = {};
         const cMap = {};
         const actionsAll = [];
+        const assetsAll = [];
 
         await Promise.all(
           (accts || []).map(async (acct) => {
@@ -77,6 +80,15 @@ export default function MissionControl() {
                 (data.actions || []).forEach(a => actionsAll.push({ ...a, account_id: acct.id }));
               }
             } catch (_) {}
+
+            // Asset performance
+            try {
+              const res = await fetch(`/api/accounts/${acct.id}/assets`, { signal });
+              if (res.ok && !signal.aborted) {
+                const data = await res.json();
+                (Array.isArray(data) ? data : []).forEach(a => assetsAll.push({ ...a, _accountId: acct.id, _accountName: acct.name }));
+              }
+            } catch (_) {}
           }),
         );
 
@@ -84,6 +96,7 @@ export default function MissionControl() {
           setMetricsMap(mMap);
           setCampaignsMap(cMap);
           setAllActions(actionsAll.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+          setAllAssets(assetsAll);
           setLoading(false);
         }
       } catch (_) {
@@ -283,6 +296,13 @@ export default function MissionControl() {
           <AgentFeed actions={visibleActions} accounts={accounts} />
         </div>
       </div>
+
+      {/* ─── Top Performing Assets ─── */}
+      <TopPerformingAssets
+        assets={allAssets}
+        accounts={accounts}
+        selectedAccount={selectedAccount}
+      />
 
       {/* ─── Alerts + Spend Pacing ─── */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
