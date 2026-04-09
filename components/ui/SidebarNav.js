@@ -7,7 +7,7 @@ const MAIN_NAV = [
   { href: '/', label: 'Dashboard', icon: 'space_dashboard' },
   { href: '/accounts', label: 'Ad Accounts', icon: 'account_tree' },
   { href: '/keyword-engine', label: 'Keyword Engine', icon: 'analytics' },
-  { href: '/agents', label: 'Agent Controls', icon: 'smart_toy', badge: 'agents' },
+  { href: '/agents', label: 'Agent Controls', icon: 'smart_toy' },
   { href: '/research', label: 'Research', icon: 'query_stats' },
 ];
 
@@ -72,25 +72,9 @@ export default function SidebarNav() {
                 )}
                 <span className={`material-symbols-outlined text-xl ${!active ? 'opacity-70' : ''}`}>{item.icon}</span>
                 {item.label}
-                {item.badge === 'agents' && (
-                  <span className="ds-status-badge ds-status-badge--success ml-auto !py-0.5 !px-1.5 !text-[10px]">
-                    AI
-                  </span>
-                )}
               </Link>
             );
           })}
-        </div>
-
-        {/* New Analysis CTA */}
-        <div className="pt-5 pb-3">
-          <Link
-            href="/research"
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl gradient-primary text-on-primary text-sm font-semibold transition-transform active:scale-[0.97] w-full shadow-fab"
-          >
-            <span className="material-symbols-outlined text-lg">add_circle</span>
-            New Analysis
-          </Link>
         </div>
 
         {/* Tools Nav */}
