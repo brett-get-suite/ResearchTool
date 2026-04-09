@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 const MAIN_NAV = [
   { href: '/', label: 'Dashboard', icon: 'space_dashboard' },
   { href: '/accounts', label: 'Ad Accounts', icon: 'account_tree' },
-  { href: '/keywords', label: 'Keyword Engine', icon: 'analytics' },
+  { href: '/keyword-engine', label: 'Keyword Engine', icon: 'analytics' },
   { href: '/agents', label: 'Agent Controls', icon: 'smart_toy', badge: 'agents' },
   { href: '/research', label: 'Research', icon: 'query_stats' },
 ];
@@ -26,14 +26,11 @@ export default function SidebarNav() {
 
   function isActive(href) {
     if (href === '/') return pathname === '/';
-    if (href === '/keywords') return pathname.includes('/keywords');
+    if (href === '/keyword-engine') return pathname.startsWith('/keyword-engine') || pathname.includes('/keywords');
     return pathname.startsWith(href);
   }
 
   function resolveHref(href) {
-    if (href === '/keywords' && currentAccountId) {
-      return `/accounts/${currentAccountId}/keywords`;
-    }
     return href;
   }
 
