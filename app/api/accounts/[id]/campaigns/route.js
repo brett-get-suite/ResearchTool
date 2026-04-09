@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getAccountClient } from '@/lib/google-ads-auth';
 import { fetchCampaigns, fetchCampaignMetrics } from '@/lib/google-ads-query';
-import { createCampaign, createCampaignBudget } from '@/lib/google-ads-write';
+import {
+  createCampaign,
+  createCampaignBudget,
+  createAdGroup,
+  addKeywords,
+  addNegativeKeywords,
+  createResponsiveSearchAd,
+} from '@/lib/google-ads-write';
 
 export async function GET(request, { params }) {
   try {
@@ -31,31 +38,121 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   try {
-    const { name, budgetAmountMicros, biddingStrategy, status } = await request.json();
+    const body = await request.json();
 
-    if (!name || !budgetAmountMicros) {
-      return NextResponse.json({ error: 'name and budgetAmountMicros are required' }, { status: 400 });
+    // Support both legacy simple payload and new wizard payload
+    const isWizardPayload = body.campaign && body.adGroups;
+
+    if (isWizardPayload) {
+      return handleWizardCreate(params.id, body);
     }
-
-    const client = await getAccountClient(params.id);
-
-    const budgetResource = await createCampaignBudget(client, {
-      name: name + ' Budget',
-      amountMicros: budgetAmountMicros,
-    });
-
-    if (!budgetResource) throw new Error('Budget creation returned no resource name');
-
-    const campaignResource = await createCampaign(client, {
-      name,
-      budgetResourceName: budgetResource,
-      biddingStrategy,
-      status,
-    });
-
-    return NextResponse.json({ campaignResource, budgetResource });
+    return handleSimpleCreate(params.id, body);
   } catch (err) {
     console.error('Campaigns POST error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
+}
+
+// ─── Simple create (legacy 4-step wizard) ────────────────────────────────────
+
+async function handleSimpleCreate(accountId, { name, budgetAmountMicros, biddingStrategy, status }) {
+  if (!name || !budgetAmountMicros) {
+    return NextResponse.json({ error: 'name and budgetAmountMicros are required' }, { status: 400 });
+  }
+
+  const client = await getAccountClient(accountId);
+
+  const budgetResource = await createCampaignBudget(client, {
+    name: name + ' Budget',
+    amountMicros: budgetAmountMicros,
+  });
+
+  if (!budgetResource) throw new Error('Budget creation returned no resource name');
+
+  const campaignResource = await createCampaign(client, {
+    name,
+    budgetResourceName: budgetResource,
+    biddingStrategy,
+    status,
+  });
+
+  return NextResponse.json({ campaignResource, budgetResource });
+}
+
+// ─── Wizard create (14-step campaign builder payload) ────────────────────────
+
+async function handleWizardCreate(accountId, payload) {
+  const { campaign, adGroups, negativeKeywords, assets } = payload;
+
+  if (!campaign.name || !campaign.budgetAmountMicros) {
+    return NextResponse.json(
+      { error: 'Campaign name and budget are required' },
+      { status: 400 }
+    );
+  }
+
+  const client = await getAccountClient(accountId);
+  const results = { campaign: null, adGroups: [], errors: [] };
+
+  // 1. Create budget
+  const budgetResource = await createCampaignBudget(client, {
+    name: campaign.name + ' Budget',
+    amountMicros: campaign.budgetAmountMicros,
+  });
+
+  if (!budgetResource) throw new Error('Budget creation returned no resource name');
+
+  // 2. Create campaign
+  const biddingStrategy = campaign.bidding?.strategy || 'MAXIMIZE_CONVERSIONS';
+  const campaignResource = await createCampaign(client, {
+    name: campaign.name,
+    budgetResourceName: budgetResource,
+    biddingStrategy,
+    status: campaign.status || 'PAUSED',
+    targetCpaMicros: campaign.bidding?.targetCpaMicros,
+  });
+
+  results.campaign = campaignResource;
+
+  // 3. Create ad groups with keywords and ads
+  for (const ag of adGroups || []) {
+    try {
+      const agResource = await createAdGroup(client, {
+        campaignResourceName: campaignResource,
+        name: ag.name,
+      });
+
+      // Add keywords
+      if (ag.keywords?.length > 0) {
+        await addKeywords(client, agResource, ag.keywords);
+      }
+
+      // Create ads
+      for (const ad of ag.ads || []) {
+        if (ad.headlines?.length >= 3 && ad.descriptions?.length >= 2) {
+          await createResponsiveSearchAd(client, {
+            adGroupResourceName: agResource,
+            headlines: ad.headlines,
+            descriptions: ad.descriptions,
+            finalUrl: ad.finalUrl,
+          });
+        }
+      }
+
+      results.adGroups.push({ name: ag.name, resource: agResource });
+    } catch (err) {
+      results.errors.push({ adGroup: ag.name, error: err.message });
+    }
+  }
+
+  // 4. Add campaign-level negative keywords
+  if (negativeKeywords?.length > 0) {
+    try {
+      await addNegativeKeywords(client, campaignResource, negativeKeywords);
+    } catch (err) {
+      results.errors.push({ negativeKeywords: true, error: err.message });
+    }
+  }
+
+  return NextResponse.json(results);
 }
